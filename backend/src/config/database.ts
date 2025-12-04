@@ -1,4 +1,5 @@
 import { MongoClient, Db } from 'mongodb';
+import { UserModel } from '../models/user.model';
 
 let client: MongoClient;
 let db: Db;
@@ -25,6 +26,9 @@ export async function connectDB(): Promise<void> {
     db = client.db();
 
     console.log('✓ Successfully connected to MongoDB Atlas');
+
+    // Initialize models (create indexes, etc.)
+    await UserModel.initialize();
   } catch (error) {
     console.error('✗ MongoDB connection error:', error);
     throw error;
