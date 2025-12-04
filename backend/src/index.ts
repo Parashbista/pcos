@@ -2,6 +2,8 @@ import dotenv from 'dotenv';
 import { app } from './server';
 import { connectDB } from './config/database';
 import { initializeSleepCollections } from './models/sleep.model';
+import { initializeMoodCollections } from './models/mood.model';
+import { initializePeriodCollections } from './models/period.model';
 
 // Load environment variables
 dotenv.config();
@@ -16,9 +18,11 @@ async function startServer(): Promise<void> {
     // Connect to MongoDB
     await connectDB();
     
-    // Initialize sleep collections (create indexes)
+    // Initialize collections (create indexes)
     await initializeSleepCollections();
-    console.log('✓ Sleep collections initialized');
+    await initializeMoodCollections();
+    await initializePeriodCollections();
+    console.log('✓ Collections initialized');
 
     // Start Express server
     app.listen(PORT, () => {

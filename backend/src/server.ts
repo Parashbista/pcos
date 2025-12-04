@@ -2,6 +2,8 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth.routes';
 import sleepRouter from './routes/sleep.routes';
+import moodRouter from './routes/mood.routes';
+import periodRouter from './routes/period.routes';
 
 // Initialize Express app
 export const app: Express = express();
@@ -29,6 +31,12 @@ app.use('/api/auth', authRouter);
 
 // Mount sleep router on /api/sleep path
 app.use('/api/sleep', sleepRouter);
+
+// Mount mood router on /api/mood path
+app.use('/api/mood', moodRouter);
+
+// Mount period router on /api/period path
+app.use('/api/period', periodRouter);
 
 // Error handling middleware for authentication errors
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
