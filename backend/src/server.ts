@@ -1,6 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth.routes';
+import sleepRouter from './routes/sleep.routes';
 
 // Initialize Express app
 export const app: Express = express();
@@ -25,6 +26,9 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // Mount auth router on /api/auth path
 app.use('/api/auth', authRouter);
+
+// Mount sleep router on /api/sleep path
+app.use('/api/sleep', sleepRouter);
 
 // Error handling middleware for authentication errors
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
