@@ -8,6 +8,10 @@ export interface IUser {
   email: string;
   password: string;
   name?: string;
+  googleId?: string;
+  authProvider?: 'local' | 'google';
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

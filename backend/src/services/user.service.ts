@@ -22,10 +22,70 @@ export async function createUser(
   const user = await UserModel.create({
     email,
     password: hashedPassword,
-    name
+    name,
+    authProvider: 'local'
   });
 
   return user;
+}
+
+/**
+ * Create or find user from Google OAuth
+ */
+export async function findOrCreateGoogleUser(
+  googleId: string,
+  email: string,
+  name?: string
+): Promise<IUser> {
+  // Check if user exists with this Google ID
+  let user = await UserModel.findByGoogleId(googleId);
+  
+  if (user) {
+    return user;
+  }
+
+  // Check if user exists with this email
+  user = await UserModel.findByEmail(email);
+  
+  if (user) {
+    // Link Google account to existing user
+    await UserModel.update(user._id!.toString(), { googleId, authProvider: 'google' });
+    return { ...user, googleId, authProvider: 'google' };
+  }
+
+  // Create new user
+  return await UserModel.create({
+    email,
+    password: '', // No password for Google users
+    name,
+    googleId,
+    authProvider: 'google'
+  });
+}
+
+/**
+ * Set password reset token for user
+ */
+export async function setPasswordResetToken(email: string, token: string): Promise<IUser | null> {
+  const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  return await UserModel.setResetToken(email, token, expires);
+}
+
+/**
+ * Verify reset token and reset password
+ */
+export async function resetPasswordWithToken(token: string, newPassword: string): Promise<boolean> {
+  const user = await UserModel.findByResetToken(token);
+  
+  if (!user) {
+    return false;
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+  await UserModel.updatePassword(user._id!.toString(), hashedPassword);
+  await UserModel.clearResetToken(user._id!.toString());
+  
+  return true;
 }
 
 /**

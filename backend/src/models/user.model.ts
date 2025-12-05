@@ -88,7 +88,8 @@ export class UserModel {
 
     const user: Omit<IUser, '_id'> = {
       ...userData,
-      email: userData.email.toLowerCase(), // Store email in lowercase
+      email: userData.email.toLowerCase(),
+      authProvider: userData.authProvider || 'local',
       createdAt: now,
       updatedAt: now
     };
@@ -99,6 +100,59 @@ export class UserModel {
       _id: result.insertedId,
       ...user
     };
+  }
+
+  /**
+   * Find a user by Google ID
+   */
+  static async findByGoogleId(googleId: string): Promise<IUser | null> {
+    const collection = this.getCollection();
+    return await collection.findOne({ googleId });
+  }
+
+  /**
+   * Set password reset token
+   */
+  static async setResetToken(email: string, token: string, expires: Date): Promise<IUser | null> {
+    const collection = this.getCollection();
+    const result = await collection.findOneAndUpdate(
+      { email: email.toLowerCase() },
+      { 
+        $set: { 
+          resetPasswordToken: token,
+          resetPasswordExpires: expires,
+          updatedAt: new Date()
+        }
+      },
+      { returnDocument: 'after' }
+    );
+    return result || null;
+  }
+
+  /**
+   * Find user by reset token
+   */
+  static async findByResetToken(token: string): Promise<IUser | null> {
+    const collection = this.getCollection();
+    return await collection.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() }
+    });
+  }
+
+  /**
+   * Clear reset token after password reset
+   */
+  static async clearResetToken(userId: string | ObjectId): Promise<void> {
+    const collection = this.getCollection();
+    const objectId = typeof userId === 'string' ? new ObjectId(userId) : userId;
+    await collection.updateOne(
+      { _id: objectId },
+      { 
+        $unset: { resetPasswordToken: '', resetPasswordExpires: '' },
+        $set: { updatedAt: new Date() }
+      }
+    );
   }
 
   /**
