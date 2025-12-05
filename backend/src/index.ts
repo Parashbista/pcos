@@ -4,6 +4,7 @@ import { connectDB } from './config/database';
 import { initializeSleepCollections } from './models/sleep.model';
 import { initializeMoodCollections } from './models/mood.model';
 import { initializePeriodCollections } from './models/period.model';
+import { ReminderModel } from './models/reminder.model';
 
 // Load environment variables
 dotenv.config();
@@ -22,6 +23,7 @@ async function startServer(): Promise<void> {
     await initializeSleepCollections();
     await initializeMoodCollections();
     await initializePeriodCollections();
+    await ReminderModel.initialize();
     console.log('✓ Collections initialized');
 
     // Start Express server

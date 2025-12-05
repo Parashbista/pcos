@@ -4,6 +4,7 @@ import authRouter from './routes/auth.routes';
 import sleepRouter from './routes/sleep.routes';
 import moodRouter from './routes/mood.routes';
 import periodRouter from './routes/period.routes';
+import reminderRouter from './routes/reminder.routes';
 
 // Initialize Express app
 export const app: Express = express();
@@ -37,6 +38,9 @@ app.use('/api/mood', moodRouter);
 
 // Mount period router on /api/period path
 app.use('/api/period', periodRouter);
+
+// Mount reminder router on /api/reminders path
+app.use('/api/reminders', reminderRouter);
 
 // Error handling middleware for authentication errors
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
