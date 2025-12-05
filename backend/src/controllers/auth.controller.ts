@@ -1,8 +1,12 @@
 import { Request, Response } from 'express';
-import { createUser, findUserByEmail, findUserById, updateUserPassword } from '../services/user.service';
+import { createUser, findUserByEmail, findUserById, updateUserPassword, findOrCreateGoogleUser, setPasswordResetToken, resetPasswordWithToken } from '../services/user.service';
 import { generateToken } from '../utils/jwt.util';
 import { comparePassword } from '../utils/password.util';
 import { AuthRequest } from '../middleware/auth.middleware';
+import { sendPasswordResetEmail, generateOTP } from '../services/email.service';
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 /**
  * Register a new user
@@ -150,5 +154,127 @@ export async function changePassword(req: AuthRequest, res: Response): Promise<v
   } catch (error) {
     console.error('Change password error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+/**
+ * Request password reset (send OTP)
+ * POST /api/auth/forgot-password
+ */
+export async function forgotPassword(req: Request, res: Response): Promise<void> {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ error: 'Email is required' });
+      return;
+    }
+
+    const user = await findUserByEmail(email);
+    if (!user) {
+      // Don't reveal if email exists
+      res.status(200).json({ message: 'If the email exists, a reset code has been sent' });
+      return;
+    }
+
+    if (user.authProvider === 'google') {
+      res.status(400).json({ error: 'This account uses Google Sign-In. Please login with Google.' });
+      return;
+    }
+
+    const otp = generateOTP();
+    await setPasswordResetToken(email, otp);
+    
+    try {
+      await sendPasswordResetEmail(email, otp);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+      res.status(500).json({ error: 'Failed to send reset email. Please try again.' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Password reset code sent to your email' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+/**
+ * Verify OTP and reset password
+ * POST /api/auth/reset-password
+ */
+export async function resetPassword(req: Request, res: Response): Promise<void> {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      res.status(400).json({ error: 'Email, OTP, and new password are required' });
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      res.status(400).json({ error: 'Password must be at least 8 characters long' });
+      return;
+    }
+
+    const success = await resetPasswordWithToken(otp, newPassword);
+    
+    if (!success) {
+      res.status(400).json({ error: 'Invalid or expired OTP' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+/**
+ * Google Sign-In
+ * POST /api/auth/google
+ */
+export async function googleSignIn(req: Request, res: Response): Promise<void> {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      res.status(400).json({ error: 'Google ID token is required' });
+      return;
+    }
+
+    // Verify the Google token
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email || !payload.sub) {
+      res.status(400).json({ error: 'Invalid Google token' });
+      return;
+    }
+
+    const { sub: googleId, email, name } = payload;
+
+    // Find or create user
+    const user = await findOrCreateGoogleUser(googleId, email, name);
+
+    // Generate JWT token
+    const token = generateToken(user._id!.toString());
+
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id!.toString(),
+        email: user.email,
+        name: user.name
+      }
+    });
+  } catch (error) {
+    console.error('Google sign-in error:', error);
+    res.status(401).json({ error: 'Google authentication failed' });
   }
 }
