@@ -251,6 +251,8 @@ export const MainStack: React.FC = () => {
             onNavigateBack={() => navigation.goBack()}
             onNavigateToSettings={() => navigation.navigate('Settings')}
             onNavigateToEditProfile={() => navigation.navigate('EditProfile')}
+            onNavigateToMoodTracking={() => navigation.navigate('MoodTracking')}
+            onNavigateToSleepTracking={() => navigation.navigate('SleepTracking')}
           />
         )}
       </Stack.Screen>
