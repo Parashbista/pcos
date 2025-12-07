@@ -17,6 +17,7 @@ export type MainStackParamList = {
   Home: undefined;
   Profile: undefined;
   EditProfile: undefined;
+  Insights: undefined;
   Settings: undefined;
   ChangePassword: undefined;
   SleepTracking: undefined;

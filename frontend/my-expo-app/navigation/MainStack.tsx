@@ -11,6 +11,7 @@ import {
   Lightbulb,
   Bell,
   User,
+  Sparkles,
 } from 'lucide-react-native';
 import { ChangePasswordScreen } from '../screens/ChangePasswordScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
@@ -30,6 +31,7 @@ import { PrivacyPolicyScreen } from '../screens/PrivacyPolicyScreen';
 import { AboutScreen } from '../screens/AboutScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { EditProfileScreen } from '../screens/EditProfileScreen';
+import { InsightsScreen } from '../screens/InsightsScreen';
 import { MainStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -223,6 +225,13 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             color="#8B5CF6"
             onPress={() => navigation.navigate('Reminders')}
           />
+          <FeatureCard
+            title="Smart Cycle Alert"
+            subtitle="Personalized health insights"
+            icon={<Sparkles size={24} color="#F59E0B" />}
+            color="#F59E0B"
+            onPress={() => navigation.navigate('Insights')}
+          />
         </View>
 
 
@@ -248,6 +257,13 @@ export const MainStack: React.FC = () => {
       <Stack.Screen name="EditProfile">
         {({ navigation }) => (
           <EditProfileScreen
+            onNavigateBack={() => navigation.goBack()}
+          />
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="Insights">
+        {({ navigation }) => (
+          <InsightsScreen
             onNavigateBack={() => navigation.goBack()}
           />
         )}
