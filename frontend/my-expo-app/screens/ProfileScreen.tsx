@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { ArrowLeft, Settings, ChevronRight, Edit3, LogOut, Heart, Moon, Calendar } from 'lucide-react-native';
@@ -10,6 +10,8 @@ interface ProfileScreenProps {
   onNavigateBack?: () => void;
   onNavigateToSettings?: () => void;
   onNavigateToEditProfile?: () => void;
+  onNavigateToMoodTracking?: () => void;
+  onNavigateToSleepTracking?: () => void;
 }
 
 interface UserData {
@@ -17,6 +19,8 @@ interface UserData {
   email: string;
   createdAt?: string;
 }
+
+const PROFILE_IMAGE_KEY = 'profile_image';
 
 const ProfileMenuItem: React.FC<{
   icon: React.ReactNode;
@@ -53,13 +57,20 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onNavigateBack,
   onNavigateToSettings,
   onNavigateToEditProfile,
+  onNavigateToMoodTracking,
+  onNavigateToSleepTracking,
 }) => {
   const { logout } = useAuth();
   const [userData, setUserData] = useState<UserData>({ name: 'User', email: '' });
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [moodLogCount, setMoodLogCount] = useState<number>(0);
+  const [sleepLogCount, setSleepLogCount] = useState<number>(0);
 
   useFocusEffect(
     useCallback(() => {
       loadUserData();
+      loadProfileImage();
+      loadLogCounts();
     }, [])
   );
 
@@ -71,6 +82,35 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
       }
     } catch (error) {
       console.error('Error loading user data:', error);
+    }
+  };
+
+  const loadProfileImage = async () => {
+    try {
+      const savedImage = await AsyncStorage.getItem(PROFILE_IMAGE_KEY);
+      setProfileImage(savedImage);
+    } catch (error) {
+      console.error('Error loading profile image:', error);
+    }
+  };
+
+  const loadLogCounts = async () => {
+    try {
+      // Load mood logs count
+      const moodData = await AsyncStorage.getItem('moodHistory');
+      if (moodData) {
+        const moodHistory = JSON.parse(moodData);
+        setMoodLogCount(Array.isArray(moodHistory) ? moodHistory.length : Object.keys(moodHistory).length);
+      }
+
+      // Load sleep logs count
+      const sleepData = await AsyncStorage.getItem('sleepHistory');
+      if (sleepData) {
+        const sleepHistory = JSON.parse(sleepData);
+        setSleepLogCount(Array.isArray(sleepHistory) ? sleepHistory.length : Object.keys(sleepHistory).length);
+      }
+    } catch (error) {
+      console.error('Error loading log counts:', error);
     }
   };
 
@@ -113,8 +153,12 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
         {/* Profile Info */}
         <View style={{ alignItems: 'center' }}>
-          <View style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.25)', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.5)' }}>
-            <Text style={{ fontSize: 36, fontWeight: '700', color: 'white' }}>{getInitials(userData.name)}</Text>
+          <View style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.25)', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.5)', overflow: 'hidden' }}>
+            {profileImage ? (
+              <Image source={{ uri: profileImage }} style={{ width: 100, height: 100, borderRadius: 50 }} />
+            ) : (
+              <Text style={{ fontSize: 36, fontWeight: '700', color: 'white' }}>{getInitials(userData.name)}</Text>
+            )}
           </View>
           <Text style={{ fontSize: 24, fontWeight: '700', color: 'white', marginTop: 16 }}>{userData.name}</Text>
           <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>{userData.email}</Text>
@@ -139,20 +183,28 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <Text style={{ fontSize: 18, fontWeight: '700', color: '#1F2937' }}>{formatDate(userData.createdAt)}</Text>
             <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Member for</Text>
           </View>
-          <View style={{ flex: 1, alignItems: 'center', borderRightWidth: 1, borderRightColor: '#F3F4F6' }}>
+          <TouchableOpacity 
+            style={{ flex: 1, alignItems: 'center', borderRightWidth: 1, borderRightColor: '#F3F4F6' }}
+            onPress={onNavigateToMoodTracking}
+            activeOpacity={0.7}
+          >
             <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FEF3C7', justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
               <Heart size={20} color="#F59E0B" />
             </View>
-            <Text style={{ fontSize: 18, fontWeight: '700', color: '#1F2937' }}>--</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#1F2937' }}>{moodLogCount}</Text>
             <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Mood logs</Text>
-          </View>
-          <View style={{ flex: 1, alignItems: 'center' }}>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={{ flex: 1, alignItems: 'center' }}
+            onPress={onNavigateToSleepTracking}
+            activeOpacity={0.7}
+          >
             <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
               <Moon size={20} color="#6366F1" />
             </View>
-            <Text style={{ fontSize: 18, fontWeight: '700', color: '#1F2937' }}>--</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#1F2937' }}>{sleepLogCount}</Text>
             <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Sleep logs</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
 
