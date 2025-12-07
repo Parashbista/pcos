@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Alert, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { ArrowLeft, BarChart3, ChevronLeft, ChevronRight, Smile, Meh, Frown, Battery, BatteryLow, BatteryFull, Zap } from 'lucide-react-native';
+import { ArrowLeft, BarChart3, ChevronLeft, ChevronRight, Smile, Meh, Frown, Battery, BatteryLow, BatteryFull, Zap, Lightbulb } from 'lucide-react-native';
 import * as moodService from '../services/moodService';
 import { MoodLevel, EnergyLevel, MoodFactor } from '../services/moodService';
 
@@ -120,112 +119,132 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({ onNaviga
   const moodOption = MOOD_OPTIONS.find(m => m.value === mood);
   const energyOption = ENERGY_OPTIONS.find(e => e.value === energy);
 
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#F9FAFB' }} showsVerticalScrollIndicator={false}>
       {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity onPress={onNavigateBack} style={{ padding: 4 }}>
-            <ArrowLeft size={24} color="#1F2937" />
-          </TouchableOpacity>
-          <Text style={{ fontSize: 18, fontWeight: '600', color: '#1F2937', marginLeft: 12 }}>Moodboard</Text>
+      <View style={{ backgroundColor: '#F59E0B', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 32, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {onNavigateBack && (
+              <TouchableOpacity onPress={onNavigateBack} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                <ArrowLeft size={20} color="white" />
+              </TouchableOpacity>
+            )}
+            <View>
+              <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'white' }}>Moodboard</Text>
+              <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>Track how you feel</Text>
+            </View>
+          </View>
+          {onNavigateToHistory && (
+            <TouchableOpacity onPress={onNavigateToHistory} style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20 }}>
+              <BarChart3 size={20} color="white" />
+            </TouchableOpacity>
+          )}
         </View>
-        {onNavigateToHistory && (
-          <TouchableOpacity onPress={onNavigateToHistory} style={{ padding: 8 }}>
-            <BarChart3 size={22} color="#F59E0B" />
-          </TouchableOpacity>
-        )}
+
+        {/* Status Card */}
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 16, padding: 16, marginTop: 20, flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ width: 50, height: 50, borderRadius: 25, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' }}>
+            <MoodIcon level={mood} size={28} color="white" />
+          </View>
+          <View style={{ marginLeft: 14, flex: 1 }}>
+            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>{existingEntry ? 'Logged Mood' : 'Current Mood'}</Text>
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: 'white' }}>Feeling {moodOption?.label}</Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <EnergyIcon level={energy} size={24} color="white" />
+            <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{energyOption?.label} Energy</Text>
+          </View>
+        </View>
+
+        {/* Tip */}
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: 12, marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
+          <Lightbulb size={16} color="rgba(255,255,255,0.8)" />
+          <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginLeft: 8, flex: 1 }}>
+            Tracking mood helps identify patterns related to your cycle.
+          </Text>
+        </View>
       </View>
 
-      {isLoading ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#F59E0B" />
-        </View>
-      ) : (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }} showsVerticalScrollIndicator={false}>
-          {/* Date Selector */}
-          <View style={{ backgroundColor: 'white', borderRadius: 14, padding: 6, flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-            <TouchableOpacity onPress={() => navigateDate('prev')} style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center' }}>
-              <ChevronLeft size={20} color="#6B7280" />
+      <View style={{ padding: 20, marginTop: -16 }}>
+        {isLoading ? (
+          <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 40, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#F59E0B" />
+          </View>
+        ) : (
+          <>
+            {/* Date Selector */}
+            <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 6, flexDirection: 'row', alignItems: 'center', marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <TouchableOpacity onPress={() => navigateDate('prev')} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#FEF3C7', justifyContent: 'center', alignItems: 'center' }}>
+                <ChevronLeft size={20} color="#F59E0B" />
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }} onPress={() => setShowDatePicker(true)}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>{formatDate(selectedDate)}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigateDate('next')} disabled={selectedDate.toDateString() === new Date().toDateString()} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#FEF3C7', justifyContent: 'center', alignItems: 'center', opacity: selectedDate.toDateString() === new Date().toDateString() ? 0.4 : 1 }}>
+                <ChevronRight size={20} color="#F59E0B" />
+              </TouchableOpacity>
+            </View>
+            {showDatePicker && <DateTimePicker value={selectedDate} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={(e, date) => { setShowDatePicker(false); if (date) setSelectedDate(date); }} maximumDate={new Date()} />}
+
+            {/* Mood Selection */}
+            <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 16 }}>How are you feeling?</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                {MOOD_OPTIONS.map(option => (
+                  <TouchableOpacity key={option.value} onPress={() => setMood(option.value)} style={{ alignItems: 'center', padding: 12, borderRadius: 14, backgroundColor: mood === option.value ? option.color : '#F9FAFB', borderWidth: 2, borderColor: mood === option.value ? option.color : 'transparent', minWidth: 58 }}>
+                    <MoodIcon level={option.value} size={26} color={mood === option.value ? 'white' : '#9CA3AF'} />
+                    <Text style={{ fontSize: 10, color: mood === option.value ? 'white' : '#9CA3AF', marginTop: 6, fontWeight: '600' }}>{option.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Energy Selection */}
+            <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 16 }}>Energy level</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                {ENERGY_OPTIONS.map(option => (
+                  <TouchableOpacity key={option.value} onPress={() => setEnergy(option.value)} style={{ alignItems: 'center', padding: 12, borderRadius: 14, backgroundColor: energy === option.value ? option.color : '#F9FAFB', borderWidth: 2, borderColor: energy === option.value ? option.color : 'transparent', minWidth: 58 }}>
+                    <EnergyIcon level={option.value} size={26} color={energy === option.value ? 'white' : '#9CA3AF'} />
+                    <Text style={{ fontSize: 10, color: energy === option.value ? 'white' : '#9CA3AF', marginTop: 6, fontWeight: '600' }}>{option.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Factors */}
+            <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 16 }}>What's affecting you?</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                {FACTORS.map(factor => (
+                  <TouchableOpacity key={factor.value} onPress={() => toggleFactor(factor.value)} style={{ paddingHorizontal: 16, paddingVertical: 12, borderRadius: 14, backgroundColor: selectedFactors.includes(factor.value) ? '#F59E0B' : '#F3F4F6' }}>
+                    <Text style={{ fontSize: 13, color: selectedFactors.includes(factor.value) ? 'white' : '#4B5563', fontWeight: '600' }}>{factor.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Journal */}
+            <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 12 }}>Quick Note</Text>
+              <TextInput
+                style={{ backgroundColor: '#F9FAFB', borderRadius: 14, padding: 16, minHeight: 100, textAlignVertical: 'top', fontSize: 15, color: '#1F2937' }}
+                placeholder="How was your day? Any thoughts..."
+                placeholderTextColor="#9CA3AF"
+                value={journalEntry}
+                onChangeText={setJournalEntry}
+                multiline
+              />
+            </View>
+
+            {/* Save Button */}
+            <TouchableOpacity onPress={handleSave} disabled={isSaving} style={{ backgroundColor: '#F59E0B', padding: 18, borderRadius: 16, alignItems: 'center', marginBottom: 32, shadowColor: '#F59E0B', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }}>
+              {isSaving ? <ActivityIndicator color="white" /> : <Text style={{ color: 'white', fontSize: 17, fontWeight: '600' }}>{existingEntry ? '✓ Update Entry' : '✓ Save Entry'}</Text>}
             </TouchableOpacity>
-            <TouchableOpacity style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }} onPress={() => setShowDatePicker(true)}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>{formatDate(selectedDate)}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigateDate('next')} disabled={selectedDate.toDateString() === new Date().toDateString()} style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center', opacity: selectedDate.toDateString() === new Date().toDateString() ? 0.4 : 1 }}>
-              <ChevronRight size={20} color="#6B7280" />
-            </TouchableOpacity>
-          </View>
-          {showDatePicker && <DateTimePicker value={selectedDate} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={(e, date) => { setShowDatePicker(false); if (date) setSelectedDate(date); }} maximumDate={new Date()} />}
-
-          {/* Current Status Card */}
-          <View style={{ backgroundColor: '#F59E0B', borderRadius: 20, padding: 20, flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-            <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' }}>
-              <MoodIcon level={mood} size={32} color="white" />
-            </View>
-            <View style={{ marginLeft: 16, flex: 1 }}>
-              <Text style={{ fontSize: 20, fontWeight: '700', color: 'white' }}>Feeling {moodOption?.label}</Text>
-              <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{existingEntry ? '✓ Saved' : 'Not saved yet'}</Text>
-            </View>
-          </View>
-
-          {/* Mood Selection */}
-          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 14 }}>
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#1F2937', marginBottom: 14 }}>How are you feeling?</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              {MOOD_OPTIONS.map(option => (
-                <TouchableOpacity key={option.value} onPress={() => setMood(option.value)} style={{ alignItems: 'center', padding: 10, borderRadius: 12, backgroundColor: mood === option.value ? option.color + '20' : '#F9FAFB', borderWidth: 2, borderColor: mood === option.value ? option.color : 'transparent', minWidth: 56 }}>
-                  <MoodIcon level={option.value} size={24} color={mood === option.value ? option.color : '#9CA3AF'} />
-                  <Text style={{ fontSize: 10, color: mood === option.value ? option.color : '#9CA3AF', marginTop: 4, fontWeight: '500' }}>{option.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {/* Energy Selection */}
-          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 14 }}>
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#1F2937', marginBottom: 14 }}>Energy level</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              {ENERGY_OPTIONS.map(option => (
-                <TouchableOpacity key={option.value} onPress={() => setEnergy(option.value)} style={{ alignItems: 'center', padding: 10, borderRadius: 12, backgroundColor: energy === option.value ? option.color + '20' : '#F9FAFB', borderWidth: 2, borderColor: energy === option.value ? option.color : 'transparent', minWidth: 56 }}>
-                  <EnergyIcon level={option.value} size={24} color={energy === option.value ? option.color : '#9CA3AF'} />
-                  <Text style={{ fontSize: 10, color: energy === option.value ? option.color : '#9CA3AF', marginTop: 4, fontWeight: '500' }}>{option.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {/* Factors */}
-          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 14 }}>
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#1F2937', marginBottom: 14 }}>What's affecting you?</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {FACTORS.map(factor => (
-                <TouchableOpacity key={factor.value} onPress={() => toggleFactor(factor.value)} style={{ paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, backgroundColor: selectedFactors.includes(factor.value) ? '#F59E0B' : '#F3F4F6' }}>
-                  <Text style={{ fontSize: 13, color: selectedFactors.includes(factor.value) ? 'white' : '#4B5563', fontWeight: '500' }}>{factor.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {/* Journal */}
-          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 20 }}>
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#1F2937', marginBottom: 12 }}>Quick Note</Text>
-            <TextInput
-              style={{ backgroundColor: '#F9FAFB', borderRadius: 12, padding: 14, minHeight: 80, textAlignVertical: 'top', fontSize: 14, color: '#1F2937' }}
-              placeholder="How was your day?"
-              placeholderTextColor="#9CA3AF"
-              value={journalEntry}
-              onChangeText={setJournalEntry}
-              multiline
-            />
-          </View>
-
-          {/* Save Button */}
-          <TouchableOpacity onPress={handleSave} disabled={isSaving} style={{ backgroundColor: '#F59E0B', padding: 18, borderRadius: 14, alignItems: 'center', marginBottom: 20 }}>
-            {isSaving ? <ActivityIndicator color="white" /> : <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>{existingEntry ? 'Update Entry' : 'Save Entry'}</Text>}
-          </TouchableOpacity>
-        </ScrollView>
-      )}
-    </SafeAreaView>
+          </>
+        )}
+      </View>
+    </ScrollView>
   );
 };
