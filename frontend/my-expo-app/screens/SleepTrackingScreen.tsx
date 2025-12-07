@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { ArrowLeft, BarChart3, ChevronLeft, ChevronRight, Moon, CloudMoon, Sunrise, Frown, Meh, Smile, Sparkles, Brain, Coffee, Smartphone, Dumbbell, UtensilsCrossed, Wine, Pill, HeartCrack, AlertCircle } from 'lucide-react-native';
+import { ArrowLeft, BarChart3, ChevronLeft, ChevronRight, Moon, CloudMoon, Sunrise, Frown, Meh, Smile, Sparkles, Brain, Coffee, Smartphone, Dumbbell, UtensilsCrossed, Wine, Pill, HeartCrack, AlertCircle, Lightbulb } from 'lucide-react-native';
 import * as sleepService from '../services/sleepService';
 import { SleepFactor } from '../services/sleepService';
 
@@ -129,123 +128,144 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
   const currentQuality = QUALITY_OPTIONS.find(q => q.value === quality)!;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#F9FAFB' }} showsVerticalScrollIndicator={false}>
       {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity onPress={onNavigateBack} style={{ padding: 4 }}>
-            <ArrowLeft size={24} color="#1F2937" />
-          </TouchableOpacity>
-          <Text style={{ fontSize: 18, fontWeight: '600', color: '#1F2937', marginLeft: 12 }}>Sleep Tracker</Text>
+      <View style={{ backgroundColor: '#6366F1', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 32, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {onNavigateBack && (
+              <TouchableOpacity onPress={onNavigateBack} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                <ArrowLeft size={20} color="white" />
+              </TouchableOpacity>
+            )}
+            <View>
+              <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'white' }}>Sleep Tracker</Text>
+              <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>Track your rest</Text>
+            </View>
+          </View>
+          {onNavigateToHistory && (
+            <TouchableOpacity onPress={onNavigateToHistory} style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20 }}>
+              <BarChart3 size={20} color="white" />
+            </TouchableOpacity>
+          )}
         </View>
-        {onNavigateToHistory && (
-          <TouchableOpacity onPress={onNavigateToHistory} style={{ padding: 8 }}>
-            <BarChart3 size={22} color="#6366F1" />
-          </TouchableOpacity>
-        )}
+
+        {/* Status Card */}
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 16, padding: 16, marginTop: 20, flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ width: 50, height: 50, borderRadius: 25, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' }}>
+            <Moon size={28} color="white" />
+          </View>
+          <View style={{ marginLeft: 14, flex: 1 }}>
+            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>{existingEntry ? 'Logged Sleep' : 'Sleep Duration'}</Text>
+            <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'white' }}>
+              {isValidDuration ? `${hours}h ${mins}m` : '--'}
+            </Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <QualityIcon level={quality} size={24} color="white" />
+            <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{currentQuality.label}</Text>
+          </View>
+        </View>
+
+        {/* Tip */}
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: 12, marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
+          <Lightbulb size={16} color="rgba(255,255,255,0.8)" />
+          <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginLeft: 8, flex: 1 }}>
+            Aim for 7-9 hours. Consistent sleep helps regulate hormones.
+          </Text>
+        </View>
       </View>
 
-      {isLoading ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#6366F1" />
-        </View>
-      ) : (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }} showsVerticalScrollIndicator={false}>
-          {/* Date Selector */}
-          <View style={{ backgroundColor: 'white', borderRadius: 14, padding: 6, flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-            <TouchableOpacity onPress={() => navigateDate('prev')} style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center' }}>
-              <ChevronLeft size={20} color="#6B7280" />
-            </TouchableOpacity>
-            <TouchableOpacity style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }} onPress={() => setShowDatePicker(true)}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>{formatDate(selectedDate)}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigateDate('next')} disabled={selectedDate.toDateString() === new Date().toDateString()} style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center', opacity: selectedDate.toDateString() === new Date().toDateString() ? 0.4 : 1 }}>
-              <ChevronRight size={20} color="#6B7280" />
-            </TouchableOpacity>
+      <View style={{ padding: 20, marginTop: -16 }}>
+        {isLoading ? (
+          <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 40, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#6366F1" />
           </View>
-          {showDatePicker && <DateTimePicker value={selectedDate} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={(e, date) => { setShowDatePicker(false); if (date) setSelectedDate(date); }} maximumDate={new Date()} />}
-
-          {/* Current Status Card */}
-          <View style={{ backgroundColor: '#6366F1', borderRadius: 20, padding: 20, flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-            <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' }}>
-              <Moon size={32} color="white" />
-            </View>
-            <View style={{ marginLeft: 16, flex: 1 }}>
-              <Text style={{ fontSize: 20, fontWeight: '700', color: 'white' }}>
-                {isValidDuration ? `${hours}h ${mins}m` : 'Set times'}
-              </Text>
-              <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{existingEntry ? '✓ Saved' : 'Not saved yet'}</Text>
-            </View>
-          </View>
-
-          {/* Time Pickers */}
-          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 14 }}>
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#1F2937', marginBottom: 14 }}>Sleep Schedule</Text>
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <TouchableOpacity onPress={() => setShowBedtimePicker(true)} style={{ flex: 1, backgroundColor: '#1E1B4B', borderRadius: 14, padding: 16, alignItems: 'center' }}>
-                <CloudMoon size={28} color="white" />
-                <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 8 }}>Bedtime</Text>
-                <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'white', marginTop: 4 }}>{formatTime(bedtime)}</Text>
+        ) : (
+          <>
+            {/* Date Selector */}
+            <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 6, flexDirection: 'row', alignItems: 'center', marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <TouchableOpacity onPress={() => navigateDate('prev')} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center' }}>
+                <ChevronLeft size={20} color="#6366F1" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setShowWakeTimePicker(true)} style={{ flex: 1, backgroundColor: '#FEF3C7', borderRadius: 14, padding: 16, alignItems: 'center' }}>
-                <Sunrise size={28} color="#92400E" />
-                <Text style={{ fontSize: 12, color: '#92400E', marginTop: 8 }}>Wake Up</Text>
-                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#78350F', marginTop: 4 }}>{formatTime(wakeTime)}</Text>
+              <TouchableOpacity style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }} onPress={() => setShowDatePicker(true)}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>{formatDate(selectedDate)}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigateDate('next')} disabled={selectedDate.toDateString() === new Date().toDateString()} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center', opacity: selectedDate.toDateString() === new Date().toDateString() ? 0.4 : 1 }}>
+                <ChevronRight size={20} color="#6366F1" />
               </TouchableOpacity>
             </View>
-          </View>
-          {showBedtimePicker && <DateTimePicker value={bedtime} mode="time" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={(e, date) => { setShowBedtimePicker(false); if (date) setBedtime(date); }} />}
-          {showWakeTimePicker && <DateTimePicker value={wakeTime} mode="time" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={(e, date) => { setShowWakeTimePicker(false); if (date) setWakeTime(date); }} />}
+            {showDatePicker && <DateTimePicker value={selectedDate} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={(e, date) => { setShowDatePicker(false); if (date) setSelectedDate(date); }} maximumDate={new Date()} />}
 
-          {/* Quality Selection */}
-          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 14 }}>
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#1F2937', marginBottom: 14 }}>Sleep Quality</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              {QUALITY_OPTIONS.map(option => (
-                <TouchableOpacity key={option.value} onPress={() => setQuality(option.value as 1|2|3|4|5)} style={{ alignItems: 'center', padding: 10, borderRadius: 12, backgroundColor: quality === option.value ? option.color + '20' : '#F9FAFB', borderWidth: 2, borderColor: quality === option.value ? option.color : 'transparent', minWidth: 56 }}>
-                  <QualityIcon level={option.value} size={24} color={quality === option.value ? option.color : '#9CA3AF'} />
-                  <Text style={{ fontSize: 10, color: quality === option.value ? option.color : '#9CA3AF', marginTop: 4, fontWeight: '500' }}>{option.label}</Text>
+            {/* Time Pickers */}
+            <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 16 }}>Sleep Schedule</Text>
+              <View style={{ flexDirection: 'row', gap: 12 }}>
+                <TouchableOpacity onPress={() => setShowBedtimePicker(true)} style={{ flex: 1, backgroundColor: '#1E1B4B', borderRadius: 16, padding: 18, alignItems: 'center' }}>
+                  <CloudMoon size={30} color="white" />
+                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 10 }}>Bedtime</Text>
+                  <Text style={{ fontSize: 22, fontWeight: 'bold', color: 'white', marginTop: 4 }}>{formatTime(bedtime)}</Text>
                 </TouchableOpacity>
-              ))}
+                <TouchableOpacity onPress={() => setShowWakeTimePicker(true)} style={{ flex: 1, backgroundColor: '#FEF3C7', borderRadius: 16, padding: 18, alignItems: 'center' }}>
+                  <Sunrise size={30} color="#92400E" />
+                  <Text style={{ fontSize: 12, color: '#92400E', marginTop: 10 }}>Wake Up</Text>
+                  <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#78350F', marginTop: 4 }}>{formatTime(wakeTime)}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
+            {showBedtimePicker && <DateTimePicker value={bedtime} mode="time" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={(e, date) => { setShowBedtimePicker(false); if (date) setBedtime(date); }} />}
+            {showWakeTimePicker && <DateTimePicker value={wakeTime} mode="time" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={(e, date) => { setShowWakeTimePicker(false); if (date) setWakeTime(date); }} />}
 
-          {/* Factors */}
-          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 14 }}>
-            <Text style={{ fontSize: 15, fontWeight: '600', color: '#1F2937', marginBottom: 14 }}>What affected your sleep?</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-              {SLEEP_FACTORS.map(factor => {
-                const isSelected = selectedFactors.includes(factor.value);
-                const IconComponent = factor.icon;
-                return (
-                  <TouchableOpacity 
-                    key={factor.value} 
-                    onPress={() => toggleFactor(factor.value)} 
-                    style={{ 
-                      width: '31%', 
-                      alignItems: 'center', 
-                      padding: 12, 
-                      borderRadius: 12, 
-                      backgroundColor: isSelected ? '#6366F1' + '15' : '#F9FAFB', 
-                      borderWidth: 2, 
-                      borderColor: isSelected ? '#6366F1' : 'transparent',
-                      marginBottom: 10,
-                    }}
-                  >
-                    <IconComponent size={22} color={isSelected ? '#6366F1' : '#9CA3AF'} />
-                    <Text style={{ fontSize: 11, color: isSelected ? '#6366F1' : '#6B7280', marginTop: 6, fontWeight: '500' }}>{factor.label}</Text>
+            {/* Quality Selection */}
+            <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 16 }}>Sleep Quality</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                {QUALITY_OPTIONS.map(option => (
+                  <TouchableOpacity key={option.value} onPress={() => setQuality(option.value as 1|2|3|4|5)} style={{ alignItems: 'center', padding: 12, borderRadius: 14, backgroundColor: quality === option.value ? option.color : '#F9FAFB', borderWidth: 2, borderColor: quality === option.value ? option.color : 'transparent', minWidth: 58 }}>
+                    <QualityIcon level={option.value} size={26} color={quality === option.value ? 'white' : '#9CA3AF'} />
+                    <Text style={{ fontSize: 10, color: quality === option.value ? 'white' : '#9CA3AF', marginTop: 6, fontWeight: '600' }}>{option.label}</Text>
                   </TouchableOpacity>
-                );
-              })}
+                ))}
+              </View>
             </View>
-          </View>
 
-          {/* Save Button */}
-          <TouchableOpacity onPress={handleSave} disabled={isSaving || !isValidDuration} style={{ backgroundColor: isValidDuration ? '#6366F1' : '#9CA3AF', padding: 18, borderRadius: 14, alignItems: 'center', marginBottom: 20 }}>
-            {isSaving ? <ActivityIndicator color="white" /> : <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>{existingEntry ? 'Update Entry' : 'Save Entry'}</Text>}
-          </TouchableOpacity>
-        </ScrollView>
-      )}
-    </SafeAreaView>
+            {/* Factors */}
+            <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 16 }}>What affected your sleep?</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                {SLEEP_FACTORS.map(factor => {
+                  const isSelected = selectedFactors.includes(factor.value);
+                  const IconComponent = factor.icon;
+                  return (
+                    <TouchableOpacity 
+                      key={factor.value} 
+                      onPress={() => toggleFactor(factor.value)} 
+                      style={{ 
+                        width: '31%', 
+                        alignItems: 'center', 
+                        padding: 14, 
+                        borderRadius: 14, 
+                        backgroundColor: isSelected ? '#6366F1' : '#F9FAFB', 
+                        borderWidth: 2, 
+                        borderColor: isSelected ? '#6366F1' : 'transparent',
+                        marginBottom: 10,
+                      }}
+                    >
+                      <IconComponent size={24} color={isSelected ? 'white' : '#9CA3AF'} />
+                      <Text style={{ fontSize: 11, color: isSelected ? 'white' : '#6B7280', marginTop: 8, fontWeight: '500' }}>{factor.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* Save Button */}
+            <TouchableOpacity onPress={handleSave} disabled={isSaving || !isValidDuration} style={{ backgroundColor: isValidDuration ? '#6366F1' : '#9CA3AF', padding: 18, borderRadius: 16, alignItems: 'center', marginBottom: 32, shadowColor: '#6366F1', shadowOffset: { width: 0, height: 4 }, shadowOpacity: isValidDuration ? 0.3 : 0, shadowRadius: 8, elevation: isValidDuration ? 4 : 0 }}>
+              {isSaving ? <ActivityIndicator color="white" /> : <Text style={{ color: 'white', fontSize: 17, fontWeight: '600' }}>{existingEntry ? '✓ Update Entry' : '✓ Save Entry'}</Text>}
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+    </ScrollView>
   );
 };
