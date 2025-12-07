@@ -48,7 +48,8 @@ export async function registerUser(req: Request, res: Response): Promise<void> {
       user: {
         id: user._id!.toString(),
         email: user.email,
-        name: user.name
+        name: user.name,
+        createdAt: user.createdAt
       }
     });
   } catch (error) {
@@ -94,7 +95,8 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
       user: {
         id: user._id!.toString(),
         email: user.email,
-        name: user.name
+        name: user.name,
+        createdAt: user.createdAt
       }
     });
   } catch (error) {
@@ -270,7 +272,8 @@ export async function googleSignIn(req: Request, res: Response): Promise<void> {
       user: {
         id: user._id!.toString(),
         email: user.email,
-        name: user.name
+        name: user.name,
+        createdAt: user.createdAt
       }
     });
   } catch (error) {

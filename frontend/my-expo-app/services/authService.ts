@@ -25,6 +25,7 @@ export interface User {
   id: string;
   email: string;
   name?: string;
+  createdAt?: string;
 }
 
 export interface AuthResponse {
@@ -80,6 +81,9 @@ export const register = async (data: RegisterData): Promise<AuthResponse> => {
     // Store token after successful registration
     await storeToken(response.data.token);
     
+    // Store user data
+    await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
+    
     return response.data;
   } catch (error: any) {
     throw error;
@@ -96,6 +100,9 @@ export const login = async (data: LoginData): Promise<AuthResponse> => {
     
     // Store token after successful login
     await storeToken(response.data.token);
+    
+    // Store user data
+    await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
     
     return response.data;
   } catch (error: any) {
@@ -122,6 +129,7 @@ export const changePassword = async (data: ChangePasswordData): Promise<{ messag
  */
 export const logout = async (): Promise<void> => {
   await removeToken();
+  await AsyncStorage.removeItem('userData');
 };
 
 /**
