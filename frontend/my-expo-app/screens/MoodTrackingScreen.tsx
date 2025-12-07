@@ -122,7 +122,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({ onNaviga
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F9FAFB' }} showsVerticalScrollIndicator={false}>
       {/* Header */}
-      <View style={{ backgroundColor: '#F59E0B', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 32, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}>
+      <View style={{ backgroundColor: '#10B981', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 32, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {onNavigateBack && (
@@ -169,20 +169,20 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({ onNaviga
       <View style={{ padding: 20, marginTop: -16 }}>
         {isLoading ? (
           <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 40, alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#F59E0B" />
+            <ActivityIndicator size="large" color="#10B981" />
           </View>
         ) : (
           <>
             {/* Date Selector */}
             <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 6, flexDirection: 'row', alignItems: 'center', marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
-              <TouchableOpacity onPress={() => navigateDate('prev')} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#FEF3C7', justifyContent: 'center', alignItems: 'center' }}>
-                <ChevronLeft size={20} color="#F59E0B" />
+              <TouchableOpacity onPress={() => navigateDate('prev')} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#D1FAE5', justifyContent: 'center', alignItems: 'center' }}>
+                <ChevronLeft size={20} color="#10B981" />
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }} onPress={() => setShowDatePicker(true)}>
                 <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>{formatDate(selectedDate)}</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigateDate('next')} disabled={selectedDate.toDateString() === new Date().toDateString()} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#FEF3C7', justifyContent: 'center', alignItems: 'center', opacity: selectedDate.toDateString() === new Date().toDateString() ? 0.4 : 1 }}>
-                <ChevronRight size={20} color="#F59E0B" />
+              <TouchableOpacity onPress={() => navigateDate('next')} disabled={selectedDate.toDateString() === new Date().toDateString()} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#D1FAE5', justifyContent: 'center', alignItems: 'center', opacity: selectedDate.toDateString() === new Date().toDateString() ? 0.4 : 1 }}>
+                <ChevronRight size={20} color="#10B981" />
               </TouchableOpacity>
             </View>
             {showDatePicker && <DateTimePicker value={selectedDate} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={(e, date) => { setShowDatePicker(false); if (date) setSelectedDate(date); }} maximumDate={new Date()} />}
@@ -218,7 +218,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({ onNaviga
               <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 16 }}>What's affecting you?</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
                 {FACTORS.map(factor => (
-                  <TouchableOpacity key={factor.value} onPress={() => toggleFactor(factor.value)} style={{ paddingHorizontal: 16, paddingVertical: 12, borderRadius: 14, backgroundColor: selectedFactors.includes(factor.value) ? '#F59E0B' : '#F3F4F6' }}>
+                  <TouchableOpacity key={factor.value} onPress={() => toggleFactor(factor.value)} style={{ paddingHorizontal: 16, paddingVertical: 12, borderRadius: 14, backgroundColor: selectedFactors.includes(factor.value) ? '#10B981' : '#F3F4F6' }}>
                     <Text style={{ fontSize: 13, color: selectedFactors.includes(factor.value) ? 'white' : '#4B5563', fontWeight: '600' }}>{factor.label}</Text>
                   </TouchableOpacity>
                 ))}
@@ -239,7 +239,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({ onNaviga
             </View>
 
             {/* Save Button */}
-            <TouchableOpacity onPress={handleSave} disabled={isSaving} style={{ backgroundColor: '#F59E0B', padding: 18, borderRadius: 16, alignItems: 'center', marginBottom: 32, shadowColor: '#F59E0B', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }}>
+            <TouchableOpacity onPress={handleSave} disabled={isSaving} style={{ backgroundColor: '#10B981', padding: 18, borderRadius: 16, alignItems: 'center', marginBottom: 32, shadowColor: '#10B981', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }}>
               {isSaving ? <ActivityIndicator color="white" /> : <Text style={{ color: 'white', fontSize: 17, fontWeight: '600' }}>{existingEntry ? '✓ Update Entry' : '✓ Save Entry'}</Text>}
             </TouchableOpacity>
           </>

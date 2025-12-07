@@ -177,9 +177,9 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
               onPress={() => navigation.navigate('PeriodTracking')}
             />
             <QuickAction
-              icon={<Heart size={22} color="#F59E0B" />}
+              icon={<Heart size={22} color="#10B981" />}
               label="Mood"
-              color="#F59E0B"
+              color="#10B981"
               onPress={() => navigation.navigate('MoodTracking')}
             />
             <QuickAction
@@ -205,8 +205,8 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           <FeatureCard
             title="Moodboard"
             subtitle="Log mood & reflections"
-            icon={<Heart size={24} color="#F59E0B" />}
-            color="#F59E0B"
+            icon={<Heart size={24} color="#10B981" />}
+            color="#10B981"
             onPress={() => navigation.navigate('MoodTracking')}
           />
           <FeatureCard
