@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Settings, ChevronRight, User, Mail, Calendar, Edit3, LogOut } from 'lucide-react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { ArrowLeft, Settings, ChevronRight, Edit3, LogOut } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -56,9 +57,12 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   const { logout } = useAuth();
   const [userData, setUserData] = useState<UserData>({ name: 'User', email: '' });
 
-  useEffect(() => {
-    loadUserData();
-  }, []);
+  // Reload user data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadUserData();
+    }, [])
+  );
 
   const loadUserData = async () => {
     try {
@@ -77,12 +81,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
       .map(n => n[0])
       .join('')
       .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return 'N/A';
-    return new Date(dateStr).toLocaleDateString([], { month: 'long', year: 'numeric' });
+      .slice(0, 2) || 'U';
   };
 
   const handleLogout = async () => {
@@ -123,52 +122,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           )}
         </View>
 
-        {/* Account Info */}
-        <Text style={{ fontSize: 13, fontWeight: '600', color: '#6B7280', marginBottom: 10, marginLeft: 4 }}>ACCOUNT INFO</Text>
-        <TouchableOpacity 
-          style={{ backgroundColor: 'white', borderRadius: 16, padding: 4, marginBottom: 20 }}
-          onPress={onNavigateToEditProfile}
-          activeOpacity={0.7}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14 }}>
-            <View style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center' }}>
-              <User size={18} color="#6366F1" />
-            </View>
-            <View style={{ marginLeft: 12, flex: 1 }}>
-              <Text style={{ fontSize: 12, color: '#6B7280' }}>Name</Text>
-              <Text style={{ fontSize: 15, fontWeight: '500', color: '#1F2937' }}>{userData.name}</Text>
-            </View>
-            <ChevronRight size={18} color="#9CA3AF" />
-          </View>
-          <View style={{ height: 1, backgroundColor: '#F3F4F6', marginHorizontal: 14 }} />
-          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14 }}>
-            <View style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: '#FEF3C7', justifyContent: 'center', alignItems: 'center' }}>
-              <Mail size={18} color="#F59E0B" />
-            </View>
-            <View style={{ marginLeft: 12, flex: 1 }}>
-              <Text style={{ fontSize: 12, color: '#6B7280' }}>Email</Text>
-              <Text style={{ fontSize: 15, fontWeight: '500', color: '#1F2937' }}>{userData.email}</Text>
-            </View>
-          </View>
-          <View style={{ height: 1, backgroundColor: '#F3F4F6', marginHorizontal: 14 }} />
-          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14 }}>
-            <View style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: '#DCFCE7', justifyContent: 'center', alignItems: 'center' }}>
-              <Calendar size={18} color="#22C55E" />
-            </View>
-            <View style={{ marginLeft: 12, flex: 1 }}>
-              <Text style={{ fontSize: 12, color: '#6B7280' }}>Member Since</Text>
-              <Text style={{ fontSize: 15, fontWeight: '500', color: '#1F2937' }}>{formatDate(userData.createdAt)}</Text>
-            </View>
-          </View>
-          <View style={{ backgroundColor: '#FDF2F8', padding: 10, borderRadius: 10, margin: 10, marginTop: 6, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-            <Edit3 size={14} color="#EC4899" />
-            <Text style={{ fontSize: 13, color: '#EC4899', fontWeight: '500', marginLeft: 6 }}>Tap to edit profile</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* Menu Items */}
-        <Text style={{ fontSize: 13, fontWeight: '600', color: '#6B7280', marginBottom: 10, marginLeft: 4 }}>PREFERENCES</Text>
-        
+        {/* Settings */}
         <ProfileMenuItem
           icon={<Settings size={20} color="#6B7280" />}
           title="Settings"
