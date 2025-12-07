@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Lightbulb,
   Bell,
+  User,
 } from 'lucide-react-native';
 import { ChangePasswordScreen } from '../screens/ChangePasswordScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
@@ -27,6 +28,7 @@ import { HelpFAQScreen } from '../screens/HelpFAQScreen';
 import { ContactSupportScreen } from '../screens/ContactSupportScreen';
 import { PrivacyPolicyScreen } from '../screens/PrivacyPolicyScreen';
 import { AboutScreen } from '../screens/AboutScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 import { MainStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -136,9 +138,9 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             </View>
             <TouchableOpacity
               style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' }}
-              onPress={() => navigation.navigate('Settings')}
+              onPress={() => navigation.navigate('Profile')}
             >
-              <Settings size={22} color="white" />
+              <User size={22} color="white" />
             </TouchableOpacity>
           </View>
 
@@ -233,6 +235,14 @@ export const MainStack: React.FC = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Profile">
+        {({ navigation }) => (
+          <ProfileScreen
+            onNavigateBack={() => navigation.goBack()}
+            onNavigateToSettings={() => navigation.navigate('Settings')}
+          />
+        )}
+      </Stack.Screen>
       <Stack.Screen name="Settings">
         {({ navigation }) => (
           <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
