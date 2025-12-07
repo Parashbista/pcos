@@ -125,22 +125,27 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
         {/* Account Info */}
         <Text style={{ fontSize: 13, fontWeight: '600', color: '#6B7280', marginBottom: 10, marginLeft: 4 }}>ACCOUNT INFO</Text>
-        <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 4, marginBottom: 20 }}>
+        <TouchableOpacity 
+          style={{ backgroundColor: 'white', borderRadius: 16, padding: 4, marginBottom: 20 }}
+          onPress={onNavigateToEditProfile}
+          activeOpacity={0.7}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14 }}>
             <View style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center' }}>
               <User size={18} color="#6366F1" />
             </View>
-            <View style={{ marginLeft: 12 }}>
+            <View style={{ marginLeft: 12, flex: 1 }}>
               <Text style={{ fontSize: 12, color: '#6B7280' }}>Name</Text>
               <Text style={{ fontSize: 15, fontWeight: '500', color: '#1F2937' }}>{userData.name}</Text>
             </View>
+            <ChevronRight size={18} color="#9CA3AF" />
           </View>
           <View style={{ height: 1, backgroundColor: '#F3F4F6', marginHorizontal: 14 }} />
           <View style={{ flexDirection: 'row', alignItems: 'center', padding: 14 }}>
             <View style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: '#FEF3C7', justifyContent: 'center', alignItems: 'center' }}>
               <Mail size={18} color="#F59E0B" />
             </View>
-            <View style={{ marginLeft: 12 }}>
+            <View style={{ marginLeft: 12, flex: 1 }}>
               <Text style={{ fontSize: 12, color: '#6B7280' }}>Email</Text>
               <Text style={{ fontSize: 15, fontWeight: '500', color: '#1F2937' }}>{userData.email}</Text>
             </View>
@@ -150,12 +155,16 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <View style={{ width: 38, height: 38, borderRadius: 10, backgroundColor: '#DCFCE7', justifyContent: 'center', alignItems: 'center' }}>
               <Calendar size={18} color="#22C55E" />
             </View>
-            <View style={{ marginLeft: 12 }}>
+            <View style={{ marginLeft: 12, flex: 1 }}>
               <Text style={{ fontSize: 12, color: '#6B7280' }}>Member Since</Text>
               <Text style={{ fontSize: 15, fontWeight: '500', color: '#1F2937' }}>{formatDate(userData.createdAt)}</Text>
             </View>
           </View>
-        </View>
+          <View style={{ backgroundColor: '#FDF2F8', padding: 10, borderRadius: 10, margin: 10, marginTop: 6, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <Edit3 size={14} color="#EC4899" />
+            <Text style={{ fontSize: 13, color: '#EC4899', fontWeight: '500', marginLeft: 6 }}>Tap to edit profile</Text>
+          </View>
+        </TouchableOpacity>
 
         {/* Menu Items */}
         <Text style={{ fontSize: 13, fontWeight: '600', color: '#6B7280', marginBottom: 10, marginLeft: 4 }}>PREFERENCES</Text>
