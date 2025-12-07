@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, User, Check } from 'lucide-react-native';
+import { ArrowLeft, User, Check, Camera } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 import api from '../services/api';
 
 interface EditProfileScreenProps {
@@ -10,17 +11,21 @@ interface EditProfileScreenProps {
   onProfileUpdated?: () => void;
 }
 
+const PROFILE_IMAGE_KEY = 'profile_image';
+
 export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
   onNavigateBack,
   onProfileUpdated,
 }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     loadUserData();
+    loadProfileImage();
   }, []);
 
   const loadUserData = async () => {
@@ -39,6 +44,92 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
     }
   };
 
+  const loadProfileImage = async () => {
+    try {
+      const savedImage = await AsyncStorage.getItem(PROFILE_IMAGE_KEY);
+      if (savedImage) {
+        setProfileImage(savedImage);
+      }
+    } catch (error) {
+      console.error('Error loading profile image:', error);
+    }
+  };
+
+  const pickImage = async () => {
+    // Request permission
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Please allow access to your photos to change your profile picture.');
+      return;
+    }
+
+    // Show options
+    Alert.alert(
+      'Change Profile Photo',
+      'Choose an option',
+      [
+        {
+          text: 'Take Photo',
+          onPress: takePhoto,
+        },
+        {
+          text: 'Choose from Library',
+          onPress: chooseFromLibrary,
+        },
+        {
+          text: 'Remove Photo',
+          onPress: removePhoto,
+          style: 'destructive',
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Please allow camera access to take a photo.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const imageUri = result.assets[0].uri;
+      setProfileImage(imageUri);
+      await AsyncStorage.setItem(PROFILE_IMAGE_KEY, imageUri);
+    }
+  };
+
+  const chooseFromLibrary = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const imageUri = result.assets[0].uri;
+      setProfileImage(imageUri);
+      await AsyncStorage.setItem(PROFILE_IMAGE_KEY, imageUri);
+    }
+  };
+
+  const removePhoto = async () => {
+    setProfileImage(null);
+    await AsyncStorage.removeItem(PROFILE_IMAGE_KEY);
+  };
+
   const handleSave = async () => {
     if (!name.trim()) {
       Alert.alert('Error', 'Name cannot be empty');
@@ -49,7 +140,7 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
       setIsSaving(true);
       
       // Update profile on backend
-      const response = await api.put('/api/auth/profile', { name: name.trim() });
+      await api.put('/api/auth/profile', { name: name.trim() });
       
       // Update local storage
       const storedUser = await AsyncStorage.getItem('userData');
@@ -115,10 +206,20 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
       <View style={{ padding: 20 }}>
         {/* Avatar */}
         <View style={{ alignItems: 'center', marginBottom: 32 }}>
-          <View style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: '#EC4899', justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 36, fontWeight: '700', color: 'white' }}>{getInitials(name)}</Text>
-          </View>
-          <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 12 }}>Tap avatar to change photo</Text>
+          <TouchableOpacity onPress={pickImage} activeOpacity={0.8}>
+            <View style={{ width: 110, height: 110, borderRadius: 55, backgroundColor: '#EC4899', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+              {profileImage ? (
+                <Image source={{ uri: profileImage }} style={{ width: 110, height: 110, borderRadius: 55 }} />
+              ) : (
+                <Text style={{ fontSize: 40, fontWeight: '700', color: 'white' }}>{getInitials(name)}</Text>
+              )}
+            </View>
+            {/* Camera Icon Overlay */}
+            <View style={{ position: 'absolute', bottom: 0, right: 0, width: 36, height: 36, borderRadius: 18, backgroundColor: '#EC4899', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#F9FAFB' }}>
+              <Camera size={18} color="white" />
+            </View>
+          </TouchableOpacity>
+          <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 12 }}>Tap to change photo</Text>
         </View>
 
         {/* Name Input */}
