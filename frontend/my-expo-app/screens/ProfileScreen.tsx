@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { ArrowLeft, Settings, ChevronRight, Edit3, LogOut, Bell, Shield, HelpCircle, Heart, Moon, Calendar } from 'lucide-react-native';
+import { ArrowLeft, Settings, ChevronRight, Edit3, LogOut, Heart, Moon, Calendar } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -164,27 +164,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           icon={<Settings size={20} color="#6B7280" />}
           title="Settings"
           subtitle="App preferences & notifications"
-          onPress={() => onNavigateToSettings?.()}
-        />
-
-        <ProfileMenuItem
-          icon={<Bell size={20} color="#F59E0B" />}
-          title="Notifications"
-          subtitle="Manage your alerts"
-          onPress={() => onNavigateToSettings?.()}
-        />
-
-        <ProfileMenuItem
-          icon={<Shield size={20} color="#22C55E" />}
-          title="Privacy"
-          subtitle="Data & security settings"
-          onPress={() => onNavigateToSettings?.()}
-        />
-
-        <ProfileMenuItem
-          icon={<HelpCircle size={20} color="#3B82F6" />}
-          title="Help & Support"
-          subtitle="FAQs and contact us"
           onPress={() => onNavigateToSettings?.()}
         />
 
