@@ -29,6 +29,7 @@ import { ContactSupportScreen } from '../screens/ContactSupportScreen';
 import { PrivacyPolicyScreen } from '../screens/PrivacyPolicyScreen';
 import { AboutScreen } from '../screens/AboutScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { EditProfileScreen } from '../screens/EditProfileScreen';
 import { MainStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -240,6 +241,14 @@ export const MainStack: React.FC = () => {
           <ProfileScreen
             onNavigateBack={() => navigation.goBack()}
             onNavigateToSettings={() => navigation.navigate('Settings')}
+            onNavigateToEditProfile={() => navigation.navigate('EditProfile')}
+          />
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="EditProfile">
+        {({ navigation }) => (
+          <EditProfileScreen
+            onNavigateBack={() => navigation.goBack()}
           />
         )}
       </Stack.Screen>
