@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { registerUser, loginUser, changePassword, forgotPassword, resetPassword, googleSignIn } from '../controllers/auth.controller';
+import { registerUser, loginUser, changePassword, forgotPassword, resetPassword, googleSignIn, updateProfile } from '../controllers/auth.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { validateRequest } from '../middleware/validation.middleware';
 
@@ -120,6 +120,26 @@ router.post(
     validateRequest
   ],
   googleSignIn
+);
+
+/**
+ * PUT /api/auth/profile
+ * Update user profile (requires authentication)
+ */
+router.put(
+  '/profile',
+  authMiddleware,
+  [
+    body('name')
+      .notEmpty()
+      .withMessage('Name is required')
+      .isString()
+      .trim()
+      .isLength({ max: 100 })
+      .withMessage('Name must not exceed 100 characters'),
+    validateRequest
+  ],
+  updateProfile
 );
 
 export default router;

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createUser, findUserByEmail, findUserById, updateUserPassword, findOrCreateGoogleUser, setPasswordResetToken, resetPasswordWithToken } from '../services/user.service';
+import { createUser, findUserByEmail, findUserById, updateUserPassword, findOrCreateGoogleUser, setPasswordResetToken, resetPasswordWithToken, updateUserProfile } from '../services/user.service';
 import { generateToken } from '../utils/jwt.util';
 import { comparePassword } from '../utils/password.util';
 import { AuthRequest } from '../middleware/auth.middleware';
@@ -279,5 +279,54 @@ export async function googleSignIn(req: Request, res: Response): Promise<void> {
   } catch (error) {
     console.error('Google sign-in error:', error);
     res.status(401).json({ error: 'Google authentication failed' });
+  }
+}
+
+
+/**
+ * Update user profile
+ * PUT /api/auth/profile
+ * Requires authentication
+ */
+export async function updateProfile(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const { name } = req.body;
+    const userId = req.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: 'User not authenticated' });
+      return;
+    }
+
+    if (!name || typeof name !== 'string') {
+      res.status(400).json({ error: 'Name is required' });
+      return;
+    }
+
+    const trimmedName = name.trim();
+    if (trimmedName.length === 0 || trimmedName.length > 100) {
+      res.status(400).json({ error: 'Name must be between 1 and 100 characters' });
+      return;
+    }
+
+    // Update user in database
+    const updatedUser = await updateUserProfile(userId, trimmedName);
+    if (!updatedUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      user: {
+        id: updatedUser._id!.toString(),
+        email: updatedUser.email,
+        name: updatedUser.name,
+        createdAt: updatedUser.createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }

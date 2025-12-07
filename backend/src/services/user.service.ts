@@ -160,3 +160,17 @@ export async function authenticateUser(
     }
   };
 }
+
+
+/**
+ * Update user profile (name)
+ * @param userId - User ID
+ * @param name - New name
+ * @returns Updated user object or null if user not found
+ */
+export async function updateUserProfile(
+  userId: string,
+  name: string
+): Promise<IUser | null> {
+  return await UserModel.update(userId, { name });
+}
