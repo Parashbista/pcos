@@ -192,8 +192,7 @@ const CustomCalendar: React.FC<{
   };
 
   const goToNextMonth = () => {
-    const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
-    if (nextMonth <= new Date()) setCurrentMonth(nextMonth);
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
   };
 
   const days = getDaysInMonth(currentMonth);
@@ -207,10 +206,10 @@ const CustomCalendar: React.FC<{
           <Text style={{ fontSize: 28, color: '#EC4899', fontWeight: '300' }}>‹</Text>
         </TouchableOpacity>
         <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1F2937' }}>
-          {MONTHS[currentMonth.getMonth()]}
+          {MONTHS[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </Text>
         <TouchableOpacity onPress={goToNextMonth} style={{ padding: 10 }}>
-          <Text style={{ fontSize: 28, color: currentMonth.getMonth() === new Date().getMonth() ? '#D1D5DB' : '#EC4899', fontWeight: '300' }}>›</Text>
+          <Text style={{ fontSize: 28, color: '#EC4899', fontWeight: '300' }}>›</Text>
         </TouchableOpacity>
       </View>
 
@@ -257,7 +256,7 @@ const CustomCalendar: React.FC<{
               onPress={() => {
                 if (!isFuture && isCurrentMonth) onDayPress(day.fullDate);
               }}
-              disabled={isFuture || !isCurrentMonth}
+              disabled={!isCurrentMonth}
             >
               <View
                 style={{
@@ -283,7 +282,7 @@ const CustomCalendar: React.FC<{
                     style={{
                       fontSize: 16,
                       fontWeight: isCurrentMonth ? '600' : '400',
-                      color: !isCurrentMonth || isFuture ? '#D1D5DB' : isWeekend ? '#EC4899' : '#1F2937',
+                      color: !isCurrentMonth ? '#D1D5DB' : isFuture ? '#9CA3AF' : isWeekend ? '#EC4899' : '#1F2937',
                     }}
                   >
                     {day.date}
