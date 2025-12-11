@@ -254,7 +254,7 @@ const CustomCalendar: React.FC<{
                 backgroundColor: isWeekend ? '#FDF2F8' : 'transparent',
               }}
               onPress={() => {
-                if (!isFuture && isCurrentMonth) onDayPress(day.fullDate);
+                if (isCurrentMonth) onDayPress(day.fullDate);
               }}
               disabled={!isCurrentMonth}
             >
@@ -282,7 +282,7 @@ const CustomCalendar: React.FC<{
                     style={{
                       fontSize: 16,
                       fontWeight: isCurrentMonth ? '600' : '400',
-                      color: !isCurrentMonth ? '#D1D5DB' : isFuture ? '#9CA3AF' : isWeekend ? '#EC4899' : '#1F2937',
+                      color: !isCurrentMonth ? '#D1D5DB' : isWeekend ? '#EC4899' : '#1F2937',
                     }}
                   >
                     {day.date}
