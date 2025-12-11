@@ -241,6 +241,44 @@ export const InsightsScreen: React.FC<InsightsScreenProps> = ({ onNavigateBack }
               </View>
             )}
 
+            {/* Top Symptoms Section */}
+            {summary && summary.topSymptoms && summary.topSymptoms.length > 0 && (
+              <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                  <Text style={{ fontSize: 17 }}>📋</Text>
+                  <Text style={{ fontSize: 17, fontWeight: '600', color: '#1F2937', marginLeft: 8 }}>Top Symptoms This Week</Text>
+                </View>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {summary.topSymptoms.map((symptom, index) => (
+                    <View 
+                      key={symptom.name}
+                      style={{ 
+                        backgroundColor: index === 0 ? '#FEF2F2' : '#F3F4F6',
+                        paddingHorizontal: 12, 
+                        paddingVertical: 8, 
+                        borderRadius: 20,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Text style={{ fontSize: 14, color: index === 0 ? '#DC2626' : '#4B5563' }}>{symptom.name}</Text>
+                      <View style={{ 
+                        marginLeft: 6, 
+                        backgroundColor: index === 0 ? '#DC2626' : '#9CA3AF',
+                        width: 20, 
+                        height: 20, 
+                        borderRadius: 10,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                        <Text style={{ fontSize: 11, color: 'white', fontWeight: '600' }}>{symptom.count}</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
             {/* Info Card */}
             <View style={{ backgroundColor: '#F3E8FF', borderRadius: 16, padding: 18, marginBottom: 32 }}>
               <Text style={{ fontSize: 14, color: '#6B21A8', lineHeight: 22 }}>
