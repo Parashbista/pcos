@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { ArrowLeft, AlertTriangle, Lightbulb, CheckCircle, Moon, Heart, Utensils, TrendingUp, RefreshCw } from 'lucide-react-native';
 import * as pcosInsightsService from '../services/pcosInsightsService';
-import { HealthSummary, PCOSInsight } from '../services/pcosInsightsService';
+import { HealthSummary, PCOSInsight, HealthCorrelation } from '../services/pcosInsightsService';
 
 interface InsightsScreenProps {
   onNavigateBack?: () => void;
@@ -199,6 +199,43 @@ export const InsightsScreen: React.FC<InsightsScreenProps> = ({ onNavigateBack }
                 {tips.map((tip, index) => (
                   <View key={index} style={{ flexDirection: 'row', marginBottom: 12, paddingLeft: 4 }}>
                     <Text style={{ fontSize: 14, color: '#4B5563', lineHeight: 22 }}>{tip}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Correlations Section */}
+            {summary && summary.correlations && summary.correlations.length > 0 && (
+              <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                  <TrendingUp size={20} color="#8B5CF6" />
+                  <Text style={{ fontSize: 17, fontWeight: '600', color: '#1F2937', marginLeft: 8 }}>Your Patterns</Text>
+                </View>
+                {summary.correlations.map((correlation) => (
+                  <View 
+                    key={correlation.id} 
+                    style={{ 
+                      backgroundColor: correlation.strength === 'strong' ? '#FDF2F8' : correlation.strength === 'moderate' ? '#FEF3C7' : '#F3F4F6',
+                      borderRadius: 12, 
+                      padding: 14, 
+                      marginBottom: 10,
+                      borderLeftWidth: 3,
+                      borderLeftColor: correlation.strength === 'strong' ? '#EC4899' : correlation.strength === 'moderate' ? '#F59E0B' : '#9CA3AF',
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: '#1F2937' }}>{correlation.title}</Text>
+                      <View style={{ 
+                        marginLeft: 8, 
+                        backgroundColor: correlation.strength === 'strong' ? '#EC4899' : correlation.strength === 'moderate' ? '#F59E0B' : '#9CA3AF',
+                        paddingHorizontal: 6, 
+                        paddingVertical: 2, 
+                        borderRadius: 6 
+                      }}>
+                        <Text style={{ fontSize: 10, color: 'white', fontWeight: '600' }}>{correlation.strength.toUpperCase()}</Text>
+                      </View>
+                    </View>
+                    <Text style={{ fontSize: 13, color: '#4B5563', lineHeight: 20 }}>{correlation.description}</Text>
                   </View>
                 ))}
               </View>
