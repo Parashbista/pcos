@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as authService from '../services/authService';
 import { User, RegisterData, LoginData, ChangePasswordData } from '../services/authService';
 
@@ -61,14 +62,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               await authService.logout();
               setUser(null);
             } else {
-              // Token is valid, set user from stored data
-              // In a real app, you might want to fetch fresh user data from the backend
-              // For now, we'll just set a basic user object with the userId
-              setUser({
-                id: payload.userId,
-                email: '', // We don't have email in the token
-                name: '',
-              });
+              // Token is valid, load user data from AsyncStorage
+              const storedUserData = await AsyncStorage.getItem('userData');
+              if (storedUserData) {
+                const userData = JSON.parse(storedUserData);
+                setUser({
+                  id: payload.userId,
+                  email: userData.email || '',
+                  name: userData.name || '',
+                });
+              } else {
+                setUser({
+                  id: payload.userId,
+                  email: '',
+                  name: '',
+                });
+              }
             }
           } catch (decodeError) {
             // If token decode fails, clear it
