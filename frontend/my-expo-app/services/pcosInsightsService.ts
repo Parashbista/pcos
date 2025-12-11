@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import * as moodService from './moodService';
 import * as sleepService from './sleepService';
+import * as periodService from './periodService';
 import api from './api';
 
 // Storage keys
@@ -27,6 +28,15 @@ export interface HealthSummary {
   daysAnalyzed: number;
   riskLevel: 'low' | 'moderate' | 'high';
   insights: PCOSInsight[];
+  correlations: HealthCorrelation[];
+}
+
+export interface HealthCorrelation {
+  id: string;
+  type: 'mood-sleep' | 'mood-period' | 'sleep-period';
+  title: string;
+  description: string;
+  strength: 'strong' | 'moderate' | 'weak';
 }
 
 // Analyze user's recent health data and generate insights
@@ -34,12 +44,16 @@ export const analyzeHealthData = async (): Promise<HealthSummary> => {
   const today = new Date();
   const weekAgo = new Date(today);
   weekAgo.setDate(weekAgo.getDate() - 7);
+  const monthAgo = new Date(today);
+  monthAgo.setDate(monthAgo.getDate() - 30);
   
   const startDate = weekAgo.toISOString().split('T')[0];
   const endDate = today.toISOString().split('T')[0];
+  const monthStartDate = monthAgo.toISOString().split('T')[0];
 
   let moodEntries: moodService.MoodEntry[] = [];
   let sleepEntries: sleepService.SleepEntry[] = [];
+  let periodEntries: periodService.PeriodEntry[] = [];
 
   try {
     moodEntries = await moodService.getMoodEntries(startDate, endDate);
@@ -51,6 +65,12 @@ export const analyzeHealthData = async (): Promise<HealthSummary> => {
     sleepEntries = await sleepService.getSleepEntries(startDate, endDate);
   } catch (e) {
     console.log('Could not fetch sleep entries');
+  }
+
+  try {
+    periodEntries = await periodService.getPeriodEntries();
+  } catch (e) {
+    console.log('Could not fetch period entries');
   }
 
   // Calculate averages
@@ -175,6 +195,58 @@ export const analyzeHealthData = async (): Promise<HealthSummary> => {
     riskLevel = 'high';
   }
 
+  // Analyze correlations
+  const correlations: HealthCorrelation[] = [];
+
+  // Mood-Sleep correlation
+  if (moodEntries.length >= 3 && sleepEntries.length >= 3) {
+    const moodSleepCorrelation = analyzeMoodSleepCorrelation(moodEntries, sleepEntries);
+    if (moodSleepCorrelation) {
+      correlations.push(moodSleepCorrelation);
+    }
+  }
+
+  // Period-Mood correlation
+  if (periodEntries.length > 0 && moodEntries.length >= 3) {
+    const periodMoodCorrelation = analyzePeriodMoodCorrelation(periodEntries, moodEntries);
+    if (periodMoodCorrelation) {
+      correlations.push(periodMoodCorrelation);
+      // Add insight based on correlation
+      if (periodMoodCorrelation.strength === 'strong') {
+        insights.push({
+          id: `period-mood-${Date.now()}`,
+          type: 'tip',
+          category: 'mood',
+          title: '🔄 Cycle-Mood Pattern Detected',
+          message: periodMoodCorrelation.description,
+          priority: 3,
+          createdAt: new Date().toISOString(),
+          isRead: false,
+        });
+      }
+    }
+  }
+
+  // Period-Sleep correlation
+  if (periodEntries.length > 0 && sleepEntries.length >= 3) {
+    const periodSleepCorrelation = analyzePeriodSleepCorrelation(periodEntries, sleepEntries);
+    if (periodSleepCorrelation) {
+      correlations.push(periodSleepCorrelation);
+      if (periodSleepCorrelation.strength === 'strong') {
+        insights.push({
+          id: `period-sleep-${Date.now()}`,
+          type: 'tip',
+          category: 'sleep',
+          title: '🌙 Cycle-Sleep Pattern Detected',
+          message: periodSleepCorrelation.description,
+          priority: 3,
+          createdAt: new Date().toISOString(),
+          isRead: false,
+        });
+      }
+    }
+  }
+
   const summary: HealthSummary = {
     moodAverage: Math.round(moodAverage * 10) / 10,
     sleepAverage: Math.round(sleepAverage * 10) / 10,
@@ -183,6 +255,7 @@ export const analyzeHealthData = async (): Promise<HealthSummary> => {
     daysAnalyzed: 7,
     riskLevel,
     insights: insights.sort((a, b) => b.priority - a.priority),
+    correlations,
   };
 
   // Save analysis
@@ -285,4 +358,181 @@ export const getPersonalizedTips = async (): Promise<string[]> => {
   }
 
   return tips;
+};
+
+
+// Helper function to analyze mood-sleep correlation
+const analyzeMoodSleepCorrelation = (
+  moodEntries: moodService.MoodEntry[],
+  sleepEntries: sleepService.SleepEntry[]
+): HealthCorrelation | null => {
+  // Create a map of dates to mood and sleep values
+  const dateMap: { [key: string]: { mood?: number; sleep?: number } } = {};
+  
+  moodEntries.forEach(entry => {
+    const date = entry.date.split('T')[0];
+    if (!dateMap[date]) dateMap[date] = {};
+    dateMap[date].mood = entry.mood;
+  });
+  
+  sleepEntries.forEach(entry => {
+    const date = entry.date.split('T')[0];
+    if (!dateMap[date]) dateMap[date] = {};
+    dateMap[date].sleep = entry.quality;
+  });
+
+  // Find days with both mood and sleep data
+  const pairedData = Object.values(dateMap).filter(d => d.mood !== undefined && d.sleep !== undefined);
+  
+  if (pairedData.length < 3) return null;
+
+  // Calculate correlation
+  const lowSleepLowMood = pairedData.filter(d => d.sleep! < 3 && d.mood! < 3).length;
+  const goodSleepGoodMood = pairedData.filter(d => d.sleep! >= 3 && d.mood! >= 3).length;
+  const correlationScore = (lowSleepLowMood + goodSleepGoodMood) / pairedData.length;
+
+  let strength: 'strong' | 'moderate' | 'weak' = 'weak';
+  let description = '';
+
+  if (correlationScore >= 0.7) {
+    strength = 'strong';
+    description = 'Your mood and sleep are strongly connected. Better sleep leads to better mood for you.';
+  } else if (correlationScore >= 0.5) {
+    strength = 'moderate';
+    description = 'There\'s a moderate link between your sleep quality and mood.';
+  } else {
+    description = 'Your mood and sleep show some connection. Keep tracking for clearer patterns.';
+  }
+
+  return {
+    id: 'mood-sleep-correlation',
+    type: 'mood-sleep',
+    title: 'Mood & Sleep Connection',
+    description,
+    strength,
+  };
+};
+
+// Helper function to analyze period-mood correlation
+const analyzePeriodMoodCorrelation = (
+  periodEntries: periodService.PeriodEntry[],
+  moodEntries: moodService.MoodEntry[]
+): HealthCorrelation | null => {
+  if (periodEntries.length === 0) return null;
+
+  // Get period dates
+  const periodDates = new Set<string>();
+  periodEntries.forEach(entry => {
+    const start = new Date(entry.startDate);
+    const end = entry.endDate ? new Date(entry.endDate) : start;
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      periodDates.add(d.toISOString().split('T')[0]);
+    }
+  });
+
+  // Calculate average mood during and outside period
+  let periodMoodSum = 0, periodMoodCount = 0;
+  let nonPeriodMoodSum = 0, nonPeriodMoodCount = 0;
+
+  moodEntries.forEach(entry => {
+    const date = entry.date.split('T')[0];
+    if (periodDates.has(date)) {
+      periodMoodSum += entry.mood;
+      periodMoodCount++;
+    } else {
+      nonPeriodMoodSum += entry.mood;
+      nonPeriodMoodCount++;
+    }
+  });
+
+  if (periodMoodCount === 0 || nonPeriodMoodCount === 0) return null;
+
+  const periodMoodAvg = periodMoodSum / periodMoodCount;
+  const nonPeriodMoodAvg = nonPeriodMoodSum / nonPeriodMoodCount;
+  const moodDiff = nonPeriodMoodAvg - periodMoodAvg;
+
+  let strength: 'strong' | 'moderate' | 'weak' = 'weak';
+  let description = '';
+
+  if (moodDiff >= 1.5) {
+    strength = 'strong';
+    description = `Your mood drops significantly during your period (avg ${periodMoodAvg.toFixed(1)} vs ${nonPeriodMoodAvg.toFixed(1)}). This is common with PCOS - plan extra self-care during this time.`;
+  } else if (moodDiff >= 0.8) {
+    strength = 'moderate';
+    description = `Your mood tends to be lower during your period. Consider gentle activities and rest during this phase.`;
+  } else if (moodDiff > 0) {
+    description = `Your mood is slightly affected by your cycle. Keep tracking to understand your patterns better.`;
+  } else {
+    description = `Great news! Your mood stays relatively stable throughout your cycle.`;
+  }
+
+  return {
+    id: 'period-mood-correlation',
+    type: 'mood-period',
+    title: 'Cycle & Mood Pattern',
+    description,
+    strength,
+  };
+};
+
+// Helper function to analyze period-sleep correlation
+const analyzePeriodSleepCorrelation = (
+  periodEntries: periodService.PeriodEntry[],
+  sleepEntries: sleepService.SleepEntry[]
+): HealthCorrelation | null => {
+  if (periodEntries.length === 0) return null;
+
+  // Get period dates
+  const periodDates = new Set<string>();
+  periodEntries.forEach(entry => {
+    const start = new Date(entry.startDate);
+    const end = entry.endDate ? new Date(entry.endDate) : start;
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      periodDates.add(d.toISOString().split('T')[0]);
+    }
+  });
+
+  // Calculate average sleep during and outside period
+  let periodSleepSum = 0, periodSleepCount = 0;
+  let nonPeriodSleepSum = 0, nonPeriodSleepCount = 0;
+
+  sleepEntries.forEach(entry => {
+    const date = entry.date.split('T')[0];
+    if (periodDates.has(date)) {
+      periodSleepSum += entry.quality;
+      periodSleepCount++;
+    } else {
+      nonPeriodSleepSum += entry.quality;
+      nonPeriodSleepCount++;
+    }
+  });
+
+  if (periodSleepCount === 0 || nonPeriodSleepCount === 0) return null;
+
+  const periodSleepAvg = periodSleepSum / periodSleepCount;
+  const nonPeriodSleepAvg = nonPeriodSleepSum / nonPeriodSleepCount;
+  const sleepDiff = nonPeriodSleepAvg - periodSleepAvg;
+
+  let strength: 'strong' | 'moderate' | 'weak' = 'weak';
+  let description = '';
+
+  if (sleepDiff >= 1.5) {
+    strength = 'strong';
+    description = `Your sleep quality drops during your period (avg ${periodSleepAvg.toFixed(1)} vs ${nonPeriodSleepAvg.toFixed(1)}). Try relaxation techniques before bed during this time.`;
+  } else if (sleepDiff >= 0.8) {
+    strength = 'moderate';
+    description = `Your sleep is somewhat affected during your period. Consider a calming bedtime routine during this phase.`;
+  } else if (sleepDiff > 0) {
+    description = `Your sleep is slightly affected by your cycle. Keep tracking for more insights.`;
+  } else {
+    description = `Your sleep quality stays consistent throughout your cycle - that's great for hormone balance!`;
+  }
+
+  return {
+    id: 'period-sleep-correlation',
+    type: 'sleep-period',
+    title: 'Cycle & Sleep Pattern',
+    description,
+    strength,
+  };
 };
