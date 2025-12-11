@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Image } from 'react-native';
 import {
   ArrowLeft,
   Lock,
@@ -15,7 +15,10 @@ import {
   User,
   ChevronRight,
 } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
+
+const PROFILE_IMAGE_KEY = 'profile_image';
 
 interface SettingsScreenProps {
   onNavigateBack?: () => void;
@@ -88,6 +91,37 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 }) => {
   const { user, logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [userName, setUserName] = useState(user?.name || 'User');
+  const [userEmail, setUserEmail] = useState(user?.email || '');
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem('userData');
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        setUserName(userData.name || 'User');
+        setUserEmail(userData.email || '');
+      }
+      const savedImage = await AsyncStorage.getItem(PROFILE_IMAGE_KEY);
+      setProfileImage(savedImage);
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || 'U';
+  };
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -149,12 +183,16 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             elevation: 4,
           }}
         >
-          <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#EC4899', justifyContent: 'center', alignItems: 'center' }}>
-            <User size={28} color="white" />
+          <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#EC4899', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+            {profileImage ? (
+              <Image source={{ uri: profileImage }} style={{ width: 56, height: 56, borderRadius: 28 }} />
+            ) : (
+              <Text style={{ fontSize: 22, fontWeight: '700', color: 'white' }}>{getInitials(userName)}</Text>
+            )}
           </View>
           <View style={{ marginLeft: 14, flex: 1 }}>
-            <Text style={{ fontSize: 17, fontWeight: '600', color: '#1F2937' }}>{user?.name || 'User'}</Text>
-            <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>{user?.email || 'user@example.com'}</Text>
+            <Text style={{ fontSize: 17, fontWeight: '600', color: '#1F2937' }}>{userName}</Text>
+            <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>{userEmail}</Text>
           </View>
         </View>
       </View>
