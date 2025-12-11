@@ -26,6 +26,7 @@ export type MainStackParamList = {
   MoodHistory: undefined;
   PeriodTracking: undefined;
   PeriodHistory: undefined;
+  SymptomTracking: undefined;
   Reminders: undefined;
   NotificationSettings: undefined;
   ExportData: undefined;

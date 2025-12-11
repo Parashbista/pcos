@@ -22,6 +22,7 @@ import { ProfileScreen } from '../screens/ProfileScreen';
 import { EditProfileScreen } from '../screens/EditProfileScreen';
 import { InsightsScreen } from '../screens/InsightsScreen';
 import { HomeScreen } from '../screens/HomeScreen';
+import { SymptomTrackingScreen } from '../screens/SymptomTrackingScreen';
 import { MainStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -38,6 +39,7 @@ export const MainStack: React.FC = () => {
             onNavigateToPeriodTracking={() => navigation.navigate('PeriodTracking')}
             onNavigateToMoodTracking={() => navigation.navigate('MoodTracking')}
             onNavigateToSleepTracking={() => navigation.navigate('SleepTracking')}
+            onNavigateToSymptomTracking={() => navigation.navigate('SymptomTracking')}
             onNavigateToReminders={() => navigation.navigate('Reminders')}
             onNavigateToInsights={() => navigation.navigate('Insights')}
           />
@@ -142,6 +144,11 @@ export const MainStack: React.FC = () => {
           <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
             <PeriodHistoryScreen onNavigateBack={() => navigation.goBack()} />
           </SafeAreaView>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="SymptomTracking">
+        {({ navigation }) => (
+          <SymptomTrackingScreen onNavigateBack={() => navigation.goBack()} />
         )}
       </Stack.Screen>
       <Stack.Screen name="Reminders">
