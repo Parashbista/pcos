@@ -8,6 +8,13 @@ import api from './api';
 // Storage keys
 const INSIGHTS_KEY = 'pcos_insights_data';
 const LAST_ANALYSIS_KEY = 'pcos_last_analysis';
+const SYMPTOM_HISTORY_KEY = 'symptom_history';
+
+interface SymptomEntry {
+  date: string;
+  symptoms: string[];
+  severity: { [key: string]: number };
+}
 
 export interface PCOSInsight {
   id: string;
@@ -29,6 +36,7 @@ export interface HealthSummary {
   riskLevel: 'low' | 'moderate' | 'high';
   insights: PCOSInsight[];
   correlations: HealthCorrelation[];
+  topSymptoms: { name: string; count: number }[];
 }
 
 export interface HealthCorrelation {
@@ -71,6 +79,19 @@ export const analyzeHealthData = async (): Promise<HealthSummary> => {
     periodEntries = await periodService.getPeriodEntries();
   } catch (e) {
     console.log('Could not fetch period entries');
+  }
+
+  // Load symptom data from AsyncStorage
+  let symptomEntries: SymptomEntry[] = [];
+  try {
+    const symptomData = await AsyncStorage.getItem(SYMPTOM_HISTORY_KEY);
+    if (symptomData) {
+      const allSymptoms: SymptomEntry[] = JSON.parse(symptomData);
+      // Filter to last 7 days
+      symptomEntries = allSymptoms.filter(e => e.date >= startDate && e.date <= endDate);
+    }
+  } catch (e) {
+    console.log('Could not fetch symptom entries');
   }
 
   // Calculate averages
@@ -247,6 +268,74 @@ export const analyzeHealthData = async (): Promise<HealthSummary> => {
     }
   }
 
+  // Analyze symptoms
+  const symptomCounts: { [key: string]: number } = {};
+  const symptomNames: { [key: string]: string } = {
+    'acne': 'Acne', 'bloating': 'Bloating', 'fatigue': 'Fatigue', 'headache': 'Headache',
+    'cramps': 'Cramps', 'back_pain': 'Back Pain', 'hair_loss': 'Hair Loss', 'excess_hair': 'Excess Hair',
+    'weight_gain': 'Weight Gain', 'hot_flashes': 'Hot Flashes', 'oily_skin': 'Oily Skin',
+    'anxiety': 'Anxiety', 'mood_swings': 'Mood Swings', 'irritability': 'Irritability',
+    'brain_fog': 'Brain Fog', 'low_energy': 'Low Energy',
+  };
+
+  symptomEntries.forEach(entry => {
+    entry.symptoms.forEach(symptom => {
+      symptomCounts[symptom] = (symptomCounts[symptom] || 0) + 1;
+    });
+  });
+
+  const topSymptoms = Object.entries(symptomCounts)
+    .map(([id, count]) => ({ name: symptomNames[id] || id, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  // Add symptom-based insights
+  if (symptomEntries.length > 0) {
+    const severeSymptoms = symptomEntries.flatMap(e => 
+      Object.entries(e.severity).filter(([_, level]) => level === 3).map(([id]) => symptomNames[id] || id)
+    );
+    
+    if (severeSymptoms.length >= 3) {
+      insights.push({
+        id: `severe-symptoms-${Date.now()}`,
+        type: 'warning',
+        category: 'overall',
+        title: '⚠️ Multiple Severe Symptoms',
+        message: `You've logged severe symptoms recently. Consider consulting your healthcare provider about: ${[...new Set(severeSymptoms)].slice(0, 3).join(', ')}.`,
+        priority: 5,
+        createdAt: new Date().toISOString(),
+        isRead: false,
+      });
+    }
+
+    // Check for fatigue + poor sleep correlation
+    if (symptomCounts['fatigue'] >= 2 && sleepAverage < 3) {
+      insights.push({
+        id: `fatigue-sleep-${Date.now()}`,
+        type: 'tip',
+        category: 'sleep',
+        title: '😴 Fatigue & Sleep Connection',
+        message: 'Your fatigue symptoms may be linked to poor sleep quality. Prioritizing better sleep could help reduce fatigue.',
+        priority: 4,
+        createdAt: new Date().toISOString(),
+        isRead: false,
+      });
+    }
+  }
+
+  if (symptomEntries.length === 0) {
+    insights.push({
+      id: `track-symptoms-${Date.now()}`,
+      type: 'tip',
+      category: 'overall',
+      title: '📋 Track Your Symptoms',
+      message: 'Log your PCOS symptoms daily to get personalized insights and identify patterns.',
+      priority: 2,
+      createdAt: new Date().toISOString(),
+      isRead: false,
+    });
+  }
+
   const summary: HealthSummary = {
     moodAverage: Math.round(moodAverage * 10) / 10,
     sleepAverage: Math.round(sleepAverage * 10) / 10,
@@ -256,6 +345,7 @@ export const analyzeHealthData = async (): Promise<HealthSummary> => {
     riskLevel,
     insights: insights.sort((a, b) => b.priority - a.priority),
     correlations,
+    topSymptoms,
   };
 
   // Save analysis
