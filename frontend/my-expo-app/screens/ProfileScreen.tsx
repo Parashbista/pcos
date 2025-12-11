@@ -5,6 +5,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { ArrowLeft, Settings, ChevronRight, Edit3, LogOut, Heart, Moon, Calendar } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
+import * as sleepService from '../services/sleepService';
+import * as moodService from '../services/moodService';
 
 interface ProfileScreenProps {
   onNavigateBack?: () => void;
@@ -96,18 +98,26 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   const loadLogCounts = async () => {
     try {
-      // Load mood logs count
-      const moodData = await AsyncStorage.getItem('moodHistory');
-      if (moodData) {
-        const moodHistory = JSON.parse(moodData);
-        setMoodLogCount(Array.isArray(moodHistory) ? moodHistory.length : Object.keys(moodHistory).length);
+      const today = new Date();
+      const monthAgo = new Date(today);
+      monthAgo.setDate(monthAgo.getDate() - 30);
+      const startDate = monthAgo.toISOString().split('T')[0];
+      const endDate = today.toISOString().split('T')[0];
+
+      // Load mood logs count from API
+      try {
+        const moodEntries = await moodService.getMoodEntries(startDate, endDate);
+        setMoodLogCount(moodEntries?.length || 0);
+      } catch (e) {
+        console.log('Could not fetch mood count');
       }
 
-      // Load sleep logs count
-      const sleepData = await AsyncStorage.getItem('sleepHistory');
-      if (sleepData) {
-        const sleepHistory = JSON.parse(sleepData);
-        setSleepLogCount(Array.isArray(sleepHistory) ? sleepHistory.length : Object.keys(sleepHistory).length);
+      // Load sleep logs count from API
+      try {
+        const sleepEntries = await sleepService.getSleepEntries(startDate, endDate);
+        setSleepLogCount(sleepEntries?.length || 0);
+      } catch (e) {
+        console.log('Could not fetch sleep count');
       }
     } catch (error) {
       console.error('Error loading log counts:', error);
