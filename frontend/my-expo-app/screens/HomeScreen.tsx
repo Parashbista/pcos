@@ -19,7 +19,10 @@ import {
   Frown,
   Flame,
   Star,
+  Stethoscope,
 } from 'lucide-react-native';
+import * as sleepService from '../services/sleepService';
+import * as moodService from '../services/moodService';
 
 interface HomeScreenProps {
   onNavigateToProfile: () => void;
@@ -27,6 +30,7 @@ interface HomeScreenProps {
   onNavigateToPeriodTracking: () => void;
   onNavigateToMoodTracking: () => void;
   onNavigateToSleepTracking: () => void;
+  onNavigateToSymptomTracking: () => void;
   onNavigateToReminders: () => void;
   onNavigateToInsights: () => void;
 }
@@ -45,6 +49,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNavigateToPeriodTracking,
   onNavigateToMoodTracking,
   onNavigateToSleepTracking,
+  onNavigateToSymptomTracking,
   onNavigateToReminders,
   onNavigateToInsights,
 }) => {
@@ -92,45 +97,52 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   const loadHealthSummary = async () => {
     try {
-      // Load mood data
-      const moodData = await AsyncStorage.getItem('moodHistory');
+      const today = new Date();
+      const weekAgo = new Date(today);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const startDate = weekAgo.toISOString().split('T')[0];
+      const endDate = today.toISOString().split('T')[0];
+
+      // Load mood data from API
       let lastMood = null;
       let moodStreak = 0;
-      if (moodData) {
-        const moodHistory = JSON.parse(moodData);
-        if (Array.isArray(moodHistory) && moodHistory.length > 0) {
-          const sorted = moodHistory.sort((a: any, b: any) => 
-            new Date(b.date || b.createdAt).getTime() - new Date(a.date || a.createdAt).getTime()
+      try {
+        const moodEntries = await moodService.getMoodEntries(startDate, endDate);
+        if (moodEntries && moodEntries.length > 0) {
+          const sorted = moodEntries.sort((a, b) => 
+            new Date(b.date).getTime() - new Date(a.date).getTime()
           );
           const latest = sorted[0];
-          const moodLevel = typeof latest.mood === 'number' ? latest.mood : getMoodLevel(latest.mood || latest.moodLevel);
           lastMood = {
-            level: moodLevel,
-            label: getMoodLabel(moodLevel),
-            date: latest.date || latest.createdAt,
+            level: latest.mood,
+            label: getMoodLabel(latest.mood),
+            date: latest.date,
           };
-          moodStreak = calculateStreak(sorted.map((m: any) => m.date || m.createdAt));
+          moodStreak = calculateStreak(sorted.map(m => m.date));
         }
+      } catch (e) {
+        console.log('Could not fetch mood data');
       }
 
-      // Load sleep data
-      const sleepData = await AsyncStorage.getItem('sleepHistory');
+      // Load sleep data from API
       let lastSleep = null;
       let sleepStreak = 0;
-      if (sleepData) {
-        const sleepHistory = JSON.parse(sleepData);
-        if (Array.isArray(sleepHistory) && sleepHistory.length > 0) {
-          const sorted = sleepHistory.sort((a: any, b: any) => 
-            new Date(b.date || b.createdAt).getTime() - new Date(a.date || a.createdAt).getTime()
+      try {
+        const sleepEntries = await sleepService.getSleepEntries(startDate, endDate);
+        if (sleepEntries && sleepEntries.length > 0) {
+          const sorted = sleepEntries.sort((a, b) => 
+            new Date(b.date).getTime() - new Date(a.date).getTime()
           );
           const latest = sorted[0];
           lastSleep = {
-            hours: latest.duration || latest.hours || 0,
-            quality: latest.quality || getQualityLabel(latest.qualityRating),
-            date: latest.date || latest.createdAt,
+            hours: Math.round(latest.duration / 60 * 10) / 10,
+            quality: sleepService.getQualityLabel(latest.quality),
+            date: latest.date,
           };
-          sleepStreak = calculateStreak(sorted.map((s: any) => s.date || s.createdAt));
+          sleepStreak = calculateStreak(sorted.map(s => s.date));
         }
+      } catch (e) {
+        console.log('Could not fetch sleep data');
       }
 
       setHealthSummary({
@@ -385,6 +397,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <View style={{ flex: 1, marginLeft: 14 }}>
               <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>Sleep Tracker</Text>
               <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Track sleep quality</Text>
+            </View>
+            <ChevronRight size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+
+          {/* Symptom Tracker Card */}
+          <TouchableOpacity
+            style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
+            onPress={onNavigateToSymptomTracking}
+          >
+            <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#FEF2F2', justifyContent: 'center', alignItems: 'center' }}>
+              <Stethoscope size={24} color="#EF4444" />
+            </View>
+            <View style={{ flex: 1, marginLeft: 14 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>Symptom Tracker</Text>
+              <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Track PCOS symptoms daily</Text>
             </View>
             <ChevronRight size={20} color="#9CA3AF" />
           </TouchableOpacity>
