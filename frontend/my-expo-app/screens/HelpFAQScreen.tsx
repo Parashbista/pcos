@@ -57,7 +57,7 @@ export const HelpFAQScreen: React.FC<HelpFAQScreenProps> = ({ onNavigateBack }) 
 
         <View style={{ marginTop: 8, padding: 14, backgroundColor: '#FCE7F3', borderRadius: 12 }}>
           <Text style={{ fontSize: 13, color: '#BE185D', textAlign: 'center' }}>
-            Need more help? Email us at support@pcostracker.com
+            Need more help? Email us at parashbista234@gmail.com
           </Text>
         </View>
       </ScrollView>
