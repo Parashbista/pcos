@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Download, FileText, Calendar, Moon, Heart, CheckCircle } from 'lucide-react-native';
-import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
+import { Paths, File } from 'expo-file-system';
+import { isAvailableAsync, shareAsync } from 'expo-sharing';
 import api from '../services/api';
 
 interface ExportDataScreenProps {
@@ -73,15 +73,13 @@ export const ExportDataScreen: React.FC<ExportDataScreenProps> = ({ onNavigateBa
       }
 
       const fileName = `pcos_tracker_export_${new Date().toISOString().split('T')[0]}.json`;
-      const filePath = `${FileSystem.cacheDirectory}${fileName}`;
+      const file = new File(Paths.cache, fileName);
+      await file.write(jsonString);
+      const filePath = file.uri;
 
-      await FileSystem.writeAsStringAsync(filePath, jsonString, {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
-
-      const canShare = await Sharing.isAvailableAsync();
+      const canShare = await isAvailableAsync();
       if (canShare) {
-        await Sharing.shareAsync(filePath, {
+        await shareAsync(filePath, {
           mimeType: 'application/json',
           dialogTitle: 'Export PCOS Tracker Data',
           UTI: 'public.json',

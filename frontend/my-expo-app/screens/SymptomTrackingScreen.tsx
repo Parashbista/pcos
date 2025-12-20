@@ -1,7 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Check, History } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  Check,
+  History,
+  Frown,
+  Circle,
+  Moon,
+  HeadsetIcon,
+  Zap,
+  ArrowLeftRight,
+  Scissors,
+  User,
+  Scale,
+  Flame,
+  Droplets,
+  AlertTriangle,
+  RefreshCw,
+  Angry,
+  Cloud,
+  BatteryLow,
+  LucideIcon,
+} from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, spacing, borderRadius, fontSize, fontWeight, shadows } from '../constants/theme';
 
@@ -13,7 +34,7 @@ interface SymptomTrackingScreenProps {
 interface Symptom {
   id: string;
   name: string;
-  emoji: string;
+  icon: LucideIcon;
   category: 'physical' | 'hormonal' | 'emotional';
 }
 
@@ -26,26 +47,26 @@ interface SymptomEntry {
 
 const SYMPTOMS: Symptom[] = [
   // Physical
-  { id: 'acne', name: 'Acne', emoji: '😣', category: 'physical' },
-  { id: 'bloating', name: 'Bloating', emoji: '🎈', category: 'physical' },
-  { id: 'fatigue', name: 'Fatigue', emoji: '😴', category: 'physical' },
-  { id: 'headache', name: 'Headache', emoji: '🤕', category: 'physical' },
-  { id: 'cramps', name: 'Cramps', emoji: '💢', category: 'physical' },
-  { id: 'back_pain', name: 'Back Pain', emoji: '🔙', category: 'physical' },
+  { id: 'acne', name: 'Acne', icon: Frown, category: 'physical' },
+  { id: 'bloating', name: 'Bloating', icon: Circle, category: 'physical' },
+  { id: 'fatigue', name: 'Fatigue', icon: Moon, category: 'physical' },
+  { id: 'headache', name: 'Headache', icon: HeadsetIcon, category: 'physical' },
+  { id: 'cramps', name: 'Cramps', icon: Zap, category: 'physical' },
+  { id: 'back_pain', name: 'Back Pain', icon: ArrowLeftRight, category: 'physical' },
   
   // Hormonal
-  { id: 'hair_loss', name: 'Hair Loss', emoji: '💇', category: 'hormonal' },
-  { id: 'excess_hair', name: 'Excess Hair', emoji: '🧔', category: 'hormonal' },
-  { id: 'weight_gain', name: 'Weight Gain', emoji: '⚖️', category: 'hormonal' },
-  { id: 'hot_flashes', name: 'Hot Flashes', emoji: '🥵', category: 'hormonal' },
-  { id: 'oily_skin', name: 'Oily Skin', emoji: '💧', category: 'hormonal' },
+  { id: 'hair_loss', name: 'Hair Loss', icon: Scissors, category: 'hormonal' },
+  { id: 'excess_hair', name: 'Excess Hair', icon: User, category: 'hormonal' },
+  { id: 'weight_gain', name: 'Weight Gain', icon: Scale, category: 'hormonal' },
+  { id: 'hot_flashes', name: 'Hot Flashes', icon: Flame, category: 'hormonal' },
+  { id: 'oily_skin', name: 'Oily Skin', icon: Droplets, category: 'hormonal' },
   
   // Emotional
-  { id: 'anxiety', name: 'Anxiety', emoji: '😰', category: 'emotional' },
-  { id: 'mood_swings', name: 'Mood Swings', emoji: '🎭', category: 'emotional' },
-  { id: 'irritability', name: 'Irritability', emoji: '😤', category: 'emotional' },
-  { id: 'brain_fog', name: 'Brain Fog', emoji: '🌫️', category: 'emotional' },
-  { id: 'low_energy', name: 'Low Energy', emoji: '🔋', category: 'emotional' },
+  { id: 'anxiety', name: 'Anxiety', icon: AlertTriangle, category: 'emotional' },
+  { id: 'mood_swings', name: 'Mood Swings', icon: RefreshCw, category: 'emotional' },
+  { id: 'irritability', name: 'Irritability', icon: Angry, category: 'emotional' },
+  { id: 'brain_fog', name: 'Brain Fog', icon: Cloud, category: 'emotional' },
+  { id: 'low_energy', name: 'Low Energy', icon: BatteryLow, category: 'emotional' },
 ];
 
 const STORAGE_KEY = 'symptom_history';
@@ -127,6 +148,8 @@ export const SymptomTrackingScreen: React.FC<SymptomTrackingScreenProps> = ({
     }
   };
 
+  const selectedColor = colors.reminder; // Purple color for all selected symptoms
+
   const renderSymptomsByCategory = (category: 'physical' | 'hormonal' | 'emotional') => {
     const categorySymptoms = SYMPTOMS.filter(s => s.category === category);
     const categoryLabels = {
@@ -149,17 +172,17 @@ export const SymptomTrackingScreen: React.FC<SymptomTrackingScreenProps> = ({
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  backgroundColor: isSelected ? categoryLabels[category].color : colors.white,
+                  backgroundColor: isSelected ? selectedColor : colors.white,
                   paddingHorizontal: spacing.md,
                   paddingVertical: spacing.sm,
                   borderRadius: borderRadius.round,
                   borderWidth: 1,
-                  borderColor: isSelected ? categoryLabels[category].color : colors.border,
+                  borderColor: isSelected ? selectedColor : colors.border,
                   ...shadows.sm,
                 }}
                 onPress={() => toggleSymptom(symptom.id)}
               >
-                <Text style={{ fontSize: 16, marginRight: 6 }}>{symptom.emoji}</Text>
+                <symptom.icon size={16} color={isSelected ? colors.white : colors.textSecondary} style={{ marginRight: 6 }} />
                 <Text style={{ fontSize: fontSize.base, color: isSelected ? colors.white : colors.textPrimary, fontWeight: isSelected ? fontWeight.semibold : fontWeight.normal }}>
                   {symptom.name}
                 </Text>
@@ -191,9 +214,12 @@ export const SymptomTrackingScreen: React.FC<SymptomTrackingScreenProps> = ({
 
           return (
             <View key={symptomId} style={{ marginBottom: spacing.lg }}>
-              <Text style={{ fontSize: fontSize.base, color: colors.textPrimary, marginBottom: spacing.sm }}>
-                {symptom.emoji} {symptom.name}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm }}>
+                <symptom.icon size={16} color={colors.textPrimary} />
+                <Text style={{ fontSize: fontSize.base, color: colors.textPrimary, marginLeft: 6 }}>
+                  {symptom.name}
+                </Text>
+              </View>
               <View style={{ flexDirection: 'row', gap: spacing.sm }}>
                 {[1, 2, 3].map(level => (
                   <TouchableOpacity

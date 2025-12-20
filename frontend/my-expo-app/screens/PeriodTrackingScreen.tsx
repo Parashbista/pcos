@@ -454,12 +454,34 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
   };
 
   const handleRemoveDay = async () => {
-    setShowFlowModal(false);
-    const newDays = { ...periodDays };
-    delete newDays[selectedDate];
-    setPeriodDays(newDays);
-    // Note: You'd need a delete API endpoint to fully remove from backend
-    loadData();
+    try {
+      setIsSaving(true);
+      setShowFlowModal(false);
+
+      // Update UI immediately
+      const newDays = { ...periodDays };
+      delete newDays[selectedDate];
+      setPeriodDays(newDays);
+
+      // Find and delete the entry from backend
+      const entries = await periodService.getPeriodEntries();
+      const entryToDelete = entries.find((entry: periodService.PeriodEntry) => {
+        const start = new Date(entry.startDate).toISOString().split('T')[0];
+        const end = entry.endDate ? new Date(entry.endDate).toISOString().split('T')[0] : start;
+        return selectedDate >= start && selectedDate <= end;
+      });
+
+      if (entryToDelete) {
+        await periodService.deletePeriodEntry(entryToDelete.id);
+      }
+
+      loadData();
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to remove period log');
+      loadData();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const getDaysUntilText = (days: number): string => {
