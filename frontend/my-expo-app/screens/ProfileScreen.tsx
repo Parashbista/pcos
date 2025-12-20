@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { ArrowLeft, Settings, ChevronRight, Edit3, LogOut, Heart, Moon, Calendar } from 'lucide-react-native';
+import { ArrowLeft, Settings, ChevronRight, Edit3, LogOut, Heart, Moon, Calendar, Users } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
 import * as sleepService from '../services/sleepService';
@@ -14,6 +14,7 @@ interface ProfileScreenProps {
   onNavigateToEditProfile?: () => void;
   onNavigateToMoodTracking?: () => void;
   onNavigateToSleepTracking?: () => void;
+  onNavigateToPartnerSharing?: () => void;
 }
 
 interface UserData {
@@ -61,6 +62,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onNavigateToEditProfile,
   onNavigateToMoodTracking,
   onNavigateToSleepTracking,
+  onNavigateToPartnerSharing,
 }) => {
   const { logout } = useAuth();
   const [userData, setUserData] = useState<UserData>({ name: 'User', email: '' });
@@ -227,6 +229,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           title="Settings"
           subtitle="App preferences & notifications"
           onPress={() => onNavigateToSettings?.()}
+        />
+
+        <ProfileMenuItem
+          icon={<Users size={20} color="#EC4899" />}
+          title="Partner Mode"
+          subtitle="Share cycle info with loved ones"
+          onPress={() => onNavigateToPartnerSharing?.()}
         />
 
         <View style={{ marginTop: 10 }}>
