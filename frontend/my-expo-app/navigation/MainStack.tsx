@@ -23,6 +23,7 @@ import { EditProfileScreen } from '../screens/EditProfileScreen';
 import { InsightsScreen } from '../screens/InsightsScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SymptomTrackingScreen } from '../screens/SymptomTrackingScreen';
+import { PartnerSharingScreen } from '../screens/PartnerSharingScreen';
 import { MainStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -53,6 +54,7 @@ export const MainStack: React.FC = () => {
             onNavigateToEditProfile={() => navigation.navigate('EditProfile')}
             onNavigateToMoodTracking={() => navigation.navigate('MoodTracking')}
             onNavigateToSleepTracking={() => navigation.navigate('SleepTracking')}
+            onNavigateToPartnerSharing={() => navigation.navigate('PartnerSharing')}
           />
         )}
       </Stack.Screen>
@@ -77,10 +79,7 @@ export const MainStack: React.FC = () => {
               onNavigateBack={() => navigation.goBack()}
               onNavigateToChangePassword={() => navigation.navigate('ChangePassword')}
               onNavigateToNotifications={() => navigation.navigate('NotificationSettings')}
-              onNavigateToExportData={() => navigation.navigate('ExportData')}
-              onNavigateToAppearance={() => navigation.navigate('Appearance')}
               onNavigateToHelpFAQ={() => navigation.navigate('HelpFAQ')}
-              onNavigateToContactSupport={() => navigation.navigate('ContactSupport')}
               onNavigateToPrivacyPolicy={() => navigation.navigate('PrivacyPolicy')}
               onNavigateToAbout={() => navigation.navigate('About')}
             />
@@ -189,6 +188,11 @@ export const MainStack: React.FC = () => {
       <Stack.Screen name="About">
         {({ navigation }) => (
           <AboutScreen onNavigateBack={() => navigation.goBack()} />
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="PartnerSharing">
+        {({ navigation }) => (
+          <PartnerSharingScreen onNavigateBack={() => navigation.goBack()} />
         )}
       </Stack.Screen>
     </Stack.Navigator>

@@ -27,6 +27,7 @@ export type MainStackParamList = {
   PeriodTracking: undefined;
   PeriodHistory: undefined;
   SymptomTracking: undefined;
+  PartnerSharing: undefined;
   Reminders: undefined;
   NotificationSettings: undefined;
   ExportData: undefined;
