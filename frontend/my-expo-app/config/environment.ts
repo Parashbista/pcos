@@ -1,21 +1,41 @@
 /**
  * Environment Configuration
- * 
+ *
  * This file manages environment-specific configuration for the application.
- * It provides different API base URLs for development and production environments.
+ * It automatically detects the development server IP for physical devices.
  */
+
+import Constants from 'expo-constants';
 
 interface EnvironmentConfig {
   API_BASE_URL: string;
 }
 
 /**
+ * Get the development API URL
+ * - Uses Expo's debuggerHost to automatically get the correct IP
+ * - Falls back to localhost for simulators/emulators
+ */
+const getDevApiUrl = (): string => {
+  // Get the debugger host from Expo (includes IP and port like "192.168.1.100:8081")
+  const debuggerHost = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.debuggerHost;
+
+  if (debuggerHost) {
+    // Extract just the IP address (remove the Metro bundler port)
+    const ip = debuggerHost.split(':')[0];
+    return `http://${ip}:3000`;
+  }
+
+  // Fallback for emulators
+  return 'http://localhost:3000';
+};
+
+/**
  * Development environment configuration
- * Use localhost for development on emulator/simulator
- * For physical devices, replace with your machine's local IP address (e.g., 'http://192.168.1.100:3000')
+ * Automatically detects IP address from Expo
  */
 const development: EnvironmentConfig = {
-  API_BASE_URL: 'http://172.20.10.7:3000',
+  API_BASE_URL: getDevApiUrl(),
 };
 
 /**

@@ -9,6 +9,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -168,6 +170,7 @@ export const schedulePeriodReminders = async (
           priority: Notifications.AndroidNotificationPriority.HIGH,
         },
         trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
           date: reminderDate,
         },
       });
@@ -271,10 +274,10 @@ export const scheduleReminderNotification = async (
           data: { reminderId, type },
         },
         trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
           weekday,
           hour: hours,
           minute: minutes,
-          repeats: true,
         },
       });
     } catch (error) {

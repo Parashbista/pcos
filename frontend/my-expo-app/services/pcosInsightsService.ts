@@ -407,9 +407,9 @@ export const scheduleDailyHealthCheck = async (): Promise<void> => {
       sound: true,
     },
     trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour: 20,
       minute: 0,
-      repeats: true,
     },
   });
 };
