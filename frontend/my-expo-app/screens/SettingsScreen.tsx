@@ -3,16 +3,11 @@ import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Ima
 import {
   ArrowLeft,
   Lock,
-  Download,
   Bell,
-  Palette,
   HelpCircle,
-  Mail,
   Shield,
   Info,
-  Trash2,
   LogOut,
-  User,
   ChevronRight,
 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,10 +19,7 @@ interface SettingsScreenProps {
   onNavigateBack?: () => void;
   onNavigateToChangePassword?: () => void;
   onNavigateToNotifications?: () => void;
-  onNavigateToExportData?: () => void;
-  onNavigateToAppearance?: () => void;
   onNavigateToHelpFAQ?: () => void;
-  onNavigateToContactSupport?: () => void;
   onNavigateToPrivacyPolicy?: () => void;
   onNavigateToAbout?: () => void;
 }
@@ -82,12 +74,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onNavigateBack, 
   onNavigateToChangePassword, 
   onNavigateToNotifications, 
-  onNavigateToExportData,
-  onNavigateToAppearance,
   onNavigateToHelpFAQ,
-  onNavigateToContactSupport,
   onNavigateToPrivacyPolicy,
-  onNavigateToAbout
+  onNavigateToAbout,
 }) => {
   const { user, logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
