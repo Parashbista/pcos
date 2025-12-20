@@ -4,6 +4,7 @@ import { connectDB } from './config/database';
 import { initializeSleepCollections } from './models/sleep.model';
 import { initializeMoodCollections } from './models/mood.model';
 import { initializePeriodCollections } from './models/period.model';
+import { initializeSymptomCollections } from './models/symptom.model';
 import { ReminderModel } from './models/reminder.model';
 
 // Load environment variables
@@ -23,6 +24,7 @@ async function startServer(): Promise<void> {
     await initializeSleepCollections();
     await initializeMoodCollections();
     await initializePeriodCollections();
+    await initializeSymptomCollections();
     await ReminderModel.initialize();
     console.log('✓ Collections initialized');
 
