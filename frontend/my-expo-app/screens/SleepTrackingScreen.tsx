@@ -183,7 +183,7 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
             <Moon size={28} color="white" />
           </View>
           <View style={{ marginLeft: 14, flex: 1 }}>
-            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>{existingEntry ? 'Logged Sleep' : 'Sleep Duration'}</Text>
+            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>Sleep Duration</Text>
             <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'white' }}>
               {isValidDuration ? `${hours}h ${mins}m` : '--'}
             </Text>
@@ -308,7 +308,7 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
                     <Text style={{ fontSize: 18, fontWeight: '700', color: '#EF4444' }}>
                       {(dashboardSummary.averageSleep / 60).toFixed(1)}h
                     </Text>
-                    <Text style={{ fontSize: 11, color: '#9CA3AF' }}>Your Avg</Text>
+                    <Text style={{ fontSize: 11, color: '#9CA3AF' }}>7-Day Avg</Text>
                   </View>
                   <View style={{ width: 1, backgroundColor: '#E5E7EB' }} />
                   <View style={{ alignItems: 'center', flex: 1 }}>
@@ -340,7 +340,7 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
                   <Text style={{ fontSize: 15, fontWeight: '600', color: '#166534', flex: 1 }}>Great Sleep Pattern! 🌟</Text>
                 </View>
                 <Text style={{ fontSize: 13, color: '#15803D', lineHeight: 20 }}>
-                  You're averaging {(dashboardSummary.averageSleep / 60).toFixed(1)} hours of sleep. Keep it up! Consistent sleep helps regulate hormones and manage PCOS symptoms.
+                  You're averaging {(dashboardSummary.averageSleep / 60).toFixed(1)} hours of sleep per night (7-day avg). Keep it up! Consistent sleep helps regulate hormones and manage PCOS symptoms.
                 </Text>
               </View>
             )}

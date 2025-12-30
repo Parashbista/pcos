@@ -1,7 +1,8 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import * as symptomService from '../services/symptom.service';
-import { CreateSymptomEntryData, UpdateSymptomEntryData } from '../models/symptom.types';
+import { getSymptomRecommendations, getQuickTip } from '../services/symptom-recommendation.service';
+import { CreateSymptomEntryData, UpdateSymptomEntryData, SymptomName } from '../models/symptom.types';
 
 /**
  * Create or update symptom entry
@@ -156,5 +157,118 @@ export const getSymptomStats = async (req: AuthRequest, res: Response): Promise<
   } catch (error: any) {
     console.error('Get symptom stats error:', error);
     res.status(500).json({ error: 'Failed to get symptom statistics' });
+  }
+};
+
+
+/**
+ * Get AI-powered recommendations based on symptoms
+ * POST /api/symptoms/recommendations
+ */
+export const getRecommendations = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const { symptoms } = req.body;
+
+    if (!symptoms || !Array.isArray(symptoms)) {
+      res.status(400).json({ error: 'Missing required field: symptoms (array)' });
+      return;
+    }
+
+    // Get recent symptom history for context
+    const endDate = new Date().toISOString().split('T')[0];
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 7);
+    const startDateStr = startDate.toISOString().split('T')[0];
+
+    const recentEntries = await symptomService.getSymptomEntries(userId, startDateStr, endDate);
+    const recentHistory = recentEntries.map(e => ({
+      date: e.date,
+      symptoms: e.symptoms,
+    }));
+
+    const analysis = await getSymptomRecommendations(symptoms, recentHistory);
+
+    res.json({
+      success: true,
+      data: analysis,
+    });
+  } catch (error: any) {
+    console.error('Get symptom recommendations error:', error);
+    res.status(500).json({ error: 'Failed to get recommendations' });
+  }
+};
+
+/**
+ * Get quick tip for a specific symptom
+ * GET /api/symptoms/tip/:symptomName
+ */
+export const getSymptomTip = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { symptomName } = req.params;
+    const tip = getQuickTip(symptomName as SymptomName);
+
+    res.json({
+      success: true,
+      data: { symptomName, tip },
+    });
+  } catch (error: any) {
+    console.error('Get symptom tip error:', error);
+    res.status(500).json({ error: 'Failed to get tip' });
+  }
+};
+
+/**
+ * Log symptoms and get AI recommendations in one call
+ * POST /api/symptoms/log-with-recommendations
+ */
+export const logWithRecommendations = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const data: CreateSymptomEntryData = req.body;
+
+    if (!data.date || !data.symptoms) {
+      res.status(400).json({ error: 'Missing required fields: date, symptoms' });
+      return;
+    }
+
+    // Save the entry
+    const entry = await symptomService.createSymptomEntry(userId, data);
+
+    // Get recent history for AI context
+    const endDate = new Date().toISOString().split('T')[0];
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 7);
+    const startDateStr = startDate.toISOString().split('T')[0];
+
+    const recentEntries = await symptomService.getSymptomEntries(userId, startDateStr, endDate);
+    const recentHistory = recentEntries.map(e => ({
+      date: e.date,
+      symptoms: e.symptoms,
+    }));
+
+    // Get AI recommendations
+    const analysis = await getSymptomRecommendations(data.symptoms, recentHistory);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        entry,
+        analysis,
+      },
+    });
+  } catch (error: any) {
+    console.error('Log with recommendations error:', error);
+    res.status(500).json({ error: 'Failed to log symptoms' });
   }
 };
