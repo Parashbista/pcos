@@ -59,12 +59,18 @@ export const SymptomTrackingScreen: React.FC<SymptomTrackingScreenProps> = ({
         });
         setSelectedSymptoms(symptomsMap);
       } else {
+        // No entry for this date - this is normal, not an error
         setExistingEntry(null);
         setSelectedSymptoms(new Map());
       }
       setAnalysis(null);
-    } catch (error) {
-      console.error('Error loading symptoms:', error);
+    } catch (error: any) {
+      // Only log actual errors, not 404s (which are handled in the service)
+      if (error.status !== 404) {
+        console.error('Error loading symptoms:', error);
+      }
+      setExistingEntry(null);
+      setSelectedSymptoms(new Map());
     } finally {
       setIsLoading(false);
     }

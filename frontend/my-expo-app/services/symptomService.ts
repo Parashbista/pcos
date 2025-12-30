@@ -164,7 +164,10 @@ export const getSymptomEntryByDate = async (date: string): Promise<SymptomEntry 
     const response = await api.get<SymptomEntry>(`/api/symptoms/date/${date}`);
     return response.data;
   } catch (error: any) {
-    if (error.response?.status === 404) return null;
+    // Handle 404 - no entry for this date (this is expected, not an error)
+    if (error.status === 404 || error.response?.status === 404) {
+      return null;
+    }
     throw error;
   }
 };
