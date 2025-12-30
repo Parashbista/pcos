@@ -21,4 +21,8 @@ router.get('/goal', sleepController.getSleepGoal);
 // Sleep statistics
 router.get('/stats', sleepController.getSleepStats);
 
+// Sleep analysis (weekly patterns & alerts)
+router.get('/analysis', sleepController.getSleepAnalysis);
+router.get('/dashboard-summary', sleepController.getSleepDashboardSummary);
+
 export default router;

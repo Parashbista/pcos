@@ -230,3 +230,55 @@ export const getSleepStats = async (req: AuthRequest, res: Response): Promise<vo
     res.status(500).json({ error: 'Failed to get sleep statistics' });
   }
 };
+
+
+// Import sleep analysis service
+import { analyzeWeeklySleep, getSleepSummaryForDashboard } from '../services/sleep-analysis.service';
+
+/**
+ * Get weekly sleep analysis with alerts
+ * GET /api/sleep/analysis
+ */
+export const getSleepAnalysis = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const analysis = await analyzeWeeklySleep(userId);
+
+    res.json({
+      success: true,
+      data: analysis,
+    });
+  } catch (error: any) {
+    console.error('Get sleep analysis error:', error);
+    res.status(500).json({ error: 'Failed to get sleep analysis' });
+  }
+};
+
+/**
+ * Get sleep summary for dashboard (quick check for alerts)
+ * GET /api/sleep/dashboard-summary
+ */
+export const getSleepDashboardSummary = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const summary = await getSleepSummaryForDashboard(userId);
+
+    res.json({
+      success: true,
+      data: summary,
+    });
+  } catch (error: any) {
+    console.error('Get sleep dashboard summary error:', error);
+    res.status(500).json({ error: 'Failed to get sleep summary' });
+  }
+};

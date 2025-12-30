@@ -162,3 +162,95 @@ export const getQualityColor = (quality: number): string => {
   const colors = ['', '#EF4444', '#F97316', '#EAB308', '#22C55E', '#10B981'];
   return colors[quality] || '#6B7280';
 };
+
+
+// ============================================
+// Sleep Analysis & Alerts
+// ============================================
+
+export interface SleepAlert {
+  type: 'low_sleep' | 'irregular_pattern' | 'quality_drop' | 'cycle_impact';
+  severity: 'warning' | 'alert' | 'info';
+  title: string;
+  message: string;
+  recommendation: string;
+  data?: {
+    averageSleep?: number;
+    targetSleep?: number;
+    daysAnalyzed?: number;
+  };
+}
+
+export interface WeeklyPattern {
+  weekStart: string;
+  weekEnd: string;
+  averageDuration: number;
+  averageQuality: number;
+  totalEntries: number;
+  consistencyScore: number;
+  bestDay: { day: string; duration: number } | null;
+  worstDay: { day: string; duration: number } | null;
+  trend: 'improving' | 'declining' | 'stable';
+}
+
+export interface SleepAnalysis {
+  weeklyPattern: WeeklyPattern;
+  alerts: SleepAlert[];
+  cycleImpactInsight?: string;
+  aiRecommendation?: string;
+}
+
+export interface SleepDashboardSummary {
+  hasAlert: boolean;
+  alertMessage?: string;
+  averageSleep: number;
+  trend: string;
+}
+
+/**
+ * Get weekly sleep analysis with alerts
+ */
+export const getSleepAnalysis = async (): Promise<SleepAnalysis> => {
+  const response = await api.get<{ success: boolean; data: SleepAnalysis }>('/api/sleep/analysis');
+  return response.data.data;
+};
+
+/**
+ * Get sleep summary for dashboard
+ */
+export const getSleepDashboardSummary = async (): Promise<SleepDashboardSummary> => {
+  const response = await api.get<{ success: boolean; data: SleepDashboardSummary }>(
+    '/api/sleep/dashboard-summary'
+  );
+  return response.data.data;
+};
+
+/**
+ * Get alert severity color
+ */
+export const getAlertColor = (severity: 'warning' | 'alert' | 'info'): string => {
+  switch (severity) {
+    case 'alert':
+      return '#EF4444';
+    case 'warning':
+      return '#F59E0B';
+    case 'info':
+      return '#6366F1';
+    default:
+      return '#6B7280';
+  }
+};
+
+/**
+ * Get trend icon
+ */
+export const getTrendIcon = (trend: string): string => {
+  switch (trend) {
+    case 'improving':
+      return '📈';
+    case 'declining':
+      return '📉';
+    default:
+      return '➡️';
+  }
+};

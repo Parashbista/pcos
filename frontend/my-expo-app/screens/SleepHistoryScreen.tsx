@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import * as sleepService from '../services/sleepService';
-import { formatDuration, getQualityLabel, getQualityColor, SLEEP_FACTORS } from '../services/sleepService';
+import { formatDuration, getQualityLabel, getQualityColor, SLEEP_FACTORS, SleepAnalysis } from '../services/sleepService';
+import SleepAlertCard from '../components/sleep/SleepAlertCard';
 
 interface SleepHistoryScreenProps {
   onNavigateBack?: () => void;
@@ -17,6 +18,7 @@ export const SleepHistoryScreen: React.FC<SleepHistoryScreenProps> = ({ onNaviga
   const [entries, setEntries] = useState<sleepService.SleepEntry[]>([]);
   const [stats, setStats] = useState<sleepService.SleepStats | null>(null);
   const [goal, setGoal] = useState<sleepService.SleepGoal | null>(null);
+  const [analysis, setAnalysis] = useState<SleepAnalysis | null>(null);
 
   useEffect(() => {
     loadData();
@@ -49,15 +51,17 @@ export const SleepHistoryScreen: React.FC<SleepHistoryScreenProps> = ({ onNaviga
       setIsLoading(true);
       const { startDate, endDate } = getDateRange();
 
-      const [entriesData, statsData, goalData] = await Promise.all([
+      const [entriesData, statsData, goalData, analysisData] = await Promise.all([
         sleepService.getSleepEntries(startDate, endDate),
         sleepService.getSleepStats(startDate, endDate),
         sleepService.getSleepGoal(),
+        timeRange === '7days' ? sleepService.getSleepAnalysis() : Promise.resolve(null),
       ]);
 
       setEntries(entriesData);
       setStats(statsData);
       setGoal(goalData);
+      setAnalysis(analysisData);
     } catch (error) {
       console.error('Error loading sleep data:', error);
     } finally {
@@ -280,6 +284,138 @@ export const SleepHistoryScreen: React.FC<SleepHistoryScreenProps> = ({ onNaviga
                         }}
                       />
                     </View>
+                  </View>
+                )}
+              </View>
+            )}
+
+            {/* Sleep Alerts Section */}
+            {analysis && analysis.alerts.length > 0 && (
+              <View style={{ marginBottom: 16 }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 12, paddingHorizontal: 4 }}>
+                  ⚠️ Sleep Alerts
+                </Text>
+                {analysis.alerts.map((alert, index) => (
+                  <SleepAlertCard key={index} alert={alert} />
+                ))}
+              </View>
+            )}
+
+            {/* Weekly Pattern Card */}
+            {analysis && analysis.weeklyPattern.totalEntries > 0 && (
+              <View
+                style={{
+                  backgroundColor: 'white',
+                  borderRadius: 20,
+                  padding: 20,
+                  marginBottom: 16,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 8,
+                  elevation: 2,
+                }}
+              >
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>
+                    📊 Weekly Pattern
+                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: analysis.weeklyPattern.trend === 'improving' ? '#DCFCE7' : analysis.weeklyPattern.trend === 'declining' ? '#FEE2E2' : '#F3F4F6', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
+                    <Text style={{ fontSize: 14, marginRight: 4 }}>
+                      {analysis.weeklyPattern.trend === 'improving' ? '📈' : analysis.weeklyPattern.trend === 'declining' ? '📉' : '➡️'}
+                    </Text>
+                    <Text style={{ fontSize: 12, fontWeight: '500', color: analysis.weeklyPattern.trend === 'improving' ? '#166534' : analysis.weeklyPattern.trend === 'declining' ? '#991B1B' : '#6B7280', textTransform: 'capitalize' }}>
+                      {analysis.weeklyPattern.trend}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Consistency Score */}
+                <View style={{ marginBottom: 16 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <Text style={{ fontSize: 13, color: '#6B7280' }}>Sleep Consistency</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: analysis.weeklyPattern.consistencyScore >= 70 ? '#22C55E' : analysis.weeklyPattern.consistencyScore >= 50 ? '#F59E0B' : '#EF4444' }}>
+                      {analysis.weeklyPattern.consistencyScore}%
+                    </Text>
+                  </View>
+                  <View style={{ height: 8, backgroundColor: '#E5E7EB', borderRadius: 4, overflow: 'hidden' }}>
+                    <View
+                      style={{
+                        height: '100%',
+                        width: `${analysis.weeklyPattern.consistencyScore}%`,
+                        backgroundColor: analysis.weeklyPattern.consistencyScore >= 70 ? '#22C55E' : analysis.weeklyPattern.consistencyScore >= 50 ? '#F59E0B' : '#EF4444',
+                        borderRadius: 4,
+                      }}
+                    />
+                  </View>
+                </View>
+
+                {/* Best & Worst Days */}
+                <View style={{ flexDirection: 'row', gap: 12 }}>
+                  {analysis.weeklyPattern.bestDay && (
+                    <View style={{ flex: 1, backgroundColor: '#F0FDF4', borderRadius: 12, padding: 12 }}>
+                      <Text style={{ fontSize: 11, color: '#22C55E', marginBottom: 4 }}>Best Night</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: '#166534' }}>
+                        {analysis.weeklyPattern.bestDay.day}
+                      </Text>
+                      <Text style={{ fontSize: 12, color: '#15803D' }}>
+                        {Math.floor(analysis.weeklyPattern.bestDay.duration / 60)}h {analysis.weeklyPattern.bestDay.duration % 60}m
+                      </Text>
+                    </View>
+                  )}
+                  {analysis.weeklyPattern.worstDay && (
+                    <View style={{ flex: 1, backgroundColor: '#FEF2F2', borderRadius: 12, padding: 12 }}>
+                      <Text style={{ fontSize: 11, color: '#EF4444', marginBottom: 4 }}>Needs Improvement</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: '#991B1B' }}>
+                        {analysis.weeklyPattern.worstDay.day}
+                      </Text>
+                      <Text style={{ fontSize: 12, color: '#B91C1C' }}>
+                        {Math.floor(analysis.weeklyPattern.worstDay.duration / 60)}h {analysis.weeklyPattern.worstDay.duration % 60}m
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            )}
+
+            {/* AI Insights */}
+            {analysis && (analysis.aiRecommendation || analysis.cycleImpactInsight) && (
+              <View
+                style={{
+                  backgroundColor: '#FDF4FF',
+                  borderRadius: 20,
+                  padding: 20,
+                  marginBottom: 16,
+                  borderWidth: 1,
+                  borderColor: '#F5D0FE',
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                  <Text style={{ fontSize: 20, marginRight: 8 }}>🤖</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '600', color: '#86198F' }}>
+                    AI Sleep Insights
+                  </Text>
+                </View>
+                
+                {analysis.aiRecommendation && (
+                  <View style={{ marginBottom: analysis.cycleImpactInsight ? 12 : 0 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#A21CAF', marginBottom: 4 }}>
+                      💡 Recommendation
+                    </Text>
+                    <Text style={{ fontSize: 14, color: '#701A75', lineHeight: 22 }}>
+                      {analysis.aiRecommendation}
+                    </Text>
+                  </View>
+                )}
+                
+                {analysis.cycleImpactInsight && (
+                  <View style={{ backgroundColor: 'white', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#F5D0FE' }}>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#A21CAF', marginBottom: 4 }}>
+                      🌸 Cycle Impact
+                    </Text>
+                    <Text style={{ fontSize: 14, color: '#701A75', lineHeight: 22 }}>
+                      {analysis.cycleImpactInsight}
+                    </Text>
                   </View>
                 )}
               </View>

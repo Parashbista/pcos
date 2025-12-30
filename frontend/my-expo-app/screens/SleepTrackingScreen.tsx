@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { ArrowLeft, BarChart3, ChevronLeft, ChevronRight, Moon, CloudMoon, Sunrise, Frown, Meh, Smile, Sparkles, Brain, Coffee, Smartphone, Dumbbell, UtensilsCrossed, Wine, Pill, HeartCrack, AlertCircle, Lightbulb } from 'lucide-react-native';
+import { ArrowLeft, BarChart3, ChevronLeft, ChevronRight, Moon, CloudMoon, Sunrise, Frown, Meh, Smile, Sparkles, Brain, Coffee, Smartphone, Dumbbell, UtensilsCrossed, Wine, Pill, HeartCrack, AlertCircle, Lightbulb, TrendingDown, TrendingUp, Minus, Heart } from 'lucide-react-native';
 import * as sleepService from '../services/sleepService';
-import { SleepFactor } from '../services/sleepService';
+import { SleepFactor, SleepDashboardSummary } from '../services/sleepService';
 
 const SLEEP_FACTORS: { value: SleepFactor; label: string; icon: any }[] = [
   { value: 'stress', label: 'Stress', icon: Brain },
@@ -49,8 +49,18 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
   const [showBedtimePicker, setShowBedtimePicker] = useState(false);
   const [showWakeTimePicker, setShowWakeTimePicker] = useState(false);
   const [existingEntry, setExistingEntry] = useState<sleepService.SleepEntry | null>(null);
+  const [dashboardSummary, setDashboardSummary] = useState<SleepDashboardSummary | null>(null);
 
-  useEffect(() => { loadExistingEntry(); }, [selectedDate]);
+  useEffect(() => { loadExistingEntry(); loadDashboardSummary(); }, [selectedDate]);
+
+  const loadDashboardSummary = async () => {
+    try {
+      const summary = await sleepService.getSleepDashboardSummary();
+      setDashboardSummary(summary);
+    } catch (error) {
+      console.error('Error loading dashboard summary:', error);
+    }
+  };
 
   const loadExistingEntry = async () => {
     try {
@@ -112,7 +122,24 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
         quality,
         factors: selectedFactors,
       });
-      Alert.alert('Saved', 'Sleep entry saved!');
+      
+      // Reload dashboard summary to check for alerts
+      const summary = await sleepService.getSleepDashboardSummary();
+      setDashboardSummary(summary);
+      
+      // Show appropriate message based on sleep duration
+      if (duration < 360) { // Less than 6 hours
+        Alert.alert(
+          '💤 Sleep Alert',
+          `You logged ${hours}h ${mins}m of sleep. For better hormonal balance and PCOS management, try to get 7-8 hours of sleep consistently.`,
+          [{ text: 'Got it', style: 'default' }]
+        );
+      } else if (duration >= 420 && duration <= 540) { // 7-9 hours
+        Alert.alert('Great Sleep! 🌟', 'You\'re in the optimal sleep range for hormonal health!');
+      } else {
+        Alert.alert('Saved ✓', 'Sleep entry saved successfully!');
+      }
+      
       loadExistingEntry();
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to save');
@@ -260,9 +287,74 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
             </View>
 
             {/* Save Button */}
-            <TouchableOpacity onPress={handleSave} disabled={isSaving || !isValidDuration} style={{ backgroundColor: isValidDuration ? '#6366F1' : '#9CA3AF', padding: 18, borderRadius: 16, alignItems: 'center', marginBottom: 32, shadowColor: '#6366F1', shadowOffset: { width: 0, height: 4 }, shadowOpacity: isValidDuration ? 0.3 : 0, shadowRadius: 8, elevation: isValidDuration ? 4 : 0 }}>
+            <TouchableOpacity onPress={handleSave} disabled={isSaving || !isValidDuration} style={{ backgroundColor: isValidDuration ? '#6366F1' : '#9CA3AF', padding: 18, borderRadius: 16, alignItems: 'center', marginBottom: 16, shadowColor: '#6366F1', shadowOffset: { width: 0, height: 4 }, shadowOpacity: isValidDuration ? 0.3 : 0, shadowRadius: 8, elevation: isValidDuration ? 4 : 0 }}>
               {isSaving ? <ActivityIndicator color="white" /> : <Text style={{ color: 'white', fontSize: 17, fontWeight: '600' }}>{existingEntry ? '✓ Update Entry' : '✓ Save Entry'}</Text>}
             </TouchableOpacity>
+
+            {/* Weekly Summary Alert Card */}
+            {dashboardSummary && dashboardSummary.hasAlert && (
+              <View style={{ backgroundColor: '#FEF2F2', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#FECACA' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FEE2E2', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                    <AlertCircle size={20} color="#EF4444" />
+                  </View>
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: '#991B1B', flex: 1 }}>Weekly Sleep Alert</Text>
+                </View>
+                <Text style={{ fontSize: 13, color: '#B91C1C', lineHeight: 20, marginBottom: 12 }}>
+                  {dashboardSummary.alertMessage || 'Your average sleep this week is below recommended levels.'}
+                </Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: 'white', borderRadius: 12, padding: 12 }}>
+                  <View style={{ alignItems: 'center', flex: 1 }}>
+                    <Text style={{ fontSize: 18, fontWeight: '700', color: '#EF4444' }}>
+                      {(dashboardSummary.averageSleep / 60).toFixed(1)}h
+                    </Text>
+                    <Text style={{ fontSize: 11, color: '#9CA3AF' }}>Your Avg</Text>
+                  </View>
+                  <View style={{ width: 1, backgroundColor: '#E5E7EB' }} />
+                  <View style={{ alignItems: 'center', flex: 1 }}>
+                    <Text style={{ fontSize: 18, fontWeight: '700', color: '#22C55E' }}>7-8h</Text>
+                    <Text style={{ fontSize: 11, color: '#9CA3AF' }}>Target</Text>
+                  </View>
+                  <View style={{ width: 1, backgroundColor: '#E5E7EB' }} />
+                  <View style={{ alignItems: 'center', flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+                    {dashboardSummary.trend === 'improving' ? (
+                      <TrendingUp size={18} color="#22C55E" />
+                    ) : dashboardSummary.trend === 'declining' ? (
+                      <TrendingDown size={18} color="#EF4444" />
+                    ) : (
+                      <Minus size={18} color="#6B7280" />
+                    )}
+                    <Text style={{ fontSize: 11, color: '#6B7280', marginLeft: 4, textTransform: 'capitalize' }}>{dashboardSummary.trend}</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* PCOS Sleep Connection Card */}
+            {dashboardSummary && !dashboardSummary.hasAlert && dashboardSummary.averageSleep > 0 && (
+              <View style={{ backgroundColor: '#F0FDF4', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#BBF7D0' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#DCFCE7', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                    <Heart size={20} color="#22C55E" />
+                  </View>
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: '#166534', flex: 1 }}>Great Sleep Pattern! 🌟</Text>
+                </View>
+                <Text style={{ fontSize: 13, color: '#15803D', lineHeight: 20 }}>
+                  You're averaging {(dashboardSummary.averageSleep / 60).toFixed(1)} hours of sleep. Keep it up! Consistent sleep helps regulate hormones and manage PCOS symptoms.
+                </Text>
+              </View>
+            )}
+
+            {/* Cycle Impact Info */}
+            <View style={{ backgroundColor: '#FDF4FF', borderRadius: 16, padding: 16, marginBottom: 32, borderWidth: 1, borderColor: '#F5D0FE' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                <Text style={{ fontSize: 18, marginRight: 8 }}>🌸</Text>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#86198F' }}>Sleep & Cycle Connection</Text>
+              </View>
+              <Text style={{ fontSize: 13, color: '#701A75', lineHeight: 20 }}>
+                Poor sleep can disrupt hormone production and contribute to irregular periods. Women who sleep less than 6 hours have higher rates of menstrual irregularity. Prioritizing 7-8 hours of sleep supports hormonal balance naturally.
+              </Text>
+            </View>
           </>
         )}
       </View>
