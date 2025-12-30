@@ -32,6 +32,7 @@ interface HomeScreenProps {
   onNavigateToSleepTracking: () => void;
   onNavigateToSymptomTracking: () => void;
   onNavigateToReminders: () => void;
+  onNavigateToSupplements: () => void;
   onNavigateToInsights: () => void;
 }
 
@@ -51,6 +52,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNavigateToSleepTracking,
   onNavigateToSymptomTracking,
   onNavigateToReminders,
+  onNavigateToSupplements,
   onNavigateToInsights,
 }) => {
   const [userName, setUserName] = useState('');
@@ -427,6 +429,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <View style={{ flex: 1, marginLeft: 14 }}>
               <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>Reminders</Text>
               <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Food & supplement reminders</Text>
+            </View>
+            <ChevronRight size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+
+          {/* Supplements Card */}
+          <TouchableOpacity
+            style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
+            onPress={onNavigateToSupplements}
+          >
+            <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#FDF4FF', justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 24 }}>💊</Text>
+            </View>
+            <View style={{ flex: 1, marginLeft: 14 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>Supplements</Text>
+              <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Track PCOS supplements & consistency</Text>
             </View>
             <ChevronRight size={20} color="#9CA3AF" />
           </TouchableOpacity>

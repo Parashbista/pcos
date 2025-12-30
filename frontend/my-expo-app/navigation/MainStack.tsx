@@ -12,6 +12,7 @@ import MoodboardScreen from '../screens/MoodboardScreen';
 import { PeriodTrackingScreen } from '../screens/PeriodTrackingScreen';
 import { PeriodHistoryScreen } from '../screens/PeriodHistoryScreen';
 import { ReminderScreen } from '../screens/ReminderScreen';
+import { SupplementTrackingScreen } from '../screens/SupplementTrackingScreen';
 import { NotificationSettingsScreen } from '../screens/NotificationSettingsScreen';
 import { ExportDataScreen } from '../screens/ExportDataScreen';
 import { AppearanceScreen } from '../screens/AppearanceScreen';
@@ -43,6 +44,7 @@ export const MainStack: React.FC = () => {
             onNavigateToSleepTracking={() => navigation.navigate('SleepTracking')}
             onNavigateToSymptomTracking={() => navigation.navigate('SymptomTracking')}
             onNavigateToReminders={() => navigation.navigate('Reminders')}
+            onNavigateToSupplements={() => navigation.navigate('SupplementTracking')}
             onNavigateToInsights={() => navigation.navigate('Insights')}
           />
         )}
@@ -154,6 +156,11 @@ export const MainStack: React.FC = () => {
       <Stack.Screen name="Reminders">
         {({ navigation }) => (
           <ReminderScreen onNavigateBack={() => navigation.goBack()} />
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="SupplementTracking">
+        {({ navigation }) => (
+          <SupplementTrackingScreen onNavigateBack={() => navigation.goBack()} />
         )}
       </Stack.Screen>
       <Stack.Screen name="NotificationSettings">
