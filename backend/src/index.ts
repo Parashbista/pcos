@@ -1,4 +1,7 @@
+// Load environment variables FIRST - before any other imports
 import dotenv from 'dotenv';
+dotenv.config();
+
 import { app } from './server';
 import { connectDB } from './config/database';
 import { initializeSleepCollections } from './models/sleep.model';
@@ -6,9 +9,6 @@ import { initializeMoodCollections } from './models/mood.model';
 import { initializePeriodCollections } from './models/period.model';
 import { initializeSymptomCollections } from './models/symptom.model';
 import { ReminderModel } from './models/reminder.model';
-
-// Load environment variables
-dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
