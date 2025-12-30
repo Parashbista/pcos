@@ -6,6 +6,7 @@ import moodRouter from './routes/mood.routes';
 import periodRouter from './routes/period.routes';
 import reminderRouter from './routes/reminder.routes';
 import symptomRouter from './routes/symptom.routes';
+import supplementRouter from './routes/supplement.routes';
 import aiRouter from './routes/ai.routes';
 
 // Initialize Express app
@@ -46,6 +47,9 @@ app.use('/api/reminders', reminderRouter);
 
 // Mount symptom router on /api/symptoms path
 app.use('/api/symptoms', symptomRouter);
+
+// Mount supplement router on /api/supplements path
+app.use('/api/supplements', supplementRouter);
 
 // Mount AI router on /api/ai path
 console.log('✓ AI routes loaded');
