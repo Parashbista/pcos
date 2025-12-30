@@ -24,6 +24,7 @@ export type MainStackParamList = {
   SleepHistory: undefined;
   MoodTracking: undefined;
   MoodHistory: undefined;
+  Moodboard: undefined;
   PeriodTracking: undefined;
   PeriodHistory: undefined;
   SymptomTracking: undefined;

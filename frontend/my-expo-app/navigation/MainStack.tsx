@@ -8,6 +8,7 @@ import { SleepTrackingScreen } from '../screens/SleepTrackingScreen';
 import { SleepHistoryScreen } from '../screens/SleepHistoryScreen';
 import { MoodTrackingScreen } from '../screens/MoodTrackingScreen';
 import { MoodHistoryScreen } from '../screens/MoodHistoryScreen';
+import MoodboardScreen from '../screens/MoodboardScreen';
 import { PeriodTrackingScreen } from '../screens/PeriodTrackingScreen';
 import { PeriodHistoryScreen } from '../screens/PeriodHistoryScreen';
 import { ReminderScreen } from '../screens/ReminderScreen';
@@ -195,6 +196,7 @@ export const MainStack: React.FC = () => {
           <PartnerSharingScreen onNavigateBack={() => navigation.goBack()} />
         )}
       </Stack.Screen>
+      <Stack.Screen name="Moodboard" component={MoodboardScreen} />
     </Stack.Navigator>
   );
 };
