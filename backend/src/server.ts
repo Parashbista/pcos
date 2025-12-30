@@ -6,6 +6,7 @@ import moodRouter from './routes/mood.routes';
 import periodRouter from './routes/period.routes';
 import reminderRouter from './routes/reminder.routes';
 import symptomRouter from './routes/symptom.routes';
+import aiRouter from './routes/ai.routes';
 
 // Initialize Express app
 export const app: Express = express();
@@ -45,6 +46,10 @@ app.use('/api/reminders', reminderRouter);
 
 // Mount symptom router on /api/symptoms path
 app.use('/api/symptoms', symptomRouter);
+
+// Mount AI router on /api/ai path
+console.log('✓ AI routes loaded');
+app.use('/api/ai', aiRouter);
 
 // Error handling middleware for authentication errors
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
