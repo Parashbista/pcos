@@ -38,4 +38,5 @@ export type MainStackParamList = {
   ContactSupport: undefined;
   PrivacyPolicy: undefined;
   About: undefined;
+  Chatbot: undefined;
 };

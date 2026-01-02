@@ -26,6 +26,7 @@ import { InsightsScreen } from '../screens/InsightsScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SymptomTrackingScreen } from '../screens/SymptomTrackingScreen';
 import { PartnerSharingScreen } from '../screens/PartnerSharingScreen';
+import { ChatbotScreen } from '../screens/ChatbotScreen';
 import { MainStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -46,6 +47,7 @@ export const MainStack: React.FC = () => {
             onNavigateToReminders={() => navigation.navigate('Reminders')}
             onNavigateToSupplements={() => navigation.navigate('SupplementTracking')}
             onNavigateToInsights={() => navigation.navigate('Insights')}
+            onNavigateToChatbot={() => navigation.navigate('Chatbot')}
           />
         )}
       </Stack.Screen>
@@ -204,6 +206,11 @@ export const MainStack: React.FC = () => {
         )}
       </Stack.Screen>
       <Stack.Screen name="Moodboard" component={MoodboardScreen} />
+      <Stack.Screen name="Chatbot">
+        {({ navigation }) => (
+          <ChatbotScreen onNavigateBack={() => navigation.goBack()} />
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 };

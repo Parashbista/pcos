@@ -20,6 +20,7 @@ import {
   Flame,
   Star,
   Stethoscope,
+  MessageCircle,
 } from 'lucide-react-native';
 import * as sleepService from '../services/sleepService';
 import * as moodService from '../services/moodService';
@@ -34,6 +35,7 @@ interface HomeScreenProps {
   onNavigateToReminders: () => void;
   onNavigateToSupplements: () => void;
   onNavigateToInsights: () => void;
+  onNavigateToChatbot: () => void;
 }
 
 interface HealthSummary {
@@ -54,6 +56,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNavigateToReminders,
   onNavigateToSupplements,
   onNavigateToInsights,
+  onNavigateToChatbot,
 }) => {
   const [userName, setUserName] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -461,6 +464,23 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <Text style={{ fontSize: 13, color: '#B45309', marginTop: 2 }}>Personalized health insights</Text>
             </View>
             <View style={{ backgroundColor: '#F59E0B', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+              <Text style={{ fontSize: 10, fontWeight: '600', color: 'white' }}>AI</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* AI Chatbot Card */}
+          <TouchableOpacity
+            style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: '#F3E8FF' }}
+            onPress={onNavigateToChatbot}
+          >
+            <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#F3E8FF', justifyContent: 'center', alignItems: 'center' }}>
+              <MessageCircle size={24} color="#8B5CF6" />
+            </View>
+            <View style={{ flex: 1, marginLeft: 14 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>PCOS Assistant</Text>
+              <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Chat with AI health assistant</Text>
+            </View>
+            <View style={{ backgroundColor: '#8B5CF6', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
               <Text style={{ fontSize: 10, fontWeight: '600', color: 'white' }}>AI</Text>
             </View>
           </TouchableOpacity>
