@@ -21,8 +21,13 @@ api.interceptors.request.use(
       // Get token from AsyncStorage
       const token = await AsyncStorage.getItem('authToken');
       
-      // Debug log
-      console.log('API Request:', config.url, 'Token exists:', !!token);
+      // Detailed debug log
+      console.log('📤 API Request Details:');
+      console.log('   URL:', config.url);
+      console.log('   Base URL:', config.baseURL);
+      console.log('   Full URL:', `${config.baseURL}${config.url}`);
+      console.log('   Method:', config.method?.toUpperCase());
+      console.log('   Token exists:', !!token);
       
       // If token exists, add it to Authorization header
       if (token) {

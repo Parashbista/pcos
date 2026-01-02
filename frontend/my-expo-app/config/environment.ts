@@ -20,13 +20,20 @@ const getDevApiUrl = (): string => {
   // Get the debugger host from Expo (includes IP and port like "192.168.1.100:8081")
   const debuggerHost = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.debuggerHost;
 
+  console.log('🌐 Environment Config:');
+  console.log('   debuggerHost:', debuggerHost);
+
   if (debuggerHost) {
     // Extract just the IP address (remove the Metro bundler port)
     const ip = debuggerHost.split(':')[0];
-    return `http://${ip}:3000`;
+    const apiUrl = `http://${ip}:3000`;
+    console.log('   Detected IP:', ip);
+    console.log('   API URL:', apiUrl);
+    return apiUrl;
   }
 
   // Fallback for emulators
+  console.log('   Using fallback: http://localhost:3000');
   return 'http://localhost:3000';
 };
 
