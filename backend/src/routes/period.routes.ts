@@ -21,4 +21,8 @@ router.put('/settings', periodController.updatePeriodSettings);
 router.get('/stats', periodController.getPeriodStats);
 router.get('/prediction', periodController.getPeriodPrediction);
 
+// Cycle irregularity analysis
+router.get('/irregularity-analysis', periodController.getCycleIrregularityAnalysis);
+router.get('/dashboard-status', periodController.getCycleDashboardStatus);
+
 export default router;

@@ -187,3 +187,58 @@ export const getPeriodPrediction = async (req: AuthRequest, res: Response): Prom
     res.status(500).json({ error: 'Failed to get period prediction' });
   }
 };
+
+
+// Import cycle irregularity service
+import {
+  analyzeCycleIrregularity,
+  getCycleStatusForDashboard,
+} from '../services/cycle-irregularity.service';
+
+/**
+ * Get cycle irregularity analysis with AI recommendations
+ * GET /api/period/irregularity-analysis
+ */
+export const getCycleIrregularityAnalysis = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const analysis = await analyzeCycleIrregularity(userId);
+
+    res.json({
+      success: true,
+      data: analysis,
+    });
+  } catch (error: any) {
+    console.error('Get cycle irregularity analysis error:', error);
+    res.status(500).json({ error: 'Failed to get cycle analysis' });
+  }
+};
+
+/**
+ * Get cycle status for dashboard (quick summary)
+ * GET /api/period/dashboard-status
+ */
+export const getCycleDashboardStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const status = await getCycleStatusForDashboard(userId);
+
+    res.json({
+      success: true,
+      data: status,
+    });
+  } catch (error: any) {
+    console.error('Get cycle dashboard status error:', error);
+    res.status(500).json({ error: 'Failed to get cycle status' });
+  }
+};

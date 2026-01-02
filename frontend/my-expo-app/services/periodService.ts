@@ -178,3 +178,132 @@ export const getRegularityInfo = (
       return { label: 'Very Irregular', color: '#EF4444' };
   }
 };
+
+
+// ============================================
+// Cycle Irregularity Analysis Types & Functions
+// ============================================
+
+export interface IrregularityAlert {
+  type: 'short_cycle' | 'long_cycle' | 'missed_period' | 'pcos_pattern' | 'improving' | 'lifestyle_impact';
+  severity: 'info' | 'warning' | 'alert';
+  title: string;
+  message: string;
+  recommendation: string;
+  data?: {
+    cycleLength?: number;
+    averageCycle?: number;
+    irregularCount?: number;
+  };
+}
+
+export interface CycleAnalysis {
+  hasEnoughData: boolean;
+  totalPeriods: number;
+  averageCycleLength: number;
+  shortestCycle: number;
+  longestCycle: number;
+  cycleVariation: number;
+  irregularCycleCount: number;
+  regularCycleCount: number;
+  regularity: 'regular' | 'slightly_irregular' | 'irregular' | 'very_irregular';
+  pcosPatternDetected: boolean;
+  trend: 'improving' | 'worsening' | 'stable' | 'insufficient_data';
+  alerts: IrregularityAlert[];
+  lifestyleCorrelation?: {
+    sleepImpact: string | null;
+    supplementImpact: string | null;
+  };
+  aiRecommendation?: string;
+  pcosInsight?: string;
+}
+
+export interface CycleDashboardStatus {
+  hasAlert: boolean;
+  alertMessage?: string;
+  averageCycle: number;
+  regularity: string;
+  daysUntilNext?: number;
+}
+
+// Alert severity colors
+export const ALERT_SEVERITY_COLORS: Record<string, string> = {
+  info: '#6366F1',
+  warning: '#F59E0B',
+  alert: '#EF4444',
+};
+
+// Regularity colors (extended)
+export const REGULARITY_COLORS: Record<string, string> = {
+  regular: '#22C55E',
+  slightly_irregular: '#84CC16',
+  irregular: '#F59E0B',
+  very_irregular: '#EF4444',
+};
+
+// Trend icons
+export const TREND_INFO: Record<string, { icon: string; color: string; label: string }> = {
+  improving: { icon: '📈', color: '#22C55E', label: 'Improving' },
+  worsening: { icon: '📉', color: '#EF4444', label: 'Worsening' },
+  stable: { icon: '➡️', color: '#6B7280', label: 'Stable' },
+  insufficient_data: { icon: '📊', color: '#9CA3AF', label: 'Need More Data' },
+};
+
+/**
+ * Get cycle irregularity analysis with AI recommendations
+ */
+export const getCycleIrregularityAnalysis = async (): Promise<CycleAnalysis> => {
+  const response = await api.get<{ success: boolean; data: CycleAnalysis }>(
+    '/api/period/irregularity-analysis'
+  );
+  return response.data.data;
+};
+
+/**
+ * Get cycle status for dashboard
+ */
+export const getCycleDashboardStatus = async (): Promise<CycleDashboardStatus> => {
+  const response = await api.get<{ success: boolean; data: CycleDashboardStatus }>(
+    '/api/period/dashboard-status'
+  );
+  return response.data.data;
+};
+
+/**
+ * Get regularity label (extended)
+ */
+export const getRegularityLabel = (
+  regularity: 'regular' | 'slightly_irregular' | 'irregular' | 'very_irregular'
+): string => {
+  switch (regularity) {
+    case 'regular':
+      return 'Regular';
+    case 'slightly_irregular':
+      return 'Slightly Irregular';
+    case 'irregular':
+      return 'Irregular';
+    case 'very_irregular':
+      return 'Very Irregular';
+  }
+};
+
+/**
+ * Check if cycle length is in normal range
+ */
+export const isCycleLengthNormal = (length: number): boolean => {
+  return length >= 21 && length <= 35;
+};
+
+/**
+ * Get cycle length status
+ */
+export const getCycleLengthStatus = (
+  length: number
+): { status: 'normal' | 'short' | 'long'; color: string } => {
+  if (length < 21) {
+    return { status: 'short', color: '#F59E0B' };
+  } else if (length > 35) {
+    return { status: 'long', color: '#EF4444' };
+  }
+  return { status: 'normal', color: '#22C55E' };
+};
