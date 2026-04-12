@@ -24,6 +24,7 @@ import {
 } from 'lucide-react-native';
 import * as sleepService from '../services/sleepService';
 import * as moodService from '../services/moodService';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 interface HomeScreenProps {
   onNavigateToProfile: () => void;
@@ -58,6 +59,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNavigateToInsights,
   onNavigateToChatbot,
 }) => {
+  const { colors } = useThemedStyles();
   const [userName, setUserName] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [healthSummary, setHealthSummary] = useState<HealthSummary>({
@@ -176,10 +178,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   };
 
   const getMoodIcon = (level: number) => {
-    const color = level >= 4 ? '#10B981' : level === 3 ? '#F59E0B' : '#EF4444';
-    if (level >= 4) return <Smile size={32} color={color} />;
-    if (level === 3) return <Meh size={32} color={color} />;
-    return <Frown size={32} color={color} />;
+    if (level >= 4) return <Smile size={28} color={colors.textPrimary} />;
+    if (level === 3) return <Meh size={28} color={colors.textPrimary} />;
+    return <Frown size={28} color={colors.textPrimary} />;
   };
 
   const getMoodColor = (level: number): string => {
@@ -240,19 +241,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={{ backgroundColor: '#EC4899', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 36, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }}>
+        <View style={{ backgroundColor: colors.primary, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 36, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <View>
-              <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)' }}>{getGreeting()}</Text>
+              <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)' }}>{getGreeting()}</Text>
               <Text style={{ fontSize: 24, fontWeight: '700', color: 'white', marginTop: 2 }}>
                 {userName ? `Hi, ${getFirstName()}! 👋` : 'PCOS Tracker'}
               </Text>
             </View>
             <TouchableOpacity
-              style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
+              style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: 'rgba(255,255,255,0.25)', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}
               onPress={onNavigateToProfile}
             >
               {profileImage ? (
@@ -266,9 +267,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </View>
 
           {/* Daily Tip */}
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 14, padding: 14, marginTop: 18, flexDirection: 'row', alignItems: 'center' }}>
-            <Lightbulb size={18} color="rgba(255,255,255,0.9)" />
-            <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.9)', marginLeft: 10, flex: 1, lineHeight: 18 }}>
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 14, padding: 14, marginTop: 18, flexDirection: 'row', alignItems: 'center' }}>
+            <Lightbulb size={18} color="white" />
+            <Text style={{ fontSize: 13, color: 'white', marginLeft: 10, flex: 1, lineHeight: 18 }}>
               {dailyTip}
             </Text>
           </View>
@@ -276,37 +277,41 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* Today's Summary Card */}
         <View style={{ paddingHorizontal: 20, marginTop: -18 }}>
-          <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 }}>
+          <View style={{ backgroundColor: colors.card, borderRadius: 20, padding: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5, borderWidth: 1, borderColor: colors.border }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-              <Activity size={18} color="#EC4899" />
-              <Text style={{ fontSize: 15, fontWeight: '600', color: '#1F2937', marginLeft: 8 }}>Today's Summary</Text>
+              <Activity size={18} color={colors.primary} />
+              <Text style={{ fontSize: 15, fontWeight: '600', color: colors.textPrimary, marginLeft: 8 }}>Today's Summary</Text>
             </View>
             
             <View style={{ flexDirection: 'row', gap: 12 }}>
               {/* Mood Summary */}
               <TouchableOpacity 
-                style={{ flex: 1, backgroundColor: healthSummary.lastMood ? (healthSummary.lastMood.level >= 4 ? '#F0FDF4' : healthSummary.lastMood.level === 3 ? '#FEF3C7' : '#FEF2F2') : '#F3F4F6', borderRadius: 14, padding: 14, alignItems: 'center' }}
+                style={{ flex: 1, backgroundColor: colors.card, borderRadius: 14, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: colors.border }}
                 onPress={onNavigateToMoodTracking}
               >
-                {healthSummary.lastMood ? getMoodIcon(healthSummary.lastMood.level) : <Meh size={32} color="#9CA3AF" />}
-                <Text style={{ fontSize: 13, fontWeight: '600', color: healthSummary.lastMood ? getMoodColor(healthSummary.lastMood.level) : '#6B7280', marginTop: 6 }}>
+                <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.borderLight, justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
+                  {healthSummary.lastMood ? getMoodIcon(healthSummary.lastMood.level) : <Meh size={28} color={colors.textMuted} />}
+                </View>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginTop: 2 }}>
                   {healthSummary.lastMood?.label || 'No mood'}
                 </Text>
-                <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
                   {healthSummary.lastMood ? formatRelativeDate(healthSummary.lastMood.date) : 'Log mood'}
                 </Text>
               </TouchableOpacity>
 
               {/* Sleep Summary */}
               <TouchableOpacity 
-                style={{ flex: 1, backgroundColor: '#EEF2FF', borderRadius: 14, padding: 14, alignItems: 'center' }}
+                style={{ flex: 1, backgroundColor: colors.card, borderRadius: 14, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: colors.border }}
                 onPress={onNavigateToSleepTracking}
               >
-                <Moon size={32} color="#6366F1" />
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#3730A3', marginTop: 6 }}>
+                <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.borderLight, justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
+                  <Moon size={28} color={colors.textPrimary} />
+                </View>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginTop: 2 }}>
                   {healthSummary.lastSleep ? `${healthSummary.lastSleep.hours}h` : 'No sleep'}
                 </Text>
-                <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
                   {healthSummary.lastSleep ? healthSummary.lastSleep.quality : 'Log sleep'}
                 </Text>
               </TouchableOpacity>
@@ -314,16 +319,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
             {/* Streaks */}
             {(healthSummary.streaks.mood > 0 || healthSummary.streaks.sleep > 0) && (
-              <View style={{ flexDirection: 'row', marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: '#F3F4F6' }}>
+              <View style={{ flexDirection: 'row', marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: colors.border }}>
                 <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
                   <Flame size={16} color="#F97316" />
-                  <Text style={{ fontSize: 12, color: '#6B7280', marginLeft: 6 }}>
+                  <Text style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 6 }}>
                     {healthSummary.streaks.mood} day mood streak
                   </Text>
                 </View>
                 <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
                   <Star size={16} color="#F59E0B" />
-                  <Text style={{ fontSize: 12, color: '#6B7280', marginLeft: 6 }}>
+                  <Text style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 6 }}>
                     {healthSummary.streaks.sleep} day sleep streak
                   </Text>
                 </View>
@@ -334,24 +339,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* Quick Actions */}
         <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
-          <View style={{ backgroundColor: 'white', borderRadius: 18, padding: 12, flexDirection: 'row', gap: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+          <View style={{ backgroundColor: colors.card, borderRadius: 18, padding: 12, flexDirection: 'row', gap: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2, borderWidth: 1, borderColor: colors.border }}>
             <TouchableOpacity style={{ flex: 1, alignItems: 'center', padding: 12 }} onPress={onNavigateToPeriodTracking}>
-              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#FDF2F8', justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
-                <Calendar size={22} color="#EC4899" />
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.periodLight, justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
+                <Calendar size={22} color={colors.period} />
               </View>
-              <Text style={{ fontSize: 12, fontWeight: '500', color: '#374151' }}>Period</Text>
+              <Text style={{ fontSize: 12, fontWeight: '500', color: colors.textPrimary }}>Period</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flex: 1, alignItems: 'center', padding: 12 }} onPress={onNavigateToMoodTracking}>
-              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
-                <Heart size={22} color="#10B981" />
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.moodLight, justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
+                <Heart size={22} color={colors.mood} />
               </View>
-              <Text style={{ fontSize: 12, fontWeight: '500', color: '#374151' }}>Mood</Text>
+              <Text style={{ fontSize: 12, fontWeight: '500', color: colors.textPrimary }}>Mood</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flex: 1, alignItems: 'center', padding: 12 }} onPress={onNavigateToSleepTracking}>
-              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
-                <Moon size={22} color="#3B82F6" />
+              <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.sleepLight, justifyContent: 'center', alignItems: 'center', marginBottom: 6 }}>
+                <Moon size={22} color={colors.sleep} />
               </View>
-              <Text style={{ fontSize: 12, fontWeight: '500', color: '#374151' }}>Sleep</Text>
+              <Text style={{ fontSize: 12, fontWeight: '500', color: colors.textPrimary }}>Sleep</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -359,109 +364,109 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* Health Trackers */}
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          <Text style={{ fontSize: 17, fontWeight: '600', color: '#1F2937', marginBottom: 14 }}>Health Trackers</Text>
+          <Text style={{ fontSize: 17, fontWeight: '600', color: colors.textPrimary, marginBottom: 14 }}>Health Trackers</Text>
 
           {/* Period Tracker Card */}
           <TouchableOpacity
-            style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
+            style={{ backgroundColor: colors.card, borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
             onPress={onNavigateToPeriodTracking}
           >
             <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#FDF2F8', justifyContent: 'center', alignItems: 'center' }}>
               <Calendar size={24} color="#EC4899" />
             </View>
             <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>Period Tracker</Text>
-              <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Track cycles & predictions</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>Period Tracker</Text>
+              <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>Track cycles & predictions</Text>
             </View>
-            <ChevronRight size={20} color="#9CA3AF" />
+            <ChevronRight size={20} color={colors.textMuted} />
           </TouchableOpacity>
 
           {/* Moodboard Card */}
           <TouchableOpacity
-            style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
+            style={{ backgroundColor: colors.card, borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
             onPress={onNavigateToMoodTracking}
           >
             <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center' }}>
               <Heart size={24} color="#10B981" />
             </View>
             <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>Moodboard</Text>
-              <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Log mood & reflections</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>Moodboard</Text>
+              <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>Log mood & reflections</Text>
             </View>
-            <ChevronRight size={20} color="#9CA3AF" />
+            <ChevronRight size={20} color={colors.textMuted} />
           </TouchableOpacity>
 
           {/* Sleep Tracker Card */}
           <TouchableOpacity
-            style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
+            style={{ backgroundColor: colors.card, borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
             onPress={onNavigateToSleepTracking}
           >
             <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center' }}>
               <Moon size={24} color="#3B82F6" />
             </View>
             <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>Sleep Tracker</Text>
-              <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Track sleep quality</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>Sleep Tracker</Text>
+              <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>Track sleep quality</Text>
             </View>
-            <ChevronRight size={20} color="#9CA3AF" />
+            <ChevronRight size={20} color={colors.textMuted} />
           </TouchableOpacity>
 
           {/* Symptom Tracker Card */}
           <TouchableOpacity
-            style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
+            style={{ backgroundColor: colors.card, borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
             onPress={onNavigateToSymptomTracking}
           >
             <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#FEF2F2', justifyContent: 'center', alignItems: 'center' }}>
               <Stethoscope size={24} color="#EF4444" />
             </View>
             <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>Symptom Tracker</Text>
-              <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Track PCOS symptoms daily</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>Symptom Tracker</Text>
+              <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>Track PCOS symptoms daily</Text>
             </View>
-            <ChevronRight size={20} color="#9CA3AF" />
+            <ChevronRight size={20} color={colors.textMuted} />
           </TouchableOpacity>
 
           {/* Reminders Card */}
           <TouchableOpacity
-            style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
+            style={{ backgroundColor: colors.card, borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
             onPress={onNavigateToReminders}
           >
             <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#F5F3FF', justifyContent: 'center', alignItems: 'center' }}>
               <Bell size={24} color="#8B5CF6" />
             </View>
             <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>Reminders</Text>
-              <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Food & supplement reminders</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>Reminders</Text>
+              <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>Food & supplement reminders</Text>
             </View>
-            <ChevronRight size={20} color="#9CA3AF" />
+            <ChevronRight size={20} color={colors.textMuted} />
           </TouchableOpacity>
 
           {/* Supplements Card */}
           <TouchableOpacity
-            style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
+            style={{ backgroundColor: colors.card, borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}
             onPress={onNavigateToSupplements}
           >
             <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#FDF4FF', justifyContent: 'center', alignItems: 'center' }}>
               <Text style={{ fontSize: 24 }}>💊</Text>
             </View>
             <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>Supplements</Text>
-              <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Track PCOS supplements & consistency</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>Supplements</Text>
+              <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>Track PCOS supplements & consistency</Text>
             </View>
-            <ChevronRight size={20} color="#9CA3AF" />
+            <ChevronRight size={20} color={colors.textMuted} />
           </TouchableOpacity>
 
           {/* Smart Insights Card */}
           <TouchableOpacity
-            style={{ backgroundColor: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: '#FCD34D' }}
+            style={{ backgroundColor: colors.card, borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: colors.border }}
             onPress={onNavigateToInsights}
           >
-            <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#FEF3C7', justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: colors.insightsLight, justifyContent: 'center', alignItems: 'center' }}>
               <Sparkles size={24} color="#F59E0B" />
             </View>
             <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#92400E' }}>Smart Cycle Alert</Text>
-              <Text style={{ fontSize: 13, color: '#B45309', marginTop: 2 }}>Personalized health insights</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>Smart Cycle Alert</Text>
+              <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>Personalized health insights</Text>
             </View>
             <View style={{ backgroundColor: '#F59E0B', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
               <Text style={{ fontSize: 10, fontWeight: '600', color: 'white' }}>AI</Text>
@@ -470,15 +475,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {/* AI Chatbot Card */}
           <TouchableOpacity
-            style={{ backgroundColor: 'white', borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: '#F3E8FF' }}
+            style={{ backgroundColor: colors.card, borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: '#F3E8FF' }}
             onPress={onNavigateToChatbot}
           >
             <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#F3E8FF', justifyContent: 'center', alignItems: 'center' }}>
               <MessageCircle size={24} color="#8B5CF6" />
             </View>
             <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>PCOS Assistant</Text>
-              <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>Chat with AI health assistant</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>PCOS Assistant</Text>
+              <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>Chat with AI health assistant</Text>
             </View>
             <View style={{ backgroundColor: '#8B5CF6', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
               <Text style={{ fontSize: 10, fontWeight: '600', color: 'white' }}>AI</Text>

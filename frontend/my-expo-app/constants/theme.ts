@@ -52,6 +52,55 @@ export const colors = {
   textLight: '#D1D5DB',
 };
 
+export const darkColors = {
+  // Primary brand colors (keep same for consistency)
+  primary: '#EC4899',
+  primaryLight: '#3F1D2E',
+  primaryDark: '#BE185D',
+
+  // Secondary colors for features
+  mood: '#10B981',
+  moodLight: '#1A2E26',
+  moodDark: '#166534',
+
+  sleep: '#6366F1',
+  sleepLight: '#1E1F3F',
+  sleepDark: '#3730A3',
+
+  period: '#EC4899',
+  periodLight: '#3F1D2E',
+  periodDark: '#9D174D',
+
+  reminder: '#8B5CF6',
+  reminderLight: '#2A1F3F',
+  reminderDark: '#6D28D9',
+
+  insights: '#F59E0B',
+  insightsLight: '#3F2E1A',
+  insightsDark: '#92400E',
+
+  // Status colors
+  success: '#22C55E',
+  successLight: '#1A2E26',
+  warning: '#F59E0B',
+  warningLight: '#3F2E1A',
+  error: '#EF4444',
+  errorLight: '#3F1F1F',
+
+  // Neutral colors - Slightly lighter dark mode
+  white: '#FFFFFF',
+  background: '#0A0A0A',       // Very dark gray instead of pure black
+  card: '#1C1C1E',             // iPhone card background
+  border: '#38383A',           // iPhone border color
+  borderLight: '#2C2C2E',      // Subtle borders
+
+  // Text colors - iPhone hierarchy
+  textPrimary: '#FFFFFF',      // Pure white for primary text
+  textSecondary: '#EBEBF5',    // 92% white for secondary
+  textMuted: '#EBEBF599',      // 60% white for muted
+  textLight: '#EBEBF54D',      // 30% white for disabled
+};
+
 export const spacing = {
   xs: 4,
   sm: 8,
@@ -116,6 +165,7 @@ export const shadows = {
 
 export default {
   colors,
+  darkColors,
   spacing,
   borderRadius,
   fontSize,
