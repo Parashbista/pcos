@@ -77,3 +77,56 @@ export async function testAIJSON(_req: Request, res: Response): Promise<void> {
     });
   }
 }
+
+
+/**
+ * List available Gemini models
+ * GET /api/ai/list-models
+ */
+export async function listModels(_req: Request, res: Response): Promise<void> {
+  try {
+    const apiKey = process.env.AI_API_KEY;
+    
+    if (!apiKey) {
+      res.status(500).json({ success: false, error: 'API key not configured' });
+      return;
+    }
+
+    // Try both API versions
+    const versions = ['v1', 'v1beta'];
+    const results: any = {};
+
+    for (const version of versions) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/${version}/models?key=${apiKey}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (response.ok && data.models) {
+          results[version] = data.models
+            .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
+            .map((m: any) => ({
+              name: m.name,
+              displayName: m.displayName,
+              description: m.description
+            }));
+        } else {
+          results[version] = { error: data.error?.message || 'Failed to fetch' };
+        }
+      } catch (error) {
+        results[version] = { error: (error as Error).message };
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      apiKey: `${apiKey.substring(0, 10)}...`,
+      availableModels: results
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: (error as Error).message
+    });
+  }
+}

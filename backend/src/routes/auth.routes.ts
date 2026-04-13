@@ -1,14 +1,60 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { registerUser, loginUser, changePassword, forgotPassword, resetPassword, googleSignIn, updateProfile } from '../controllers/auth.controller';
+import { registerUser, loginUser, changePassword, forgotPassword, resetPassword, googleSignIn, updateProfile, requestVerificationCode, verifyAndRegister } from '../controllers/auth.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { validateRequest } from '../middleware/validation.middleware';
 
 const router = Router();
 
 /**
+ * POST /api/auth/request-verification
+ * Step 1: Request email verification code for signup
+ */
+router.post(
+  '/request-verification',
+  [
+    body('email')
+      .isEmail()
+      .withMessage('Invalid email format')
+      .normalizeEmail(),
+    validateRequest
+  ],
+  requestVerificationCode
+);
+
+/**
+ * POST /api/auth/verify-and-register
+ * Step 2: Verify code and complete registration
+ */
+router.post(
+  '/verify-and-register',
+  [
+    body('email')
+      .isEmail()
+      .withMessage('Invalid email format')
+      .normalizeEmail(),
+    body('code')
+      .notEmpty()
+      .withMessage('Verification code is required')
+      .isLength({ min: 6, max: 6 })
+      .withMessage('Verification code must be 6 digits'),
+    body('password')
+      .isLength({ min: 8 })
+      .withMessage('Password must be at least 8 characters long'),
+    body('name')
+      .optional()
+      .isString()
+      .trim()
+      .isLength({ max: 100 })
+      .withMessage('Name must not exceed 100 characters'),
+    validateRequest
+  ],
+  verifyAndRegister
+);
+
+/**
  * POST /api/auth/register
- * Register a new user
+ * Register a new user (OLD METHOD - for backward compatibility)
  */
 router.post(
   '/register',

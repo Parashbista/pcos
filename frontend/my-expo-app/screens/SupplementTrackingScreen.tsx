@@ -36,6 +36,7 @@ import {
   SupplementName,
   IntakeInstruction,
 } from '../services/supplementService';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 interface SupplementTrackingScreenProps {
   onNavigateBack?: () => void;
@@ -44,6 +45,7 @@ interface SupplementTrackingScreenProps {
 export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> = ({
   onNavigateBack,
 }) => {
+  const { colors } = useThemedStyles();
   const [supplements, setSupplements] = useState<Supplement[]>([]);
   const [todayStatus, setTodayStatus] = useState<TodayStatus | null>(null);
   const [analysis, setAnalysis] = useState<SupplementAnalysis | null>(null);
@@ -228,7 +230,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
       <View
         key={supplement.id}
         style={{
-          backgroundColor: 'white',
+          backgroundColor: colors.card,
           borderRadius: 16,
           padding: 16,
           marginBottom: 12,
@@ -245,7 +247,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
               width: 48,
               height: 48,
               borderRadius: 12,
-              backgroundColor: isTaken ? '#DCFCE7' : '#F3E8FF',
+              backgroundColor: isTaken ? colors.successLight : colors.reminderLight,
               justifyContent: 'center',
               alignItems: 'center',
             }}
@@ -254,15 +256,15 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
           </View>
 
           <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>
               {display.label}
             </Text>
-            <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>
+            <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>
               {supplement.dosage} • {FREQUENCY_LABELS[supplement.frequency]}
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-              <Clock size={12} color="#9CA3AF" />
-              <Text style={{ fontSize: 12, color: '#9CA3AF', marginLeft: 4 }}>
+              <Clock size={12} color={colors.textMuted} />
+              <Text style={{ fontSize: 12, color: colors.textMuted, marginLeft: 4 }}>
                 {supplement.timeOfDay.join(', ')} • {INSTRUCTION_LABELS[supplement.instruction]}
               </Text>
             </View>
@@ -274,7 +276,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
               width: 44,
               height: 44,
               borderRadius: 22,
-              backgroundColor: isTaken ? '#22C55E' : '#F3F4F6',
+              backgroundColor: isTaken ? colors.success : colors.borderLight,
               justifyContent: 'center',
               alignItems: 'center',
             }}
@@ -282,7 +284,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
             {isTaken ? (
               <Check size={24} color="white" />
             ) : (
-              <Plus size={24} color="#9CA3AF" />
+              <Plus size={24} color={colors.textMuted} />
             )}
           </TouchableOpacity>
         </View>
@@ -290,7 +292,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
         {display.pcosRelation && (
           <View
             style={{
-              backgroundColor: '#F3E8FF',
+              backgroundColor: colors.reminderLight,
               borderRadius: 8,
               padding: 8,
               marginTop: 12,
@@ -298,8 +300,8 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
               alignItems: 'center',
             }}
           >
-            <Info size={14} color="#8B5CF6" />
-            <Text style={{ fontSize: 12, color: '#7C3AED', marginLeft: 6 }}>
+            <Info size={14} color={colors.reminder} />
+            <Text style={{ fontSize: 12, color: colors.reminderDark, marginLeft: 6 }}>
               {display.pcosRelation}
             </Text>
           </View>
@@ -317,7 +319,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
         <TouchableOpacity
           onPress={() => setShowAnalysis(!showAnalysis)}
           style={{
-            backgroundColor: 'white',
+            backgroundColor: colors.card,
             borderRadius: 16,
             padding: 16,
             marginBottom: 12,
@@ -331,7 +333,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <TrendingUp size={20} color={getConsistencyColor(analysis.overallConsistency)} />
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginLeft: 8 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary, marginLeft: 8 }}>
                 2-Week Consistency
               </Text>
             </View>
@@ -347,7 +349,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
               </Text>
               <ChevronDown
                 size={20}
-                color="#9CA3AF"
+                color={colors.textMuted}
                 style={{ marginLeft: 8, transform: [{ rotate: showAnalysis ? '180deg' : '0deg' }] }}
               />
             </View>
@@ -362,7 +364,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
               <View
                 key={supp.supplementId}
                 style={{
-                  backgroundColor: 'white',
+                  backgroundColor: colors.card,
                   borderRadius: 12,
                   padding: 12,
                   marginBottom: 8,
@@ -372,10 +374,10 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
                 }}
               >
                 <View>
-                  <Text style={{ fontSize: 14, fontWeight: '500', color: '#1F2937' }}>
+                  <Text style={{ fontSize: 14, fontWeight: '500', color: colors.textPrimary }}>
                     {supp.supplementName}
                   </Text>
-                  <Text style={{ fontSize: 12, color: '#6B7280' }}>
+                  <Text style={{ fontSize: 12, color: colors.textSecondary }}>
                     {supp.takenDays}/{supp.totalDays} days • {supp.streak} day streak
                   </Text>
                 </View>
@@ -404,21 +406,21 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
             {analysis.aiRecommendation && (
               <View
                 style={{
-                  backgroundColor: '#FDF4FF',
+                  backgroundColor: colors.reminderLight,
                   borderRadius: 16,
                   padding: 16,
                   marginTop: 8,
                   borderWidth: 1,
-                  borderColor: '#F5D0FE',
+                  borderColor: colors.reminder,
                 }}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                  <Sparkles size={18} color="#A855F7" />
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#7C3AED', marginLeft: 8 }}>
+                  <Sparkles size={18} color={colors.reminder} />
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: colors.reminderDark, marginLeft: 8 }}>
                     AI Recommendation
                   </Text>
                 </View>
-                <Text style={{ fontSize: 13, color: '#6B21A8', lineHeight: 20 }}>
+                <Text style={{ fontSize: 13, color: colors.reminderDark, lineHeight: 20 }}>
                   {analysis.aiRecommendation}
                 </Text>
               </View>
@@ -428,21 +430,21 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
             {analysis.cycleImpactInsight && (
               <View
                 style={{
-                  backgroundColor: '#FFF7ED',
+                  backgroundColor: colors.warningLight,
                   borderRadius: 16,
                   padding: 16,
                   marginTop: 8,
                   borderWidth: 1,
-                  borderColor: '#FED7AA',
+                  borderColor: colors.warning,
                 }}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                   <Text style={{ fontSize: 16, marginRight: 8 }}>🌸</Text>
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#C2410C' }}>
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: colors.warningDark || colors.warning }}>
                     Cycle Impact
                   </Text>
                 </View>
-                <Text style={{ fontSize: 13, color: '#9A3412', lineHeight: 20 }}>
+                <Text style={{ fontSize: 13, color: colors.warningDark || colors.warning, lineHeight: 20 }}>
                   {analysis.cycleImpactInsight}
                 </Text>
               </View>
@@ -459,10 +461,10 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
                 style={{
                   backgroundColor:
                     alert.severity === 'alert'
-                      ? '#FEF2F2'
+                      ? colors.errorLight
                       : alert.severity === 'warning'
-                      ? '#FFFBEB'
-                      : '#EEF2FF',
+                      ? colors.warningLight
+                      : colors.sleepLight,
                   borderRadius: 12,
                   padding: 12,
                   marginBottom: 8,
@@ -480,14 +482,14 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
                     style={{
                       fontSize: 13,
                       fontWeight: '600',
-                      color: '#1F2937',
+                      color: colors.textPrimary,
                       marginLeft: 6,
                     }}
                   >
                     {alert.title}
                   </Text>
                 </View>
-                <Text style={{ fontSize: 12, color: '#6B7280', lineHeight: 18 }}>
+                <Text style={{ fontSize: 12, color: colors.textSecondary, lineHeight: 18 }}>
                   {alert.recommendation}
                 </Text>
               </View>
@@ -505,7 +507,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
       >
         <View
           style={{
-            backgroundColor: 'white',
+            backgroundColor: colors.card,
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
             padding: 24,
@@ -521,16 +523,16 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
                 marginBottom: 20,
               }}
             >
-              <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F2937' }}>
+              <Text style={{ fontSize: 20, fontWeight: '700', color: colors.textPrimary }}>
                 Add Supplement
               </Text>
               <TouchableOpacity onPress={() => setShowAddModal(false)}>
-                <X size={24} color="#6B7280" />
+                <X size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
             {/* Supplement Selection */}
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 }}>
               Select Supplement
             </Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
@@ -542,7 +544,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
                     flexDirection: 'row',
                     alignItems: 'center',
                     backgroundColor:
-                      newSupplement.name === option.name ? '#8B5CF6' : '#F3F4F6',
+                      newSupplement.name === option.name ? colors.reminder : colors.borderLight,
                     paddingHorizontal: 12,
                     paddingVertical: 8,
                     borderRadius: 20,
@@ -552,7 +554,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
                   <Text
                     style={{
                       fontSize: 13,
-                      color: newSupplement.name === option.name ? 'white' : '#374151',
+                      color: newSupplement.name === option.name ? 'white' : colors.textPrimary,
                       fontWeight: newSupplement.name === option.name ? '600' : '400',
                     }}
                   >
@@ -565,20 +567,22 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
             {/* Custom Name */}
             {newSupplement.name === 'custom' && (
               <>
-                <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 }}>
                   Supplement Name
                 </Text>
                 <TextInput
                   style={{
-                    backgroundColor: '#F9FAFB',
+                    backgroundColor: colors.borderLight,
                     borderRadius: 12,
                     padding: 14,
                     fontSize: 15,
                     marginBottom: 16,
                     borderWidth: 1,
-                    borderColor: '#E5E7EB',
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
                   }}
                   placeholder="Enter supplement name"
+                  placeholderTextColor={colors.textMuted}
                   value={newSupplement.customName}
                   onChangeText={(text) =>
                     setNewSupplement({ ...newSupplement, customName: text })
@@ -588,26 +592,28 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
             )}
 
             {/* Dosage */}
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 }}>
               Dosage
             </Text>
             <TextInput
               style={{
-                backgroundColor: '#F9FAFB',
+                backgroundColor: colors.borderLight,
                 borderRadius: 12,
                 padding: 14,
                 fontSize: 15,
                 marginBottom: 16,
                 borderWidth: 1,
-                borderColor: '#E5E7EB',
+                borderColor: colors.border,
+                color: colors.textPrimary,
               }}
               placeholder="e.g., 1000 IU, 500mg"
+              placeholderTextColor={colors.textMuted}
               value={newSupplement.dosage}
               onChangeText={(text) => setNewSupplement({ ...newSupplement, dosage: text })}
             />
 
             {/* Frequency */}
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 }}>
               Frequency
             </Text>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
@@ -620,14 +626,14 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
                     paddingVertical: 10,
                     borderRadius: 12,
                     backgroundColor:
-                      newSupplement.frequency === key ? '#8B5CF6' : '#F3F4F6',
+                      newSupplement.frequency === key ? colors.reminder : colors.borderLight,
                     alignItems: 'center',
                   }}
                 >
                   <Text
                     style={{
                       fontSize: 12,
-                      color: newSupplement.frequency === key ? 'white' : '#4B5563',
+                      color: newSupplement.frequency === key ? 'white' : colors.textSecondary,
                       fontWeight: newSupplement.frequency === key ? '600' : '400',
                     }}
                   >
@@ -638,20 +644,22 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
             </View>
 
             {/* Time */}
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 }}>
               Time
             </Text>
             <TextInput
               style={{
-                backgroundColor: '#F9FAFB',
+                backgroundColor: colors.borderLight,
                 borderRadius: 12,
                 padding: 14,
                 fontSize: 15,
                 marginBottom: 16,
                 borderWidth: 1,
-                borderColor: '#E5E7EB',
+                borderColor: colors.border,
+                color: colors.textPrimary,
               }}
               placeholder="HH:MM (e.g., 08:00)"
+              placeholderTextColor={colors.textMuted}
               value={newSupplement.timeOfDay[0]}
               onChangeText={(text) =>
                 setNewSupplement({ ...newSupplement, timeOfDay: [text] })
@@ -659,7 +667,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
             />
 
             {/* Instruction */}
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 }}>
               How to Take
             </Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
@@ -677,13 +685,13 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
                     paddingVertical: 10,
                     borderRadius: 12,
                     backgroundColor:
-                      newSupplement.instruction === key ? '#8B5CF6' : '#F3F4F6',
+                      newSupplement.instruction === key ? colors.reminder : colors.borderLight,
                   }}
                 >
                   <Text
                     style={{
                       fontSize: 13,
-                      color: newSupplement.instruction === key ? 'white' : '#4B5563',
+                      color: newSupplement.instruction === key ? 'white' : colors.textSecondary,
                       fontWeight: newSupplement.instruction === key ? '600' : '400',
                     }}
                   >
@@ -696,7 +704,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
             <TouchableOpacity
               onPress={handleAddSupplement}
               style={{
-                backgroundColor: '#8B5CF6',
+                backgroundColor: colors.reminder,
                 borderRadius: 12,
                 paddingVertical: 16,
                 alignItems: 'center',
@@ -714,12 +722,12 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View
           style={{
-            backgroundColor: '#8B5CF6',
+            backgroundColor: colors.reminder,
             paddingHorizontal: 20,
             paddingTop: 16,
             paddingBottom: 32,
@@ -782,13 +790,13 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
           {isLoading ? (
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: colors.card,
                 borderRadius: 20,
                 padding: 40,
                 alignItems: 'center',
               }}
             >
-              <ActivityIndicator size="large" color="#8B5CF6" />
+              <ActivityIndicator size="large" color={colors.reminder} />
             </View>
           ) : (
             <>
@@ -796,22 +804,22 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
               {supplements.length === 0 ? (
                 <View
                   style={{
-                    backgroundColor: 'white',
+                    backgroundColor: colors.card,
                     borderRadius: 20,
                     padding: 32,
                     alignItems: 'center',
                   }}
                 >
-                  <Pill size={48} color="#D1D5DB" />
+                  <Pill size={48} color={colors.textMuted} />
                   <Text
-                    style={{ fontSize: 16, color: '#6B7280', marginTop: 16, fontWeight: '500' }}
+                    style={{ fontSize: 16, color: colors.textSecondary, marginTop: 16, fontWeight: '500' }}
                   >
                     No supplements yet
                   </Text>
                   <Text
                     style={{
                       fontSize: 14,
-                      color: '#9CA3AF',
+                      color: colors.textMuted,
                       marginTop: 4,
                       textAlign: 'center',
                     }}
@@ -821,7 +829,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
                   <TouchableOpacity
                     onPress={() => setShowAddModal(true)}
                     style={{
-                      backgroundColor: '#8B5CF6',
+                      backgroundColor: colors.reminder,
                       paddingHorizontal: 24,
                       paddingVertical: 12,
                       borderRadius: 12,
@@ -837,7 +845,7 @@ export const SupplementTrackingScreen: React.FC<SupplementTrackingScreenProps> =
                     style={{
                       fontSize: 16,
                       fontWeight: '600',
-                      color: '#1F2937',
+                      color: colors.textPrimary,
                       marginBottom: 12,
                       marginLeft: 4,
                     }}

@@ -71,7 +71,50 @@ export const removeToken = async (): Promise<void> => {
 };
 
 /**
- * Register a new user
+ * Request email verification code for signup
+ * POST /api/auth/request-verification
+ */
+export const requestVerificationCode = async (email: string): Promise<{ message: string; email: string }> => {
+  try {
+    const response = await api.post<{ message: string; email: string }>('/api/auth/request-verification', { email });
+    return response.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+/**
+ * Verify code and complete registration
+ * POST /api/auth/verify-and-register
+ */
+export const verifyAndRegister = async (
+  email: string,
+  code: string,
+  password: string,
+  name?: string
+): Promise<AuthResponse> => {
+  try {
+    const response = await api.post<AuthResponse>('/api/auth/verify-and-register', {
+      email,
+      code,
+      password,
+      name
+    });
+    
+    // Store token after successful registration
+    await storeToken(response.data.token);
+    
+    // Store user data
+    await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
+    
+    return response.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+/**
+ * Register a new user (OLD METHOD - for backward compatibility)
  * POST /api/auth/register
  */
 export const register = async (data: RegisterData): Promise<AuthResponse> => {

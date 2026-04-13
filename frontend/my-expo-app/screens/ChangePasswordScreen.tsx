@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react-native';
 import { useAuth } from '../contexts/AuthContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 interface ChangePasswordScreenProps {
   onNavigateBack?: () => void;
@@ -24,6 +25,7 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({
   onChangePasswordSuccess,
 }) => {
   const { changePassword, isLoading } = useAuth();
+  const { colors } = useThemedStyles();
   
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -70,15 +72,15 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({
     toggleShow: () => void;
   }> = ({ label, value, onChangeText, placeholder, showPassword, toggleShow }) => (
     <View style={{ marginBottom: 16 }}>
-      <Text style={{ fontSize: 14, fontWeight: '500', color: '#374151', marginBottom: 8 }}>{label}</Text>
-      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F9FAFB', borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB' }}>
+      <Text style={{ fontSize: 14, fontWeight: '500', color: colors.textPrimary, marginBottom: 8 }}>{label}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.borderLight, borderRadius: 12, borderWidth: 1, borderColor: colors.border }}>
         <View style={{ paddingLeft: 14 }}>
-          <Lock size={18} color="#9CA3AF" />
+          <Lock size={18} color={colors.textMuted} />
         </View>
         <TextInput
-          style={{ flex: 1, height: 50, paddingHorizontal: 12, fontSize: 15, color: '#1F2937' }}
+          style={{ flex: 1, height: 50, paddingHorizontal: 12, fontSize: 15, color: colors.textPrimary }}
           placeholder={placeholder}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={colors.textMuted}
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={!showPassword}
@@ -86,7 +88,7 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({
           editable={!isLoading}
         />
         <TouchableOpacity onPress={toggleShow} style={{ paddingRight: 14 }}>
-          {showPassword ? <EyeOff size={18} color="#9CA3AF" /> : <Eye size={18} color="#9CA3AF" />}
+          {showPassword ? <EyeOff size={18} color={colors.textMuted} /> : <Eye size={18} color={colors.textMuted} />}
         </TouchableOpacity>
       </View>
     </View>
@@ -94,34 +96,34 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, backgroundColor: colors.background, borderBottomWidth: 0 }}>
         <TouchableOpacity onPress={onNavigateBack} style={{ padding: 4 }}>
-          <ArrowLeft size={24} color="#1F2937" />
+          <ArrowLeft size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={{ fontSize: 18, fontWeight: '600', color: '#1F2937', marginLeft: 12 }}>Change Password</Text>
+        <Text style={{ fontSize: 18, fontWeight: '600', color: colors.textPrimary, marginLeft: 12 }}>Change Password</Text>
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
           
           {/* Info Card */}
-          <View style={{ backgroundColor: '#EDE9FE', borderRadius: 12, padding: 14, marginBottom: 24 }}>
-            <Text style={{ fontSize: 13, color: '#5B21B6', lineHeight: 18 }}>
+          <View style={{ backgroundColor: colors.reminderLight, borderRadius: 12, padding: 14, marginBottom: 24, borderWidth: 1, borderColor: colors.border }}>
+            <Text style={{ fontSize: 13, color: colors.reminderDark, lineHeight: 18 }}>
               🔒 Choose a strong password with at least 8 characters including letters and numbers.
             </Text>
           </View>
 
           {/* Error Message */}
           {error ? (
-            <View style={{ backgroundColor: '#FEF2F2', borderRadius: 10, padding: 12, marginBottom: 16 }}>
-              <Text style={{ color: '#DC2626', fontSize: 13 }}>{error}</Text>
+            <View style={{ backgroundColor: colors.errorLight, borderRadius: 10, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: colors.border }}>
+              <Text style={{ color: colors.error, fontSize: 13 }}>{error}</Text>
             </View>
           ) : null}
 
           {/* Form */}
-          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 20 }}>
+          <View style={{ backgroundColor: colors.card, borderRadius: 16, padding: 20 }}>
             <PasswordInput
               label="Current Password"
               value={currentPassword}
@@ -154,7 +156,7 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({
               onPress={handleSubmit}
               disabled={isLoading}
               style={{
-                backgroundColor: isLoading ? '#F9A8D4' : '#EC4899',
+                backgroundColor: isLoading ? colors.border : colors.textPrimary,
                 borderRadius: 12,
                 padding: 16,
                 alignItems: 'center',
@@ -162,9 +164,9 @@ export const ChangePasswordScreen: React.FC<ChangePasswordScreenProps> = ({
               }}
             >
               {isLoading ? (
-                <ActivityIndicator color="white" />
+                <ActivityIndicator color={colors.textPrimary} />
               ) : (
-                <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>Update Password</Text>
+                <Text style={{ color: colors.background, fontSize: 16, fontWeight: '600' }}>Update Password</Text>
               )}
             </TouchableOpacity>
           </View>

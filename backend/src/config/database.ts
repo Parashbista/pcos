@@ -16,8 +16,11 @@ export async function connectDB(): Promise<void> {
       throw new Error('MONGODB_URI environment variable is not defined');
     }
 
-    // Create MongoDB client
-    client = new MongoClient(mongoUri);
+    // Create MongoDB client with connection options
+    client = new MongoClient(mongoUri, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000,
+    });
 
     // Connect to MongoDB
     await client.connect();

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 const PROFILE_IMAGE_KEY = 'profile_image';
 
@@ -30,16 +31,20 @@ interface SettingItemProps {
   subtitle?: string;
   onPress: () => void;
   danger?: boolean;
+  bgColor?: string;
+  iconBgColor?: string;
+  textColor?: string;
+  subtitleColor?: string;
 }
 
-const SettingItem: React.FC<SettingItemProps> = ({ icon, title, subtitle, onPress, danger = false }) => (
+const SettingItem: React.FC<SettingItemProps> = ({ icon, title, subtitle, onPress, danger = false, bgColor, iconBgColor, textColor, subtitleColor }) => (
   <TouchableOpacity
     style={{
       flexDirection: 'row',
       alignItems: 'center',
       paddingVertical: 14,
       paddingHorizontal: 16,
-      backgroundColor: 'white',
+      backgroundColor: bgColor,
     }}
     onPress={onPress}
     activeOpacity={0.7}
@@ -49,7 +54,7 @@ const SettingItem: React.FC<SettingItemProps> = ({ icon, title, subtitle, onPres
         width: 40,
         height: 40,
         borderRadius: 10,
-        backgroundColor: danger ? '#FEE2E2' : '#F3F4F6',
+        backgroundColor: danger ? '#FEE2E2' : iconBgColor,
         justifyContent: 'center',
         alignItems: 'center',
       }}
@@ -57,10 +62,10 @@ const SettingItem: React.FC<SettingItemProps> = ({ icon, title, subtitle, onPres
       {icon}
     </View>
     <View style={{ flex: 1, marginLeft: 12 }}>
-      <Text style={{ fontSize: 15, fontWeight: '500', color: danger ? '#DC2626' : '#1F2937' }}>{title}</Text>
-      {subtitle && <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 1 }}>{subtitle}</Text>}
+      <Text style={{ fontSize: 15, fontWeight: '500', color: danger ? '#DC2626' : textColor }}>{title}</Text>
+      {subtitle && <Text style={{ fontSize: 12, color: subtitleColor, marginTop: 1 }}>{subtitle}</Text>}
     </View>
-    <ChevronRight size={18} color={danger ? '#DC2626' : '#9CA3AF'} />
+    <ChevronRight size={18} color={danger ? '#DC2626' : subtitleColor} />
   </TouchableOpacity>
 );
 
@@ -79,6 +84,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onNavigateToAbout,
 }) => {
   const { user, logout } = useAuth();
+  const { colors } = useThemedStyles();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [userName, setUserName] = useState(user?.name || 'User');
   const [userEmail, setUserEmail] = useState(user?.email || '');
@@ -140,7 +146,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F9FAFB' }} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={{ backgroundColor: '#EC4899', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 28, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -160,7 +166,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
       <View style={{ paddingHorizontal: 20, marginTop: -14 }}>
         <View
           style={{
-            backgroundColor: 'white',
+            backgroundColor: colors.card,
             borderRadius: 16,
             padding: 18,
             flexDirection: 'row',
@@ -180,36 +186,78 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             )}
           </View>
           <View style={{ marginLeft: 14, flex: 1 }}>
-            <Text style={{ fontSize: 17, fontWeight: '600', color: '#1F2937' }}>{userName}</Text>
-            <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>{userEmail}</Text>
+            <Text style={{ fontSize: 17, fontWeight: '600', color: colors.textPrimary }}>{userName}</Text>
+            <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>{userEmail}</Text>
           </View>
         </View>
       </View>
 
       {/* All Settings */}
-      <View style={{ marginHorizontal: 20, marginTop: 20, borderRadius: 14, overflow: 'hidden', backgroundColor: 'white' }}>
-        <SettingItem icon={<Lock size={20} color="#6B7280" />} title="Change Password" subtitle="Update your password" onPress={() => onNavigateToChangePassword?.()} />
-        <View style={{ height: 1, backgroundColor: '#F3F4F6', marginLeft: 68 }} />
-        <SettingItem icon={<Bell size={20} color="#6B7280" />} title="Notifications" subtitle="Manage alerts" onPress={() => onNavigateToNotifications?.()} />
-        <View style={{ height: 1, backgroundColor: '#F3F4F6', marginLeft: 68 }} />
-        <SettingItem icon={<HelpCircle size={20} color="#6B7280" />} title="Help & FAQ" onPress={() => onNavigateToHelpFAQ?.()} />
-        <View style={{ height: 1, backgroundColor: '#F3F4F6', marginLeft: 68 }} />
-        <SettingItem icon={<Shield size={20} color="#6B7280" />} title="Privacy Policy" onPress={() => onNavigateToPrivacyPolicy?.()} />
-        <View style={{ height: 1, backgroundColor: '#F3F4F6', marginLeft: 68 }} />
-        <SettingItem icon={<Info size={20} color="#6B7280" />} title="About" onPress={() => onNavigateToAbout?.()} />
+      <View style={{ marginHorizontal: 20, marginTop: 20, borderRadius: 14, overflow: 'hidden', backgroundColor: colors.card }}>
+        <SettingItem 
+          icon={<Lock size={20} color={colors.textSecondary} />} 
+          title="Change Password" 
+          subtitle="Update your password" 
+          onPress={() => onNavigateToChangePassword?.()} 
+          bgColor={colors.card}
+          iconBgColor={colors.borderLight}
+          textColor={colors.textPrimary}
+          subtitleColor={colors.textSecondary}
+        />
+        <View style={{ height: 1, backgroundColor: colors.borderLight, marginLeft: 68 }} />
+        <SettingItem 
+          icon={<Bell size={20} color={colors.textSecondary} />} 
+          title="Notifications" 
+          subtitle="Manage alerts" 
+          onPress={() => onNavigateToNotifications?.()} 
+          bgColor={colors.card}
+          iconBgColor={colors.borderLight}
+          textColor={colors.textPrimary}
+          subtitleColor={colors.textSecondary}
+        />
+        <View style={{ height: 1, backgroundColor: colors.borderLight, marginLeft: 68 }} />
+        <SettingItem 
+          icon={<HelpCircle size={20} color={colors.textSecondary} />} 
+          title="Help & FAQ" 
+          onPress={() => onNavigateToHelpFAQ?.()} 
+          bgColor={colors.card}
+          iconBgColor={colors.borderLight}
+          textColor={colors.textPrimary}
+          subtitleColor={colors.textSecondary}
+        />
+        <View style={{ height: 1, backgroundColor: colors.borderLight, marginLeft: 68 }} />
+        <SettingItem 
+          icon={<Shield size={20} color={colors.textSecondary} />} 
+          title="Privacy Policy" 
+          onPress={() => onNavigateToPrivacyPolicy?.()} 
+          bgColor={colors.card}
+          iconBgColor={colors.borderLight}
+          textColor={colors.textPrimary}
+          subtitleColor={colors.textSecondary}
+        />
+        <View style={{ height: 1, backgroundColor: colors.borderLight, marginLeft: 68 }} />
+        <SettingItem 
+          icon={<Info size={20} color={colors.textSecondary} />} 
+          title="About" 
+          onPress={() => onNavigateToAbout?.()} 
+          bgColor={colors.card}
+          iconBgColor={colors.borderLight}
+          textColor={colors.textPrimary}
+          subtitleColor={colors.textSecondary}
+        />
       </View>
 
       {/* Logout */}
       <View style={{ paddingHorizontal: 20, marginTop: 20, marginBottom: 32 }}>
         <TouchableOpacity
-          style={{ backgroundColor: 'white', borderRadius: 14, padding: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', borderWidth: 1, borderColor: '#E5E7EB' }}
+          style={{ backgroundColor: colors.card, borderRadius: 14, padding: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', borderWidth: 1, borderColor: colors.border }}
           onPress={handleLogout}
           disabled={isLoggingOut}
         >
-          {isLoggingOut ? <ActivityIndicator color="#6B7280" /> : (
+          {isLoggingOut ? <ActivityIndicator color={colors.textSecondary} /> : (
             <>
-              <LogOut size={20} color="#6B7280" />
-              <Text style={{ color: '#374151', fontSize: 16, fontWeight: '600', marginLeft: 8 }}>Logout</Text>
+              <LogOut size={20} color={colors.textSecondary} />
+              <Text style={{ color: colors.textPrimary, fontSize: 16, fontWeight: '600', marginLeft: 8 }}>Logout</Text>
             </>
           )}
         </TouchableOpacity>
@@ -217,7 +265,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
       {/* Version */}
       <View style={{ alignItems: 'center', paddingBottom: 24 }}>
-        <Text style={{ fontSize: 12, color: '#9CA3AF' }}>PCOS Tracker v1.0.0</Text>
+        <Text style={{ fontSize: 12, color: colors.textMuted }}>PCOS Tracker v1.0.0</Text>
       </View>
     </ScrollView>
   );

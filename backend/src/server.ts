@@ -9,6 +9,7 @@ import symptomRouter from './routes/symptom.routes';
 import supplementRouter from './routes/supplement.routes';
 import aiRouter from './routes/ai.routes';
 import chatbotRouter from './routes/chatbot.routes';
+import partnerRouter from './routes/partner.routes';
 
 // Initialize Express app
 export const app: Express = express();
@@ -91,6 +92,10 @@ app.use('/api/chatbot', chatbotRouter);
 // This handles cases where frontend might be calling without the prefix
 app.use('/chatbot', chatbotRouter);
 console.log('✓ Chatbot routes also mounted at /chatbot (fallback)');
+
+// Mount Partner router on /api/partner path
+console.log('✓ Partner routes loaded');
+app.use('/api/partner', partnerRouter);
 
 // Debug endpoint to list all registered routes
 app.get('/api/debug/routes', (_req: Request, res: Response) => {

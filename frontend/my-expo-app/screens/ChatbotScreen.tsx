@@ -13,12 +13,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Send, Bot, User, Sparkles } from 'lucide-react-native';
 import * as chatbotService from '../services/chatbotService';
 import { ChatMessage } from '../services/chatbotService';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 interface ChatbotScreenProps {
   onNavigateBack: () => void;
 }
 
 export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) => {
+  const { colors } = useThemedStyles();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -106,14 +108,14 @@ export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) 
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
       <View style={{
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: '#EC4899',
+        backgroundColor: colors.reminder,
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
       }}>
@@ -178,18 +180,18 @@ export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) 
                   width: 32,
                   height: 32,
                   borderRadius: 16,
-                  backgroundColor: '#FDF2F8',
+                  backgroundColor: colors.reminderLight,
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginRight: 8,
                   marginTop: 4,
                 }}>
-                  <Bot size={18} color="#EC4899" />
+                  <Bot size={18} color={colors.reminder} />
                 </View>
               )}
               <View style={{
                 maxWidth: '75%',
-                backgroundColor: message.role === 'user' ? '#EC4899' : 'white',
+                backgroundColor: message.role === 'user' ? colors.primary : colors.card,
                 borderRadius: 16,
                 borderTopLeftRadius: message.role === 'assistant' ? 4 : 16,
                 borderTopRightRadius: message.role === 'user' ? 4 : 16,
@@ -202,14 +204,14 @@ export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) 
               }}>
                 <Text style={{
                   fontSize: 15,
-                  color: message.role === 'user' ? 'white' : '#1F2937',
+                  color: message.role === 'user' ? 'white' : colors.textPrimary,
                   lineHeight: 22,
                 }}>
                   {message.content}
                 </Text>
                 <Text style={{
                   fontSize: 10,
-                  color: message.role === 'user' ? 'rgba(255,255,255,0.7)' : '#9CA3AF',
+                  color: message.role === 'user' ? 'rgba(255,255,255,0.7)' : colors.textMuted,
                   marginTop: 4,
                   textAlign: 'right',
                 }}>
@@ -221,7 +223,7 @@ export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) 
                   width: 32,
                   height: 32,
                   borderRadius: 16,
-                  backgroundColor: '#EC4899',
+                  backgroundColor: colors.primary,
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginLeft: 8,
@@ -239,15 +241,15 @@ export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) 
                 width: 32,
                 height: 32,
                 borderRadius: 16,
-                backgroundColor: '#FDF2F8',
+                backgroundColor: colors.reminderLight,
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginRight: 8,
               }}>
-                <Bot size={18} color="#EC4899" />
+                <Bot size={18} color={colors.reminder} />
               </View>
               <View style={{
-                backgroundColor: 'white',
+                backgroundColor: colors.card,
                 borderRadius: 16,
                 borderTopLeftRadius: 4,
                 padding: 16,
@@ -257,7 +259,7 @@ export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) 
                 shadowRadius: 4,
                 elevation: 2,
               }}>
-                <ActivityIndicator size="small" color="#EC4899" />
+                <ActivityIndicator size="small" color={colors.primary} />
               </View>
             </View>
           )}
@@ -266,8 +268,8 @@ export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) 
           {messages.length <= 1 && suggestions.length > 0 && (
             <View style={{ marginTop: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                <Sparkles size={16} color="#EC4899" />
-                <Text style={{ fontSize: 14, fontWeight: '500', color: '#6B7280', marginLeft: 6 }}>
+                <Sparkles size={16} color={colors.primary} />
+                <Text style={{ fontSize: 14, fontWeight: '500', color: colors.textSecondary, marginLeft: 6 }}>
                   Suggested questions
                 </Text>
               </View>
@@ -277,12 +279,12 @@ export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) 
                     key={index}
                     onPress={() => handleSuggestionPress(suggestion)}
                     style={{
-                      backgroundColor: 'white',
+                      backgroundColor: colors.card,
                       borderRadius: 12,
                       paddingHorizontal: 14,
                       paddingVertical: 10,
                       borderWidth: 1,
-                      borderColor: '#F3E8FF',
+                      borderColor: colors.reminderLight,
                       shadowColor: '#000',
                       shadowOffset: { width: 0, height: 1 },
                       shadowOpacity: 0.03,
@@ -290,7 +292,7 @@ export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) 
                       elevation: 1,
                     }}
                   >
-                    <Text style={{ fontSize: 13, color: '#7C3AED' }}>{suggestion}</Text>
+                    <Text style={{ fontSize: 13, color: colors.reminder }}>{suggestion}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -304,23 +306,23 @@ export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) 
           alignItems: 'flex-end',
           paddingHorizontal: 16,
           paddingVertical: 12,
-          backgroundColor: 'white',
+          backgroundColor: colors.card,
           borderTopWidth: 1,
-          borderTopColor: '#F3F4F6',
+          borderTopColor: colors.border,
         }}>
           <TextInput
             style={{
               flex: 1,
-              backgroundColor: '#F9FAFB',
+              backgroundColor: colors.borderLight,
               borderRadius: 20,
               paddingHorizontal: 16,
               paddingVertical: 10,
               fontSize: 15,
               maxHeight: 100,
-              color: '#1F2937',
+              color: colors.textPrimary,
             }}
             placeholder="Ask me anything about PCOS..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.textMuted}
             value={inputText}
             onChangeText={setInputText}
             multiline
@@ -333,7 +335,7 @@ export const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onNavigateBack }) 
               width: 44,
               height: 44,
               borderRadius: 22,
-              backgroundColor: inputText.trim() && !isLoading ? '#EC4899' : '#E5E7EB',
+              backgroundColor: inputText.trim() && !isLoading ? colors.primary : colors.border,
               justifyContent: 'center',
               alignItems: 'center',
               marginLeft: 8,

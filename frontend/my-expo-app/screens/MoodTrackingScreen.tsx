@@ -15,6 +15,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { ArrowLeft, BarChart3, ChevronLeft, ChevronRight, Heart, Sparkles } from 'lucide-react-native';
 import * as moodService from '../services/moodService';
 import { MoodLevel, EnergyLevel, MoodFactor, MoodQuote } from '../services/moodService';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 interface MoodTrackingScreenProps {
   onNavigateBack?: () => void;
@@ -50,6 +51,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
   onNavigateBack,
   onNavigateToHistory,
 }) => {
+  const { colors } = useThemedStyles();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -156,7 +158,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
   const moodOption = MOOD_OPTIONS.find((m) => m.value === mood);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FDF2F8' }} edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 20 }}>
@@ -169,20 +171,20 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                     width: 40,
                     height: 40,
                     borderRadius: 20,
-                    backgroundColor: '#FBCFE8',
+                    backgroundColor: colors.borderLight,
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginRight: 12,
                   }}
                 >
-                  <ArrowLeft size={20} color="#EC4899" />
+                  <ArrowLeft size={20} color={colors.textPrimary} />
                 </TouchableOpacity>
               )}
               <View>
-                <Text style={{ fontSize: 24, fontWeight: '700', color: '#831843' }}>
+                <Text style={{ fontSize: 24, fontWeight: '700', color: colors.textPrimary }}>
                   How are you? 💕
                 </Text>
-                <Text style={{ fontSize: 13, color: '#9D174D', marginTop: 2 }}>
+                <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>
                   Let's check in with yourself
                 </Text>
               </View>
@@ -191,13 +193,13 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
               <TouchableOpacity
                 onPress={onNavigateToHistory}
                 style={{
-                  backgroundColor: '#FBCFE8',
+                  backgroundColor: colors.borderLight,
                   paddingHorizontal: 14,
                   paddingVertical: 10,
                   borderRadius: 20,
                 }}
               >
-                <BarChart3 size={20} color="#EC4899" />
+                <BarChart3 size={20} color={colors.textPrimary} />
               </TouchableOpacity>
             )}
           </View>
@@ -205,20 +207,20 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
 
         {isLoading ? (
           <View style={{ padding: 40, alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#EC4899" />
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         ) : (
           <View style={{ paddingHorizontal: 20 }}>
             {/* Date Selector */}
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: colors.card,
                 borderRadius: 20,
                 padding: 6,
                 flexDirection: 'row',
                 alignItems: 'center',
                 marginBottom: 20,
-                shadowColor: '#EC4899',
+                shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.1,
                 shadowRadius: 8,
@@ -231,18 +233,18 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                   width: 44,
                   height: 44,
                   borderRadius: 16,
-                  backgroundColor: '#FDF2F8',
+                  backgroundColor: colors.borderLight,
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
               >
-                <ChevronLeft size={20} color="#EC4899" />
+                <ChevronLeft size={20} color={colors.textPrimary} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }}
                 onPress={() => setShowDatePicker(true)}
               >
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#831843' }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>
                   {formatDate(selectedDate)}
                 </Text>
               </TouchableOpacity>
@@ -253,13 +255,13 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                   width: 44,
                   height: 44,
                   borderRadius: 16,
-                  backgroundColor: '#FDF2F8',
+                  backgroundColor: colors.borderLight,
                   justifyContent: 'center',
                   alignItems: 'center',
                   opacity: selectedDate.toDateString() === new Date().toDateString() ? 0.4 : 1,
                 }}
               >
-                <ChevronRight size={20} color="#EC4899" />
+                <ChevronRight size={20} color={colors.textPrimary} />
               </TouchableOpacity>
             </View>
 
@@ -279,11 +281,11 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
             {/* Mood Selection */}
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: colors.card,
                 borderRadius: 24,
                 padding: 20,
                 marginBottom: 16,
-                shadowColor: '#EC4899',
+                shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.08,
                 shadowRadius: 12,
@@ -291,8 +293,8 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                <Heart size={18} color="#EC4899" fill="#EC4899" />
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#831843', marginLeft: 8 }}>
+                <Heart size={18} color={colors.textPrimary} fill={colors.textPrimary} />
+                <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary, marginLeft: 8 }}>
                   How's your mood?
                 </Text>
               </View>
@@ -305,9 +307,9 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                       alignItems: 'center',
                       padding: 10,
                       borderRadius: 16,
-                      backgroundColor: mood === option.value ? option.bgColor : '#FAFAFA',
+                      backgroundColor: mood === option.value ? colors.borderLight : colors.background,
                       borderWidth: 2,
-                      borderColor: mood === option.value ? option.color : 'transparent',
+                      borderColor: mood === option.value ? colors.border : 'transparent',
                       minWidth: 60,
                     }}
                   >
@@ -315,7 +317,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                     <Text
                       style={{
                         fontSize: 10,
-                        color: mood === option.value ? '#831843' : '#9CA3AF',
+                        color: mood === option.value ? colors.textPrimary : colors.textMuted,
                         marginTop: 4,
                         fontWeight: '600',
                       }}
@@ -330,18 +332,18 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
             {/* Energy Selection */}
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: colors.card,
                 borderRadius: 24,
                 padding: 20,
                 marginBottom: 16,
-                shadowColor: '#EC4899',
+                shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.08,
                 shadowRadius: 12,
                 elevation: 3,
               }}
             >
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#831843', marginBottom: 16 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary, marginBottom: 16 }}>
                 Energy level ⚡
               </Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -353,9 +355,9 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                       alignItems: 'center',
                       padding: 10,
                       borderRadius: 16,
-                      backgroundColor: energy === option.value ? '#FDF2F8' : '#FAFAFA',
+                      backgroundColor: energy === option.value ? colors.borderLight : colors.background,
                       borderWidth: 2,
-                      borderColor: energy === option.value ? option.color : 'transparent',
+                      borderColor: energy === option.value ? colors.border : 'transparent',
                       minWidth: 60,
                     }}
                   >
@@ -363,7 +365,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                     <Text
                       style={{
                         fontSize: 10,
-                        color: energy === option.value ? '#831843' : '#9CA3AF',
+                        color: energy === option.value ? colors.textPrimary : colors.textMuted,
                         marginTop: 4,
                         fontWeight: '600',
                       }}
@@ -378,18 +380,18 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
             {/* Factors */}
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: colors.card,
                 borderRadius: 24,
                 padding: 20,
                 marginBottom: 16,
-                shadowColor: '#EC4899',
+                shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.08,
                 shadowRadius: 12,
                 elevation: 3,
               }}
             >
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#831843', marginBottom: 16 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary, marginBottom: 16 }}>
                 What's on your mind? 💭
               </Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
@@ -401,15 +403,15 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                       paddingHorizontal: 16,
                       paddingVertical: 12,
                       borderRadius: 20,
-                      backgroundColor: selectedFactors.includes(factor.value) ? '#FBCFE8' : '#FDF2F8',
+                      backgroundColor: selectedFactors.includes(factor.value) ? colors.borderLight : colors.background,
                       borderWidth: 1,
-                      borderColor: selectedFactors.includes(factor.value) ? '#EC4899' : '#FCE7F3',
+                      borderColor: selectedFactors.includes(factor.value) ? colors.border : colors.borderLight,
                     }}
                   >
                     <Text
                       style={{
                         fontSize: 13,
-                        color: selectedFactors.includes(factor.value) ? '#831843' : '#9D174D',
+                        color: selectedFactors.includes(factor.value) ? colors.textPrimary : colors.textSecondary,
                         fontWeight: '500',
                       }}
                     >
@@ -423,32 +425,32 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
             {/* Journal */}
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: colors.card,
                 borderRadius: 24,
                 padding: 20,
                 marginBottom: 20,
-                shadowColor: '#EC4899',
+                shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.08,
                 shadowRadius: 12,
                 elevation: 3,
               }}
             >
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#831843', marginBottom: 12 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary, marginBottom: 12 }}>
                 Quick thoughts ✨
               </Text>
               <TextInput
                 style={{
-                  backgroundColor: '#FDF2F8',
+                  backgroundColor: colors.borderLight,
                   borderRadius: 16,
                   padding: 16,
                   minHeight: 100,
                   textAlignVertical: 'top',
                   fontSize: 15,
-                  color: '#831843',
+                  color: colors.textPrimary,
                 }}
                 placeholder="How was your day, beautiful? 💕"
-                placeholderTextColor="#D1A3B8"
+                placeholderTextColor={colors.textMuted}
                 value={journalEntry}
                 onChangeText={setJournalEntry}
                 multiline
@@ -460,12 +462,12 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
               onPress={handleSave}
               disabled={isSaving}
               style={{
-                backgroundColor: '#EC4899',
+                backgroundColor: colors.primary,
                 padding: 18,
                 borderRadius: 20,
                 alignItems: 'center',
                 marginBottom: 32,
-                shadowColor: '#EC4899',
+                shadowColor: colors.primary,
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.3,
                 shadowRadius: 8,
@@ -502,7 +504,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
         >
           <View
             style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.card,
               borderRadius: 28,
               padding: 28,
               width: '100%',
@@ -515,7 +517,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                 width: 60,
                 height: 60,
                 borderRadius: 30,
-                backgroundColor: '#FDF2F8',
+                backgroundColor: colors.borderLight,
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginBottom: 20,
@@ -527,7 +529,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
             <Text
               style={{
                 fontSize: 13,
-                color: '#EC4899',
+                color: colors.primary,
                 fontWeight: '600',
                 marginBottom: 12,
                 textTransform: 'uppercase',
@@ -540,7 +542,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
             <Text
               style={{
                 fontSize: 18,
-                color: '#831843',
+                color: colors.textPrimary,
                 textAlign: 'center',
                 lineHeight: 26,
                 fontStyle: 'italic',
@@ -550,7 +552,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
               "{currentQuote?.quote}"
             </Text>
 
-            <Text style={{ fontSize: 13, color: '#9D174D', marginBottom: 24 }}>
+            <Text style={{ fontSize: 13, color: colors.textSecondary, marginBottom: 24 }}>
               — {currentQuote?.author}
             </Text>
 
@@ -559,7 +561,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                 <Text
                   style={{
                     fontSize: 13,
-                    color: '#9D174D',
+                    color: colors.textSecondary,
                     textAlign: 'center',
                     marginBottom: 12,
                   }}
@@ -571,16 +573,16 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                     onPress={() => handleQuoteFeedback(true)}
                     style={{
                       flex: 1,
-                      backgroundColor: '#F0FDF4',
+                      backgroundColor: colors.successLight,
                       padding: 14,
                       borderRadius: 14,
                       alignItems: 'center',
                       borderWidth: 1,
-                      borderColor: '#86EFAC',
+                      borderColor: colors.success,
                     }}
                   >
                     <Text style={{ fontSize: 20 }}>💕</Text>
-                    <Text style={{ fontSize: 12, color: '#166534', marginTop: 4, fontWeight: '500' }}>
+                    <Text style={{ fontSize: 12, color: colors.success, marginTop: 4, fontWeight: '500' }}>
                       Love it!
                     </Text>
                   </TouchableOpacity>
@@ -588,23 +590,23 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
                     onPress={() => handleQuoteFeedback(false)}
                     style={{
                       flex: 1,
-                      backgroundColor: '#FDF2F8',
+                      backgroundColor: colors.borderLight,
                       padding: 14,
                       borderRadius: 14,
                       alignItems: 'center',
                       borderWidth: 1,
-                      borderColor: '#FBCFE8',
+                      borderColor: colors.border,
                     }}
                   >
                     <Text style={{ fontSize: 20 }}>🤔</Text>
-                    <Text style={{ fontSize: 12, color: '#9D174D', marginTop: 4, fontWeight: '500' }}>
+                    <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4, fontWeight: '500' }}>
                       Not really
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
             ) : (
-              <Text style={{ fontSize: 14, color: '#EC4899', fontWeight: '500' }}>
+              <Text style={{ fontSize: 14, color: colors.primary, fontWeight: '500' }}>
                 Thanks for your feedback! 💕
               </Text>
             )}
@@ -613,7 +615,7 @@ export const MoodTrackingScreen: React.FC<MoodTrackingScreenProps> = ({
               onPress={() => setShowQuoteModal(false)}
               style={{
                 marginTop: 20,
-                backgroundColor: '#EC4899',
+                backgroundColor: colors.primary,
                 paddingHorizontal: 32,
                 paddingVertical: 14,
                 borderRadius: 14,

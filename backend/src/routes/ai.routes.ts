@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { testAIService, testAIJSON } from '../controllers/ai.controller';
+import { testAIService, testAIJSON, listModels } from '../controllers/ai.controller';
 
 const router = Router();
 
@@ -14,5 +14,11 @@ router.get('/test', testAIService);
  * Test AI JSON response generation
  */
 router.get('/test-json', testAIJSON);
+
+/**
+ * GET /api/ai/list-models
+ * List available Gemini models
+ */
+router.get('/list-models', listModels);
 
 export default router;

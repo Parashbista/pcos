@@ -2,32 +2,35 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, HelpCircle } from 'lucide-react-native';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 interface HelpFAQScreenProps {
   onNavigateBack?: () => void;
 }
 
-const FAQItem: React.FC<{ question: string; answer: string }> = ({ question, answer }) => (
-  <View style={{ backgroundColor: 'white', borderRadius: 14, padding: 16, marginBottom: 12 }}>
-    <Text style={{ fontSize: 15, fontWeight: '600', color: '#1F2937', marginBottom: 6 }}>{question}</Text>
-    <Text style={{ fontSize: 13, color: '#6B7280', lineHeight: 18 }}>{answer}</Text>
-  </View>
-);
-
 export const HelpFAQScreen: React.FC<HelpFAQScreenProps> = ({ onNavigateBack }) => {
+  const { colors } = useThemedStyles();
+
+  const FAQItem: React.FC<{ question: string; answer: string }> = ({ question, answer }) => (
+    <View style={{ backgroundColor: colors.card, borderRadius: 14, padding: 16, marginBottom: 12 }}>
+      <Text style={{ fontSize: 15, fontWeight: '600', color: colors.textPrimary, marginBottom: 6 }}>{question}</Text>
+      <Text style={{ fontSize: 13, color: colors.textSecondary, lineHeight: 18 }}>{answer}</Text>
+    </View>
+  );
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, backgroundColor: colors.background, borderBottomWidth: 0 }}>
         <TouchableOpacity onPress={onNavigateBack} style={{ padding: 4 }}>
-          <ArrowLeft size={24} color="#1F2937" />
+          <ArrowLeft size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={{ fontSize: 18, fontWeight: '600', color: '#1F2937', marginLeft: 12 }}>Help & FAQ</Text>
+        <Text style={{ fontSize: 18, fontWeight: '600', color: colors.textPrimary, marginLeft: 12 }}>Help & FAQ</Text>
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-          <HelpCircle size={20} color="#EC4899" />
-          <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginLeft: 8 }}>Common Questions</Text>
+          <HelpCircle size={20} color={colors.textPrimary} />
+          <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginLeft: 8 }}>Common Questions</Text>
         </View>
 
         <FAQItem
@@ -55,8 +58,8 @@ export const HelpFAQScreen: React.FC<HelpFAQScreenProps> = ({ onNavigateBack }) 
           answer="Some features require internet. Your data syncs when you're back online."
         />
 
-        <View style={{ marginTop: 8, padding: 14, backgroundColor: '#FCE7F3', borderRadius: 12 }}>
-          <Text style={{ fontSize: 13, color: '#BE185D', textAlign: 'center' }}>
+        <View style={{ marginTop: 8, padding: 14, backgroundColor: colors.reminderLight, borderRadius: 12, borderWidth: 1, borderColor: colors.border }}>
+          <Text style={{ fontSize: 13, color: colors.reminderDark, textAlign: 'center' }}>
             Need more help? Email us at parashbista234@gmail.com
           </Text>
         </View>

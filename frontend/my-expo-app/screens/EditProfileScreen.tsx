@@ -97,7 +97,7 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.5,
@@ -112,7 +112,7 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
 
   const chooseFromLibrary = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.5,
@@ -163,15 +163,6 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
     }
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || 'U';
-  };
-
   if (isLoading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB', justifyContent: 'center', alignItems: 'center' }}>
@@ -207,11 +198,13 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
         {/* Avatar */}
         <View style={{ alignItems: 'center', marginBottom: 32 }}>
           <TouchableOpacity onPress={pickImage} activeOpacity={0.8}>
-            <View style={{ width: 110, height: 110, borderRadius: 55, backgroundColor: '#EC4899', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+            <View style={{ width: 110, height: 110, borderRadius: 55, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
               {profileImage ? (
-                <Image source={{ uri: profileImage }} style={{ width: 110, height: 110, borderRadius: 55 }} />
+                <Image source={{ uri: profileImage }} style={{ width: 110, height: 110, borderRadius: 55 }} resizeMode="cover" />
               ) : (
-                <Text style={{ fontSize: 40, fontWeight: '700', color: 'white' }}>{getInitials(name)}</Text>
+                <View style={{ width: 110, height: 110, borderRadius: 55, backgroundColor: '#F3F4F6', justifyContent: 'center', alignItems: 'center' }}>
+                  <User size={50} color="#9CA3AF" strokeWidth={1.5} />
+                </View>
               )}
             </View>
             {/* Camera Icon Overlay */}

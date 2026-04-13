@@ -174,3 +174,57 @@ export async function updateUserProfile(
 ): Promise<IUser | null> {
   return await UserModel.update(userId, { name });
 }
+
+/**
+ * Store email verification code for signup
+ */
+export async function setEmailVerificationCode(email: string, code: string): Promise<void> {
+  const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  await UserModel.setVerificationCode(email, code, expires);
+}
+
+/**
+ * Verify email with code and complete registration
+ */
+export async function verifyEmailAndCreateUser(
+  email: string,
+  code: string,
+  password: string,
+  name?: string
+): Promise<IUser | null> {
+  console.log('[verifyEmailAndCreateUser] Starting verification...');
+  console.log('[verifyEmailAndCreateUser] Email:', email);
+  console.log('[verifyEmailAndCreateUser] Code:', code);
+  console.log('[verifyEmailAndCreateUser] Password length:', password.length);
+  console.log('[verifyEmailAndCreateUser] Name:', name);
+  
+  // First verify the code exists and is valid
+  const user = await UserModel.verifyEmailWithCode(email, code);
+  
+  if (!user) {
+    console.log('[verifyEmailAndCreateUser] Verification failed - no user found');
+    return null;
+  }
+
+  console.log('[verifyEmailAndCreateUser] User verified, updating password...');
+  console.log('[verifyEmailAndCreateUser] User ID:', user._id?.toString());
+  console.log('[verifyEmailAndCreateUser] Current password field:', user.password ? 'EXISTS' : 'EMPTY');
+
+  // Hash password and update user
+  const hashedPassword = await hashPassword(password);
+  console.log('[verifyEmailAndCreateUser] Password hashed, length:', hashedPassword.length);
+  
+  const updatedUser = await UserModel.update(user._id!.toString(), {
+    password: hashedPassword,
+    name,
+    isEmailVerified: true,
+    authProvider: 'local'
+  });
+  
+  console.log('[verifyEmailAndCreateUser] User updated:', updatedUser ? 'SUCCESS' : 'FAILED');
+  if (updatedUser) {
+    console.log('[verifyEmailAndCreateUser] Updated password field:', updatedUser.password ? 'EXISTS' : 'EMPTY');
+  }
+  
+  return updatedUser;
+}

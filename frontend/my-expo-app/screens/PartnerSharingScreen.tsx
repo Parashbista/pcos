@@ -18,7 +18,8 @@ import {
 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
-import { colors, spacing, borderRadius, fontSize, fontWeight, shadows } from '../constants/theme';
+import { spacing, borderRadius, fontSize, fontWeight } from '../constants/theme';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 interface PartnerSharingScreenProps {
   onNavigateBack?: () => void;
@@ -48,6 +49,7 @@ const generateShareCode = (): string => {
 export const PartnerSharingScreen: React.FC<PartnerSharingScreenProps> = ({
   onNavigateBack,
 }) => {
+  const { colors } = useThemedStyles();
   const [settings, setSettings] = useState<SharingSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [partnerCode, setPartnerCode] = useState('');
@@ -180,62 +182,69 @@ export const PartnerSharingScreen: React.FC<PartnerSharingScreenProps> = ({
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={{ backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xxxl, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xl }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xl }}>
             {onNavigateBack && (
-              <TouchableOpacity onPress={onNavigateBack} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', marginRight: spacing.md }}>
-                <ArrowLeft size={20} color="white" />
+              <TouchableOpacity onPress={onNavigateBack} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.card, justifyContent: 'center', alignItems: 'center', marginRight: spacing.md }}>
+                <ArrowLeft size={20} color={colors.textPrimary} />
               </TouchableOpacity>
             )}
-            <View>
-              <Text style={{ fontSize: fontSize.title, fontWeight: fontWeight.bold, color: 'white' }}>Partner Mode</Text>
-              <Text style={{ fontSize: fontSize.md, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>Share your cycle with loved ones</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: fontSize.title, fontWeight: fontWeight.bold, color: colors.textPrimary }}>Partner Mode</Text>
+              <Text style={{ fontSize: fontSize.md, color: colors.textSecondary, marginTop: 2 }}>Share your cycle with loved ones</Text>
             </View>
           </View>
 
           {/* Info Card */}
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: borderRadius.xl, padding: spacing.lg, marginTop: spacing.xl, flexDirection: 'row', alignItems: 'center' }}>
-            <Heart size={24} color="white" fill="white" />
-            <Text style={{ fontSize: fontSize.md, color: 'rgba(255,255,255,0.9)', marginLeft: spacing.md, flex: 1, lineHeight: 20 }}>
-              Let your partner know when your period is coming so they can be more supportive 💕
-            </Text>
+          <View style={{ backgroundColor: colors.card, borderRadius: borderRadius.xl, padding: spacing.lg, borderLeftWidth: 4, borderLeftColor: colors.primary }}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryLight, justifyContent: 'center', alignItems: 'center', marginRight: spacing.md }}>
+                <Heart size={20} color={colors.primary} />
+              </View>
+              <Text style={{ fontSize: fontSize.base, color: colors.textSecondary, flex: 1, lineHeight: 20 }}>
+                Let your partner know when your period is coming so they can be more supportive 💕
+              </Text>
+            </View>
           </View>
         </View>
 
-        <View style={{ padding: spacing.xl, marginTop: -spacing.lg }}>
+        <View style={{ paddingHorizontal: spacing.xl }}>
           {!settings?.isEnabled ? (
             <>
               {/* Enable Sharing Card */}
-              <View style={{ backgroundColor: colors.white, borderRadius: borderRadius.xxl, padding: spacing.xl, marginBottom: spacing.xl, ...shadows.lg }}>
-                <View style={{ alignItems: 'center', marginBottom: spacing.xl }}>
-                  <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: colors.primaryLight, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.lg }}>
-                    <Share2 size={36} color={colors.primary} />
+              <View style={{ backgroundColor: colors.card, borderRadius: borderRadius.xl, padding: spacing.xxl, marginBottom: spacing.lg, borderWidth: 1, borderColor: colors.border }}>
+                <View style={{ alignItems: 'center', marginBottom: spacing.xxl }}>
+                  <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: colors.primaryLight, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.lg }}>
+                    <Share2 size={32} color={colors.primary} />
                   </View>
                   <Text style={{ fontSize: fontSize.xxl, fontWeight: fontWeight.bold, color: colors.textPrimary, textAlign: 'center' }}>
                     Share with Partner
                   </Text>
-                  <Text style={{ fontSize: fontSize.base, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.sm, lineHeight: 20 }}>
+                  <Text style={{ fontSize: fontSize.base, color: colors.textSecondary, textAlign: 'center', marginTop: spacing.sm, lineHeight: 22 }}>
                     Enable partner mode to share your cycle information with your significant other
                   </Text>
                 </View>
 
                 <TouchableOpacity
-                  style={{ backgroundColor: colors.primary, borderRadius: borderRadius.lg, padding: spacing.lg, alignItems: 'center' }}
+                  style={{ backgroundColor: colors.primary, borderRadius: borderRadius.lg, padding: spacing.lg, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}
                   onPress={enableSharing}
                 >
-                  <Text style={{ fontSize: fontSize.xl, fontWeight: fontWeight.semibold, color: 'white' }}>Enable Partner Mode</Text>
+                  <Heart size={20} color="white" />
+                  <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.semibold, color: 'white', marginLeft: spacing.sm }}>Enable Partner Mode</Text>
                 </TouchableOpacity>
               </View>
 
               {/* Connect to Partner */}
-              <View style={{ backgroundColor: colors.white, borderRadius: borderRadius.xxl, padding: spacing.xl, ...shadows.sm }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.lg }}>
-                  <UserPlus size={20} color={colors.primary} />
-                  <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.semibold, color: colors.textPrimary, marginLeft: spacing.sm }}>
+              <View style={{ backgroundColor: colors.card, borderRadius: borderRadius.xl, padding: spacing.xl, borderWidth: 1, borderColor: colors.border }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md }}>
+                  <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primaryLight, justifyContent: 'center', alignItems: 'center', marginRight: spacing.sm }}>
+                    <UserPlus size={16} color={colors.primary} />
+                  </View>
+                  <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.semibold, color: colors.textPrimary }}>
                     Connect to Partner
                   </Text>
                 </View>
-                <Text style={{ fontSize: fontSize.base, color: colors.textSecondary, marginBottom: spacing.lg }}>
+                <Text style={{ fontSize: fontSize.base, color: colors.textSecondary, marginBottom: spacing.lg, lineHeight: 20 }}>
                   Enter your partner's share code to see their cycle info
                 </Text>
                 <View style={{ flexDirection: 'row', gap: spacing.sm }}>
@@ -245,11 +254,13 @@ export const PartnerSharingScreen: React.FC<PartnerSharingScreenProps> = ({
                       backgroundColor: colors.background,
                       borderRadius: borderRadius.lg,
                       padding: spacing.lg,
-                      fontSize: fontSize.xl,
+                      fontSize: fontSize.xxl,
                       fontWeight: fontWeight.bold,
                       textAlign: 'center',
-                      letterSpacing: 4,
+                      letterSpacing: 6,
                       color: colors.textPrimary,
+                      borderWidth: 1,
+                      borderColor: colors.border,
                     }}
                     placeholder="XXXXXX"
                     placeholderTextColor={colors.textMuted}
@@ -262,8 +273,9 @@ export const PartnerSharingScreen: React.FC<PartnerSharingScreenProps> = ({
                     style={{
                       backgroundColor: partnerCode.length === 6 ? colors.primary : colors.border,
                       borderRadius: borderRadius.lg,
-                      padding: spacing.lg,
+                      paddingHorizontal: spacing.lg,
                       justifyContent: 'center',
+                      minWidth: 56,
                     }}
                     onPress={connectToPartner}
                     disabled={partnerCode.length !== 6 || isConnecting}
@@ -280,30 +292,45 @@ export const PartnerSharingScreen: React.FC<PartnerSharingScreenProps> = ({
           ) : (
             <>
               {/* Share Code Card */}
-              <View style={{ backgroundColor: colors.white, borderRadius: borderRadius.xxl, padding: spacing.xl, marginBottom: spacing.xl, ...shadows.lg }}>
+              <View style={{ backgroundColor: colors.card, borderRadius: borderRadius.xl, padding: spacing.xl, marginBottom: spacing.lg, borderWidth: 1, borderColor: colors.border }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.lg }}>
                   <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.semibold, color: colors.textPrimary }}>Your Share Code</Text>
-                  <TouchableOpacity onPress={regenerateCode} style={{ padding: spacing.sm }}>
-                    <RefreshCw size={20} color={colors.textSecondary} />
+                  <TouchableOpacity 
+                    onPress={regenerateCode} 
+                    style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}
+                  >
+                    <RefreshCw size={18} color={colors.textSecondary} />
                   </TouchableOpacity>
                 </View>
 
-                <View style={{ backgroundColor: colors.primaryLight, borderRadius: borderRadius.xl, padding: spacing.xl, alignItems: 'center', marginBottom: spacing.lg }}>
-                  <Text style={{ fontSize: 32, fontWeight: fontWeight.bold, color: colors.primary, letterSpacing: 8 }}>
+                <View style={{ backgroundColor: colors.primaryLight, borderRadius: borderRadius.lg, padding: spacing.lg, alignItems: 'center', marginBottom: spacing.lg, borderWidth: 1.5, borderColor: colors.primary + '30' }}>
+                  <Text style={{ fontSize: 24, fontWeight: fontWeight.bold, color: colors.primary, letterSpacing: 6 }}>
                     {settings.shareCode}
                   </Text>
                 </View>
 
+                {/* Partner Status */}
+                {settings.partnerName && (
+                  <View style={{ backgroundColor: colors.successLight, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.lg, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.success + '30' }}>
+                    <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: colors.success, justifyContent: 'center', alignItems: 'center' }}>
+                      <Check size={14} color="white" />
+                    </View>
+                    <Text style={{ fontSize: fontSize.base, color: colors.success, marginLeft: spacing.sm, fontWeight: fontWeight.medium }}>
+                      Connected to {settings.partnerName}
+                    </Text>
+                  </View>
+                )}
+
                 <View style={{ flexDirection: 'row', gap: spacing.sm }}>
                   <TouchableOpacity
-                    style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background, borderRadius: borderRadius.lg, padding: spacing.md }}
+                    style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background, borderRadius: borderRadius.lg, padding: spacing.lg, borderWidth: 1, borderColor: colors.border }}
                     onPress={copyCode}
                   >
-                    <Copy size={18} color={colors.textSecondary} />
-                    <Text style={{ fontSize: fontSize.base, color: colors.textSecondary, marginLeft: spacing.sm }}>Copy</Text>
+                    <Copy size={18} color={colors.textPrimary} />
+                    <Text style={{ fontSize: fontSize.base, color: colors.textPrimary, marginLeft: spacing.sm, fontWeight: fontWeight.medium }}>Copy</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, borderRadius: borderRadius.lg, padding: spacing.md }}
+                    style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, borderRadius: borderRadius.lg, padding: spacing.lg }}
                     onPress={shareWithPartner}
                   >
                     <Share2 size={18} color="white" />
@@ -313,63 +340,71 @@ export const PartnerSharingScreen: React.FC<PartnerSharingScreenProps> = ({
               </View>
 
               {/* Privacy Settings */}
-              <View style={{ backgroundColor: colors.white, borderRadius: borderRadius.xxl, padding: spacing.xl, marginBottom: spacing.xl, ...shadows.sm }}>
+              <View style={{ backgroundColor: colors.card, borderRadius: borderRadius.xl, padding: spacing.xl, marginBottom: spacing.lg, borderWidth: 1, borderColor: colors.border }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.lg }}>
-                  <Shield size={20} color={colors.primary} />
-                  <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.semibold, color: colors.textPrimary, marginLeft: spacing.sm }}>
+                  <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primaryLight, justifyContent: 'center', alignItems: 'center', marginRight: spacing.sm }}>
+                    <Shield size={16} color={colors.primary} />
+                  </View>
+                  <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.semibold, color: colors.textPrimary }}>
                     What to Share
                   </Text>
                 </View>
 
                 {/* Period Toggle */}
                 <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.borderLight }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.border }}
                   onPress={() => toggleSetting('sharePeriod')}
                 >
-                  <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.primaryLight, justifyContent: 'center', alignItems: 'center' }}>
-                    <Calendar size={22} color={colors.primary} />
+                  <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: colors.primaryLight, justifyContent: 'center', alignItems: 'center' }}>
+                    <Calendar size={24} color={colors.primary} />
                   </View>
                   <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.medium, color: colors.textPrimary }}>Period & Cycle</Text>
-                    <Text style={{ fontSize: fontSize.sm, color: colors.textSecondary }}>Period dates & predictions</Text>
+                    <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.semibold, color: colors.textPrimary }}>Period dates & predictions</Text>
+                    <Text style={{ fontSize: fontSize.sm, color: colors.textSecondary, marginTop: 2 }}>Cycle history and forecasts</Text>
                   </View>
-                  {settings.sharePeriod ? <Eye size={22} color={colors.success} /> : <EyeOff size={22} color={colors.textMuted} />}
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: settings.sharePeriod ? colors.successLight : colors.background, justifyContent: 'center', alignItems: 'center' }}>
+                    {settings.sharePeriod ? <Eye size={20} color={colors.success} /> : <EyeOff size={20} color={colors.textMuted} />}
+                  </View>
                 </TouchableOpacity>
 
                 {/* Mood Toggle */}
                 <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.borderLight }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.border }}
                   onPress={() => toggleSetting('shareMood')}
                 >
-                  <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.moodLight, justifyContent: 'center', alignItems: 'center' }}>
-                    <Smile size={22} color={colors.mood} />
+                  <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: colors.moodLight, justifyContent: 'center', alignItems: 'center' }}>
+                    <Smile size={24} color={colors.mood} />
                   </View>
                   <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.medium, color: colors.textPrimary }}>Mood</Text>
-                    <Text style={{ fontSize: fontSize.sm, color: colors.textSecondary }}>Daily mood status</Text>
+                    <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.semibold, color: colors.textPrimary }}>Daily mood status</Text>
+                    <Text style={{ fontSize: fontSize.sm, color: colors.textSecondary, marginTop: 2 }}>Emotional wellbeing logs</Text>
                   </View>
-                  {settings.shareMood ? <Eye size={22} color={colors.success} /> : <EyeOff size={22} color={colors.textMuted} />}
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: settings.shareMood ? colors.successLight : colors.background, justifyContent: 'center', alignItems: 'center' }}>
+                    {settings.shareMood ? <Eye size={20} color={colors.success} /> : <EyeOff size={20} color={colors.textMuted} />}
+                  </View>
                 </TouchableOpacity>
 
                 {/* Sleep Toggle */}
                 <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md }}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.lg }}
                   onPress={() => toggleSetting('shareSleep')}
                 >
-                  <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.sleepLight, justifyContent: 'center', alignItems: 'center' }}>
-                    <Moon size={22} color={colors.sleep} />
+                  <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: colors.sleepLight, justifyContent: 'center', alignItems: 'center' }}>
+                    <Moon size={24} color={colors.sleep} />
                   </View>
                   <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.medium, color: colors.textPrimary }}>Sleep</Text>
-                    <Text style={{ fontSize: fontSize.sm, color: colors.textSecondary }}>Sleep quality info</Text>
+                    <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.semibold, color: colors.textPrimary }}>Sleep quality info</Text>
+                    <Text style={{ fontSize: fontSize.sm, color: colors.textSecondary, marginTop: 2 }}>Rest patterns and duration</Text>
                   </View>
-                  {settings.shareSleep ? <Eye size={22} color={colors.success} /> : <EyeOff size={22} color={colors.textMuted} />}
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: settings.shareSleep ? colors.successLight : colors.background, justifyContent: 'center', alignItems: 'center' }}>
+                    {settings.shareSleep ? <Eye size={20} color={colors.success} /> : <EyeOff size={20} color={colors.textMuted} />}
+                  </View>
                 </TouchableOpacity>
               </View>
 
               {/* Disable Button */}
               <TouchableOpacity
-                style={{ backgroundColor: colors.white, borderRadius: borderRadius.xl, padding: spacing.lg, alignItems: 'center', borderWidth: 1, borderColor: colors.error }}
+                style={{ backgroundColor: colors.card, borderRadius: borderRadius.lg, padding: spacing.lg, alignItems: 'center', borderWidth: 2, borderColor: colors.error }}
                 onPress={disableSharing}
               >
                 <Text style={{ fontSize: fontSize.lg, fontWeight: fontWeight.semibold, color: colors.error }}>Disable Partner Mode</Text>

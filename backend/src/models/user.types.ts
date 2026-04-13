@@ -12,6 +12,9 @@ export interface IUser {
   authProvider?: 'local' | 'google';
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  emailVerificationCode?: string;
+  emailVerificationExpires?: Date;
+  isEmailVerified?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

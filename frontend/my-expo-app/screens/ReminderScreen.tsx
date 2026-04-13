@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Plus, Bell, Pill, Apple, Trash2, Clock, X } from 'lucide-react-native';
 import { Reminder, getReminders, createReminder, deleteReminder, toggleReminder } from '../services/reminderService';
 import { scheduleReminderNotification, cancelReminderNotifications, requestNotificationPermissions } from '../services/notificationService';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 interface ReminderScreenProps {
   onNavigateBack?: () => void;
@@ -18,6 +19,7 @@ const DAY_MAP: Record<string, string> = {
 };
 
 export const ReminderScreen: React.FC<ReminderScreenProps> = ({ onNavigateBack }) => {
+  const { colors } = useThemedStyles();
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -147,53 +149,53 @@ export const ReminderScreen: React.FC<ReminderScreenProps> = ({ onNavigateBack }
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16, backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border }}>
         <TouchableOpacity onPress={onNavigateBack} style={{ padding: 4 }}>
-          <ArrowLeft size={24} color="#1F2937" />
+          <ArrowLeft size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={{ fontSize: 18, fontWeight: '600', color: '#1F2937' }}>Reminders</Text>
-        <TouchableOpacity onPress={() => setShowModal(true)} style={{ backgroundColor: '#EC4899', borderRadius: 20, padding: 8 }}>
+        <Text style={{ fontSize: 18, fontWeight: '600', color: colors.textPrimary }}>Reminders</Text>
+        <TouchableOpacity onPress={() => setShowModal(true)} style={{ backgroundColor: colors.primary, borderRadius: 20, padding: 8 }}>
           <Plus size={20} color="white" />
         </TouchableOpacity>
       </View>
 
       {isLoading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#EC4899" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
           {reminders.length === 0 ? (
             <View style={{ alignItems: 'center', paddingTop: 60 }}>
-              <Bell size={48} color="#D1D5DB" />
-              <Text style={{ fontSize: 16, color: '#6B7280', marginTop: 16 }}>No reminders yet</Text>
-              <Text style={{ fontSize: 14, color: '#9CA3AF', marginTop: 4 }}>Tap + to add your first reminder</Text>
+              <Bell size={48} color={colors.textMuted} />
+              <Text style={{ fontSize: 16, color: colors.textSecondary, marginTop: 16 }}>No reminders yet</Text>
+              <Text style={{ fontSize: 14, color: colors.textMuted, marginTop: 4 }}>Tap + to add your first reminder</Text>
             </View>
           ) : (
             reminders.map(reminder => (
-              <View key={reminder.id} style={{ backgroundColor: 'white', borderRadius: 16, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}>
+              <View key={reminder.id} style={{ backgroundColor: colors.card, borderRadius: 16, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                     <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: getTypeColor(reminder.type), justifyContent: 'center', alignItems: 'center' }}>
                       {getIcon(reminder.type)}
                     </View>
                     <View style={{ marginLeft: 12, flex: 1 }}>
-                      <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>{reminder.name}</Text>
+                      <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>{reminder.name}</Text>
                       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-                        <Clock size={14} color="#9CA3AF" />
-                        <Text style={{ fontSize: 13, color: '#6B7280', marginLeft: 4 }}>{reminder.time}</Text>
-                        <Text style={{ fontSize: 12, color: '#9CA3AF', marginLeft: 8 }}>
+                        <Clock size={14} color={colors.textMuted} />
+                        <Text style={{ fontSize: 13, color: colors.textSecondary, marginLeft: 4 }}>{reminder.time}</Text>
+                        <Text style={{ fontSize: 12, color: colors.textMuted, marginLeft: 8 }}>
                           {reminder.days.length === 7 ? 'Everyday' : reminder.days.map(d => d.slice(0, 3)).join(', ')}
                         </Text>
                       </View>
                     </View>
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Switch value={reminder.isActive} onValueChange={() => handleToggle(reminder.id)} trackColor={{ false: '#E5E7EB', true: '#FBCFE8' }} thumbColor={reminder.isActive ? '#EC4899' : '#9CA3AF'} />
+                    <Switch value={reminder.isActive} onValueChange={() => handleToggle(reminder.id)} trackColor={{ false: colors.border, true: colors.periodLight }} thumbColor={reminder.isActive ? colors.primary : colors.textMuted} />
                     <TouchableOpacity onPress={() => handleDelete(reminder.id)} style={{ marginLeft: 8, padding: 8 }}>
-                      <Trash2 size={18} color="#EF4444" />
+                      <Trash2 size={18} color={colors.error} />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -206,53 +208,55 @@ export const ReminderScreen: React.FC<ReminderScreenProps> = ({ onNavigateBack }
       {/* Add Modal */}
       <Modal visible={showModal} animationType="slide" transparent>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: 'white', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '80%' }}>
+          <View style={{ backgroundColor: colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '80%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F2937' }}>New Reminder</Text>
-              <TouchableOpacity onPress={() => setShowModal(false)}><X size={24} color="#6B7280" /></TouchableOpacity>
+              <Text style={{ fontSize: 20, fontWeight: '700', color: colors.textPrimary }}>New Reminder</Text>
+              <TouchableOpacity onPress={() => setShowModal(false)}><X size={24} color={colors.textSecondary} /></TouchableOpacity>
             </View>
 
             {/* Type Selection */}
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Type</Text>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 }}>Type</Text>
             <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
               {(['supplement', 'food', 'medication'] as const).map(type => (
                 <TouchableOpacity key={type} onPress={() => setNewReminder({ ...newReminder, type })}
-                  style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: newReminder.type === type ? '#EC4899' : '#F3F4F6', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 13, fontWeight: '500', color: newReminder.type === type ? 'white' : '#4B5563', textTransform: 'capitalize' }}>{type}</Text>
+                  style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: newReminder.type === type ? colors.primary : colors.borderLight, alignItems: 'center' }}>
+                  <Text style={{ fontSize: 13, fontWeight: '500', color: newReminder.type === type ? 'white' : colors.textSecondary, textTransform: 'capitalize' }}>{type}</Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             {/* Name */}
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Name</Text>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 }}>Name</Text>
             <TextInput
-              style={{ backgroundColor: '#F9FAFB', borderRadius: 12, padding: 14, fontSize: 15, marginBottom: 16, borderWidth: 1, borderColor: '#E5E7EB' }}
+              style={{ backgroundColor: colors.borderLight, borderRadius: 12, padding: 14, fontSize: 15, marginBottom: 16, borderWidth: 1, borderColor: colors.border, color: colors.textPrimary }}
               placeholder="e.g., Vitamin D, Breakfast"
+              placeholderTextColor={colors.textMuted}
               value={newReminder.name}
               onChangeText={text => setNewReminder({ ...newReminder, name: text })}
             />
 
             {/* Time */}
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Time</Text>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 }}>Time</Text>
             <TextInput
-              style={{ backgroundColor: '#F9FAFB', borderRadius: 12, padding: 14, fontSize: 15, marginBottom: 16, borderWidth: 1, borderColor: '#E5E7EB' }}
+              style={{ backgroundColor: colors.borderLight, borderRadius: 12, padding: 14, fontSize: 15, marginBottom: 16, borderWidth: 1, borderColor: colors.border, color: colors.textPrimary }}
               placeholder="HH:MM (e.g., 08:00)"
+              placeholderTextColor={colors.textMuted}
               value={newReminder.time}
               onChangeText={text => setNewReminder({ ...newReminder, time: text })}
             />
 
             {/* Days */}
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Days</Text>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 8 }}>Days</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 }}>
               {DAYS.map(day => (
                 <TouchableOpacity key={day} onPress={() => toggleDay(day)}
-                  style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: newReminder.days.includes(DAY_MAP[day]) ? '#EC4899' : '#F3F4F6', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 12, fontWeight: '600', color: newReminder.days.includes(DAY_MAP[day]) ? 'white' : '#6B7280' }}>{day}</Text>
+                  style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: newReminder.days.includes(DAY_MAP[day]) ? colors.primary : colors.borderLight, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: newReminder.days.includes(DAY_MAP[day]) ? 'white' : colors.textSecondary }}>{day}</Text>
                 </TouchableOpacity>
               ))}
             </View>
 
-            <TouchableOpacity onPress={handleCreate} style={{ backgroundColor: '#EC4899', borderRadius: 12, paddingVertical: 16, alignItems: 'center' }}>
+            <TouchableOpacity onPress={handleCreate} style={{ backgroundColor: colors.primary, borderRadius: 12, paddingVertical: 16, alignItems: 'center' }}>
               <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>Create Reminder</Text>
             </TouchableOpacity>
           </View>

@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
+import { VerifyEmailScreen } from '../screens/VerifyEmailScreen';
 import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen';
 import { AuthStackParamList } from './types';
 
@@ -9,7 +10,7 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 /**
  * Authentication stack navigator
- * Contains Login, Register, and ForgotPassword screens
+ * Contains Login, Register, VerifyEmail, and ForgotPassword screens
  */
 export const AuthStack: React.FC = () => {
   return (
@@ -34,10 +35,19 @@ export const AuthStack: React.FC = () => {
         {({ navigation }) => (
           <RegisterScreen
             onNavigateToLogin={() => navigation.navigate('Login')}
-            onRegisterSuccess={() => {
+            onNavigateToVerify={(email) => navigation.navigate('VerifyEmail', { email })}
+          />
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="VerifyEmail">
+        {({ navigation, route }) => (
+          <VerifyEmailScreen
+            email={route.params.email}
+            onVerificationSuccess={() => {
               // Navigation will be handled by the root navigator
               // based on authentication state
             }}
+            onBack={() => navigation.goBack()}
           />
         )}
       </Stack.Screen>

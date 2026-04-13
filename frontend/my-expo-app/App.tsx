@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { RootNavigator } from './navigation';
 import { TestScreen } from './TestScreen';
 
@@ -14,9 +15,11 @@ export default function App() {
   }
 
   return (
-    <AuthProvider>
-      <RootNavigator />
-      <StatusBar style="auto" />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <RootNavigator />
+        <StatusBar style="auto" />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Bell, Calendar, Moon, Heart, Pill } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { requestNotificationPermissions, sendTestNotification } from '../services/notificationService';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 interface NotificationSettingsScreenProps {
   onNavigateBack?: () => void;
@@ -26,6 +27,7 @@ const DEFAULT_SETTINGS: NotificationSettings = {
 };
 
 export const NotificationSettingsScreen: React.FC<NotificationSettingsScreenProps> = ({ onNavigateBack }) => {
+  const { colors } = useThemedStyles();
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
   const [hasPermission, setHasPermission] = useState(false);
 
@@ -79,86 +81,86 @@ export const NotificationSettingsScreen: React.FC<NotificationSettingsScreenProp
     onToggle: () => void;
     color: string;
   }> = ({ icon, title, subtitle, value, onToggle, color }) => (
-    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', padding: 16, marginBottom: 1 }}>
-      <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: color + '20', justifyContent: 'center', alignItems: 'center' }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, padding: 16, marginBottom: 8, borderRadius: 12 }}>
+      <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.borderLight, justifyContent: 'center', alignItems: 'center' }}>
         {icon}
       </View>
       <View style={{ flex: 1, marginLeft: 14 }}>
-        <Text style={{ fontSize: 16, fontWeight: '500', color: '#1F2937' }}>{title}</Text>
-        <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>{subtitle}</Text>
+        <Text style={{ fontSize: 16, fontWeight: '500', color: colors.textPrimary }}>{title}</Text>
+        <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>{subtitle}</Text>
       </View>
       <Switch
         value={value}
         onValueChange={onToggle}
-        trackColor={{ false: '#E5E7EB', true: '#FBCFE8' }}
-        thumbColor={value ? '#EC4899' : '#9CA3AF'}
+        trackColor={{ false: colors.border, true: colors.borderLight }}
+        thumbColor={value ? colors.textPrimary : colors.textMuted}
       />
     </View>
   );
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#E5E7EB' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, backgroundColor: colors.background, borderBottomWidth: 0 }}>
         <TouchableOpacity onPress={onNavigateBack} style={{ padding: 4 }}>
-          <ArrowLeft size={24} color="#1F2937" />
+          <ArrowLeft size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={{ fontSize: 18, fontWeight: '600', color: '#1F2937', marginLeft: 12 }}>Notifications</Text>
+        <Text style={{ fontSize: 18, fontWeight: '600', color: colors.textPrimary, marginLeft: 12 }}>Notifications</Text>
       </View>
 
       <ScrollView style={{ flex: 1 }}>
         {/* Permission Status */}
-        <View style={{ margin: 20, padding: 16, backgroundColor: hasPermission ? '#F0FDF4' : '#FEF2F2', borderRadius: 12 }}>
+        <View style={{ margin: 20, padding: 16, backgroundColor: colors.card, borderRadius: 12, borderWidth: 1, borderColor: colors.border }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Bell size={20} color={hasPermission ? '#22C55E' : '#EF4444'} />
-            <Text style={{ fontSize: 14, fontWeight: '600', color: hasPermission ? '#166534' : '#991B1B', marginLeft: 8 }}>
+            <Bell size={20} color={hasPermission ? colors.success : colors.textMuted} />
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginLeft: 8 }}>
               {hasPermission ? 'Notifications Enabled' : 'Notifications Disabled'}
             </Text>
           </View>
           {!hasPermission && (
-            <Text style={{ fontSize: 13, color: '#991B1B', marginTop: 4 }}>
+            <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 4 }}>
               Enable notifications in your device settings to receive reminders.
             </Text>
           )}
         </View>
 
         {/* Notification Types */}
-        <Text style={{ fontSize: 12, fontWeight: '600', color: '#6B7280', paddingHorizontal: 20, paddingBottom: 8, textTransform: 'uppercase' }}>
+        <Text style={{ fontSize: 12, fontWeight: '600', color: colors.textMuted, paddingHorizontal: 20, paddingBottom: 8, textTransform: 'uppercase' }}>
           Reminder Types
         </Text>
-        <View style={{ marginHorizontal: 20, borderRadius: 14, overflow: 'hidden' }}>
+        <View style={{ marginHorizontal: 20 }}>
           <SettingRow
-            icon={<Calendar size={22} color="#EC4899" />}
+            icon={<Calendar size={22} color={colors.textPrimary} />}
             title="Period Reminders"
             subtitle="Get notified before your period"
             value={settings.periodReminders}
             onToggle={() => handleToggle('periodReminders')}
-            color="#EC4899"
+            color={colors.textPrimary}
           />
           <SettingRow
-            icon={<Heart size={22} color="#F59E0B" />}
+            icon={<Heart size={22} color={colors.textPrimary} />}
             title="Mood Check-ins"
             subtitle="Daily mood tracking reminders"
             value={settings.moodReminders}
             onToggle={() => handleToggle('moodReminders')}
-            color="#F59E0B"
+            color={colors.textPrimary}
           />
           <SettingRow
-            icon={<Moon size={22} color="#3B82F6" />}
+            icon={<Moon size={22} color={colors.textPrimary} />}
             title="Sleep Reminders"
             subtitle="Bedtime and wake-up alerts"
             value={settings.sleepReminders}
             onToggle={() => handleToggle('sleepReminders')}
-            color="#3B82F6"
+            color={colors.textPrimary}
           />
           <SettingRow
-            icon={<Pill size={22} color="#8B5CF6" />}
+            icon={<Pill size={22} color={colors.textPrimary} />}
             title="Supplement Reminders"
             subtitle="Food & medication alerts"
             value={settings.supplementReminders}
             onToggle={() => handleToggle('supplementReminders')}
-            color="#8B5CF6"
+            color={colors.textPrimary}
           />
         </View>
 
@@ -166,15 +168,15 @@ export const NotificationSettingsScreen: React.FC<NotificationSettingsScreenProp
         <View style={{ padding: 20 }}>
           <TouchableOpacity
             onPress={handleTestNotification}
-            style={{ backgroundColor: '#EC4899', borderRadius: 12, padding: 16, alignItems: 'center' }}
+            style={{ backgroundColor: colors.textPrimary, borderRadius: 12, padding: 16, alignItems: 'center' }}
           >
-            <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>Send Test Notification</Text>
+            <Text style={{ color: colors.background, fontSize: 16, fontWeight: '600' }}>Send Test Notification</Text>
           </TouchableOpacity>
         </View>
 
         {/* Info */}
         <View style={{ paddingHorizontal: 20, paddingBottom: 32 }}>
-          <Text style={{ fontSize: 13, color: '#9CA3AF', textAlign: 'center', lineHeight: 18 }}>
+          <Text style={{ fontSize: 13, color: colors.textMuted, textAlign: 'center', lineHeight: 18 }}>
             Notifications help you stay on track with your health goals. You can customize which reminders you receive.
           </Text>
         </View>

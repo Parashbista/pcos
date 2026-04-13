@@ -4,6 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { ArrowLeft, BarChart3, ChevronLeft, ChevronRight, Moon, CloudMoon, Sunrise, Frown, Meh, Smile, Sparkles, Brain, Coffee, Smartphone, Dumbbell, UtensilsCrossed, Wine, Pill, HeartCrack, AlertCircle, Lightbulb, TrendingDown, TrendingUp, Minus, Heart } from 'lucide-react-native';
 import * as sleepService from '../services/sleepService';
 import { SleepFactor, SleepDashboardSummary } from '../services/sleepService';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 const SLEEP_FACTORS: { value: SleepFactor; label: string; icon: any }[] = [
   { value: 'stress', label: 'Stress', icon: Brain },
@@ -38,6 +39,7 @@ const QualityIcon: React.FC<{ level: number; size?: number; color?: string }> = 
 };
 
 export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavigateToHistory, onNavigateBack }) => {
+  const { colors } = useThemedStyles();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -155,9 +157,9 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
   const currentQuality = QUALITY_OPTIONS.find(q => q.value === quality)!;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F9FAFB' }} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} showsVerticalScrollIndicator={false}>
       {/* Header */}
-      <View style={{ backgroundColor: '#6366F1', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 32, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}>
+      <View style={{ backgroundColor: colors.sleep, paddingHorizontal: 20, paddingTop: 50, paddingBottom: 32, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {onNavigateBack && (
@@ -205,38 +207,38 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
 
       <View style={{ padding: 20, marginTop: -16 }}>
         {isLoading ? (
-          <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 40, alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#6366F1" />
+          <View style={{ backgroundColor: colors.card, borderRadius: 20, padding: 40, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={colors.sleep} />
           </View>
         ) : (
           <>
             {/* Date Selector */}
-            <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 6, flexDirection: 'row', alignItems: 'center', marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
-              <TouchableOpacity onPress={() => navigateDate('prev')} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center' }}>
-                <ChevronLeft size={20} color="#6366F1" />
+            <View style={{ backgroundColor: colors.card, borderRadius: 16, padding: 6, flexDirection: 'row', alignItems: 'center', marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <TouchableOpacity onPress={() => navigateDate('prev')} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.sleepLight, justifyContent: 'center', alignItems: 'center' }}>
+                <ChevronLeft size={20} color={colors.sleep} />
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }} onPress={() => setShowDatePicker(true)}>
-                <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>{formatDate(selectedDate)}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>{formatDate(selectedDate)}</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => navigateDate('next')} disabled={selectedDate.toDateString() === new Date().toDateString()} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: '#EEF2FF', justifyContent: 'center', alignItems: 'center', opacity: selectedDate.toDateString() === new Date().toDateString() ? 0.4 : 1 }}>
-                <ChevronRight size={20} color="#6366F1" />
+              <TouchableOpacity onPress={() => navigateDate('next')} disabled={selectedDate.toDateString() === new Date().toDateString()} style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.sleepLight, justifyContent: 'center', alignItems: 'center', opacity: selectedDate.toDateString() === new Date().toDateString() ? 0.4 : 1 }}>
+                <ChevronRight size={20} color={colors.sleep} />
               </TouchableOpacity>
             </View>
             {showDatePicker && <DateTimePicker value={selectedDate} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={(e, date) => { setShowDatePicker(false); if (date) setSelectedDate(date); }} maximumDate={new Date()} />}
 
             {/* Time Pickers */}
-            <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 16 }}>Sleep Schedule</Text>
+            <View style={{ backgroundColor: colors.card, borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary, marginBottom: 16 }}>Sleep Schedule</Text>
               <View style={{ flexDirection: 'row', gap: 12 }}>
-                <TouchableOpacity onPress={() => setShowBedtimePicker(true)} style={{ flex: 1, backgroundColor: '#1E1B4B', borderRadius: 16, padding: 18, alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => setShowBedtimePicker(true)} style={{ flex: 1, backgroundColor: colors.sleepDark, borderRadius: 16, padding: 18, alignItems: 'center' }}>
                   <CloudMoon size={30} color="white" />
                   <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 10 }}>Bedtime</Text>
                   <Text style={{ fontSize: 22, fontWeight: 'bold', color: 'white', marginTop: 4 }}>{formatTime(bedtime)}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setShowWakeTimePicker(true)} style={{ flex: 1, backgroundColor: '#FEF3C7', borderRadius: 16, padding: 18, alignItems: 'center' }}>
-                  <Sunrise size={30} color="#92400E" />
-                  <Text style={{ fontSize: 12, color: '#92400E', marginTop: 10 }}>Wake Up</Text>
-                  <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#78350F', marginTop: 4 }}>{formatTime(wakeTime)}</Text>
+                <TouchableOpacity onPress={() => setShowWakeTimePicker(true)} style={{ flex: 1, backgroundColor: colors.warningLight, borderRadius: 16, padding: 18, alignItems: 'center' }}>
+                  <Sunrise size={30} color={colors.warningDark || '#92400E'} />
+                  <Text style={{ fontSize: 12, color: colors.warningDark || '#92400E', marginTop: 10 }}>Wake Up</Text>
+                  <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.warningDark || '#78350F', marginTop: 4 }}>{formatTime(wakeTime)}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -244,21 +246,21 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
             {showWakeTimePicker && <DateTimePicker value={wakeTime} mode="time" display={Platform.OS === 'ios' ? 'spinner' : 'default'} onChange={(e, date) => { setShowWakeTimePicker(false); if (date) setWakeTime(date); }} />}
 
             {/* Quality Selection */}
-            <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 16 }}>Sleep Quality</Text>
+            <View style={{ backgroundColor: colors.card, borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary, marginBottom: 16 }}>Sleep Quality</Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 {QUALITY_OPTIONS.map(option => (
-                  <TouchableOpacity key={option.value} onPress={() => setQuality(option.value as 1|2|3|4|5)} style={{ alignItems: 'center', padding: 12, borderRadius: 14, backgroundColor: quality === option.value ? option.color : '#F9FAFB', borderWidth: 2, borderColor: quality === option.value ? option.color : 'transparent', minWidth: 58 }}>
-                    <QualityIcon level={option.value} size={26} color={quality === option.value ? 'white' : '#9CA3AF'} />
-                    <Text style={{ fontSize: 10, color: quality === option.value ? 'white' : '#9CA3AF', marginTop: 6, fontWeight: '600' }}>{option.label}</Text>
+                  <TouchableOpacity key={option.value} onPress={() => setQuality(option.value as 1|2|3|4|5)} style={{ alignItems: 'center', padding: 12, borderRadius: 14, backgroundColor: quality === option.value ? option.color : colors.borderLight, borderWidth: 2, borderColor: quality === option.value ? option.color : 'transparent', minWidth: 58 }}>
+                    <QualityIcon level={option.value} size={26} color={quality === option.value ? 'white' : colors.textMuted} />
+                    <Text style={{ fontSize: 10, color: quality === option.value ? 'white' : colors.textMuted, marginTop: 6, fontWeight: '600' }}>{option.label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
 
             {/* Factors */}
-            <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginBottom: 16 }}>What affected your sleep?</Text>
+            <View style={{ backgroundColor: colors.card, borderRadius: 20, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary, marginBottom: 16 }}>What affected your sleep?</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
                 {SLEEP_FACTORS.map(factor => {
                   const isSelected = selectedFactors.includes(factor.value);
@@ -272,14 +274,14 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
                         alignItems: 'center', 
                         padding: 14, 
                         borderRadius: 14, 
-                        backgroundColor: isSelected ? '#6366F1' : '#F9FAFB', 
+                        backgroundColor: isSelected ? colors.sleep : colors.borderLight, 
                         borderWidth: 2, 
-                        borderColor: isSelected ? '#6366F1' : 'transparent',
+                        borderColor: isSelected ? colors.sleep : 'transparent',
                         marginBottom: 10,
                       }}
                     >
-                      <IconComponent size={24} color={isSelected ? 'white' : '#9CA3AF'} />
-                      <Text style={{ fontSize: 11, color: isSelected ? 'white' : '#6B7280', marginTop: 8, fontWeight: '500' }}>{factor.label}</Text>
+                      <IconComponent size={24} color={isSelected ? 'white' : colors.textMuted} />
+                      <Text style={{ fontSize: 11, color: isSelected ? 'white' : colors.textSecondary, marginTop: 8, fontWeight: '500' }}>{factor.label}</Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -287,44 +289,44 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
             </View>
 
             {/* Save Button */}
-            <TouchableOpacity onPress={handleSave} disabled={isSaving || !isValidDuration} style={{ backgroundColor: isValidDuration ? '#6366F1' : '#9CA3AF', padding: 18, borderRadius: 16, alignItems: 'center', marginBottom: 16, shadowColor: '#6366F1', shadowOffset: { width: 0, height: 4 }, shadowOpacity: isValidDuration ? 0.3 : 0, shadowRadius: 8, elevation: isValidDuration ? 4 : 0 }}>
+            <TouchableOpacity onPress={handleSave} disabled={isSaving || !isValidDuration} style={{ backgroundColor: isValidDuration ? colors.sleep : colors.textMuted, padding: 18, borderRadius: 16, alignItems: 'center', marginBottom: 16, shadowColor: colors.sleep, shadowOffset: { width: 0, height: 4 }, shadowOpacity: isValidDuration ? 0.3 : 0, shadowRadius: 8, elevation: isValidDuration ? 4 : 0 }}>
               {isSaving ? <ActivityIndicator color="white" /> : <Text style={{ color: 'white', fontSize: 17, fontWeight: '600' }}>{existingEntry ? '✓ Update Entry' : '✓ Save Entry'}</Text>}
             </TouchableOpacity>
 
             {/* Weekly Summary Alert Card */}
             {dashboardSummary && dashboardSummary.hasAlert && (
-              <View style={{ backgroundColor: '#FEF2F2', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#FECACA' }}>
+              <View style={{ backgroundColor: colors.errorLight, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.error }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FEE2E2', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-                    <AlertCircle size={20} color="#EF4444" />
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.errorLight, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                    <AlertCircle size={20} color={colors.error} />
                   </View>
-                  <Text style={{ fontSize: 15, fontWeight: '600', color: '#991B1B', flex: 1 }}>Weekly Sleep Alert</Text>
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: colors.error, flex: 1 }}>Weekly Sleep Alert</Text>
                 </View>
-                <Text style={{ fontSize: 13, color: '#B91C1C', lineHeight: 20, marginBottom: 12 }}>
+                <Text style={{ fontSize: 13, color: colors.error, lineHeight: 20, marginBottom: 12 }}>
                   {dashboardSummary.alertMessage || 'Your average sleep this week is below recommended levels.'}
                 </Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: 'white', borderRadius: 12, padding: 12 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.card, borderRadius: 12, padding: 12 }}>
                   <View style={{ alignItems: 'center', flex: 1 }}>
-                    <Text style={{ fontSize: 18, fontWeight: '700', color: '#EF4444' }}>
+                    <Text style={{ fontSize: 18, fontWeight: '700', color: colors.error }}>
                       {(dashboardSummary.averageSleep / 60).toFixed(1)}h
                     </Text>
-                    <Text style={{ fontSize: 11, color: '#9CA3AF' }}>7-Day Avg</Text>
+                    <Text style={{ fontSize: 11, color: colors.textMuted }}>7-Day Avg</Text>
                   </View>
-                  <View style={{ width: 1, backgroundColor: '#E5E7EB' }} />
+                  <View style={{ width: 1, backgroundColor: colors.border }} />
                   <View style={{ alignItems: 'center', flex: 1 }}>
-                    <Text style={{ fontSize: 18, fontWeight: '700', color: '#22C55E' }}>7-8h</Text>
-                    <Text style={{ fontSize: 11, color: '#9CA3AF' }}>Target</Text>
+                    <Text style={{ fontSize: 18, fontWeight: '700', color: colors.success }}>7-8h</Text>
+                    <Text style={{ fontSize: 11, color: colors.textMuted }}>Target</Text>
                   </View>
-                  <View style={{ width: 1, backgroundColor: '#E5E7EB' }} />
+                  <View style={{ width: 1, backgroundColor: colors.border }} />
                   <View style={{ alignItems: 'center', flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
                     {dashboardSummary.trend === 'improving' ? (
-                      <TrendingUp size={18} color="#22C55E" />
+                      <TrendingUp size={18} color={colors.success} />
                     ) : dashboardSummary.trend === 'declining' ? (
-                      <TrendingDown size={18} color="#EF4444" />
+                      <TrendingDown size={18} color={colors.error} />
                     ) : (
-                      <Minus size={18} color="#6B7280" />
+                      <Minus size={18} color={colors.textSecondary} />
                     )}
-                    <Text style={{ fontSize: 11, color: '#6B7280', marginLeft: 4, textTransform: 'capitalize' }}>{dashboardSummary.trend}</Text>
+                    <Text style={{ fontSize: 11, color: colors.textSecondary, marginLeft: 4, textTransform: 'capitalize' }}>{dashboardSummary.trend}</Text>
                   </View>
                 </View>
               </View>
@@ -332,26 +334,26 @@ export const SleepTrackingScreen: React.FC<SleepTrackingScreenProps> = ({ onNavi
 
             {/* PCOS Sleep Connection Card */}
             {dashboardSummary && !dashboardSummary.hasAlert && dashboardSummary.averageSleep > 0 && (
-              <View style={{ backgroundColor: '#F0FDF4', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#BBF7D0' }}>
+              <View style={{ backgroundColor: colors.successLight, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.success }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#DCFCE7', justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
-                    <Heart size={20} color="#22C55E" />
+                  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.successLight, justifyContent: 'center', alignItems: 'center', marginRight: 10 }}>
+                    <Heart size={20} color={colors.success} />
                   </View>
-                  <Text style={{ fontSize: 15, fontWeight: '600', color: '#166534', flex: 1 }}>Great Sleep Pattern! 🌟</Text>
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: colors.success, flex: 1 }}>Great Sleep Pattern! 🌟</Text>
                 </View>
-                <Text style={{ fontSize: 13, color: '#15803D', lineHeight: 20 }}>
+                <Text style={{ fontSize: 13, color: colors.success, lineHeight: 20 }}>
                   You're averaging {(dashboardSummary.averageSleep / 60).toFixed(1)} hours of sleep per night (7-day avg). Keep it up! Consistent sleep helps regulate hormones and manage PCOS symptoms.
                 </Text>
               </View>
             )}
 
             {/* Cycle Impact Info */}
-            <View style={{ backgroundColor: '#FDF4FF', borderRadius: 16, padding: 16, marginBottom: 32, borderWidth: 1, borderColor: '#F5D0FE' }}>
+            <View style={{ backgroundColor: colors.reminderLight, borderRadius: 16, padding: 16, marginBottom: 32, borderWidth: 1, borderColor: colors.reminder }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                 <Text style={{ fontSize: 18, marginRight: 8 }}>🌸</Text>
-                <Text style={{ fontSize: 14, fontWeight: '600', color: '#86198F' }}>Sleep & Cycle Connection</Text>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.reminderDark }}>Sleep & Cycle Connection</Text>
               </View>
-              <Text style={{ fontSize: 13, color: '#701A75', lineHeight: 20 }}>
+              <Text style={{ fontSize: 13, color: colors.reminderDark, lineHeight: 20 }}>
                 Poor sleep can disrupt hormone production and contribute to irregular periods. Women who sleep less than 6 hours have higher rates of menstrual irregularity. Prioritizing 7-8 hours of sleep supports hormonal balance naturally.
               </Text>
             </View>

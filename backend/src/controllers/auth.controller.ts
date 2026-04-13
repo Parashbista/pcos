@@ -1,15 +1,105 @@
 import { Request, Response } from 'express';
-import { createUser, findUserByEmail, findUserById, updateUserPassword, findOrCreateGoogleUser, setPasswordResetToken, resetPasswordWithToken, updateUserProfile } from '../services/user.service';
+import { createUser, findUserByEmail, findUserById, updateUserPassword, findOrCreateGoogleUser, setPasswordResetToken, resetPasswordWithToken, updateUserProfile, setEmailVerificationCode, verifyEmailAndCreateUser } from '../services/user.service';
 import { generateToken } from '../utils/jwt.util';
 import { comparePassword } from '../utils/password.util';
 import { AuthRequest } from '../middleware/auth.middleware';
-import { sendPasswordResetEmail, generateOTP } from '../services/email.service';
+import { sendPasswordResetEmail, generateOTP, sendVerificationEmail } from '../services/email.service';
 import { OAuth2Client } from 'google-auth-library';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 /**
- * Register a new user
+ * Step 1: Request email verification code
+ * POST /api/auth/request-verification
+ */
+export async function requestVerificationCode(req: Request, res: Response): Promise<void> {
+  try {
+    const { email } = req.body;
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      res.status(400).json({ error: 'Invalid email format' });
+      return;
+    }
+
+    // Check if email already registered and verified
+    const existingUser = await findUserByEmail(email);
+    if (existingUser && existingUser.isEmailVerified) {
+      res.status(409).json({ error: 'Email already registered' });
+      return;
+    }
+
+    // Generate and store verification code
+    const code = generateOTP();
+    await setEmailVerificationCode(email, code);
+
+    // Send verification email
+    try {
+      await sendVerificationEmail(email, code);
+      res.status(200).json({ 
+        message: 'Verification code sent to your email',
+        email 
+      });
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+      res.status(500).json({ error: 'Failed to send verification email. Please try again.' });
+    }
+  } catch (error) {
+    console.error('Request verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+/**
+ * Step 2: Verify code and complete registration
+ * POST /api/auth/verify-and-register
+ */
+export async function verifyAndRegister(req: Request, res: Response): Promise<void> {
+  try {
+    const { email, code, password, name } = req.body;
+
+    // Validate inputs
+    if (!email || !code || !password) {
+      res.status(400).json({ error: 'Email, verification code, and password are required' });
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 8) {
+      res.status(400).json({ error: 'Password must be at least 8 characters long' });
+      return;
+    }
+
+    // Verify code and create user
+    const user = await verifyEmailAndCreateUser(email, code, password, name);
+
+    if (!user) {
+      res.status(400).json({ error: 'Invalid or expired verification code' });
+      return;
+    }
+
+    // Generate JWT token
+    const token = generateToken(user._id!.toString());
+
+    // Return token and user data
+    res.status(201).json({
+      token,
+      user: {
+        id: user._id!.toString(),
+        email: user.email,
+        name: user.name,
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Verify and register error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+/**
+ * Register a new user (OLD METHOD - kept for backward compatibility)
  * POST /api/auth/register
  */
 export async function registerUser(req: Request, res: Response): Promise<void> {

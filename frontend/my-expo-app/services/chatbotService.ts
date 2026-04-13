@@ -10,6 +10,7 @@ export interface ChatMessage {
 export interface ChatResponse {
   success: boolean;
   response?: string;
+  conversationId?: string;
   error?: string;
   timestamp?: string;
 }
@@ -19,23 +20,38 @@ export interface SuggestionsResponse {
   suggestions: string[];
 }
 
+export interface ConversationSummary {
+  id: string;
+  messages: { role: string; content: string; timestamp: string }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface HistoryResponse {
+  success: boolean;
+  conversations: ConversationSummary[];
+}
+
+// Store current conversation ID
+let currentConversationId: string | null = null;
+
 /**
  * Send a message to the PCOS health assistant
  */
 export async function sendMessage(
   message: string,
-  conversationHistory: ChatMessage[]
+  _conversationHistory: ChatMessage[] // kept for compatibility
 ): Promise<ChatResponse> {
   try {
-    const history = conversationHistory.map(msg => ({
-      role: msg.role,
-      content: msg.content
-    }));
-
     const response = await api.post<ChatResponse>('/api/chatbot/chat', {
       message,
-      conversationHistory: history
+      conversationId: currentConversationId
     });
+
+    // Store conversation ID for future messages
+    if (response.data.conversationId) {
+      currentConversationId = response.data.conversationId;
+    }
 
     return response.data;
   } catch (error: any) {
@@ -48,33 +64,14 @@ export async function sendMessage(
 }
 
 /**
- * Get suggested questions
+ * Get suggested questions (personalized based on user's health data)
  */
 export async function getSuggestions(): Promise<string[]> {
   try {
-    // Log the full URL being called
-    const baseUrl = api.defaults.baseURL;
-    const endpoint = '/api/chatbot/suggestions';
-    console.log('🔍 Chatbot Service - Fetching suggestions');
-    console.log('🔍 Base URL:', baseUrl);
-    console.log('🔍 Full URL:', `${baseUrl}${endpoint}`);
-    
-    const response = await api.get<SuggestionsResponse>(endpoint);
-    console.log('✅ Suggestions response:', response.data);
+    const response = await api.get<SuggestionsResponse>('/api/chatbot/suggestions');
     return response.data.suggestions || [];
   } catch (error: any) {
-    console.error('❌ Failed to get suggestions');
-    console.error('❌ Error details:', {
-      message: error.message,
-      status: error.status,
-      response: error.response?.data,
-      config: {
-        url: error.config?.url,
-        baseURL: error.config?.baseURL,
-        method: error.config?.method
-      }
-    });
-    // Return fallback suggestions on error
+    console.error('Failed to get suggestions:', error);
     return [
       "What are common PCOS symptoms?",
       "How can I manage PCOS naturally?",
@@ -82,6 +79,68 @@ export async function getSuggestions(): Promise<string[]> {
       "How does sleep affect PCOS?"
     ];
   }
+}
+
+/**
+ * Get conversation history
+ */
+export async function getConversationHistory(): Promise<ConversationSummary[]> {
+  try {
+    const response = await api.get<HistoryResponse>('/api/chatbot/history');
+    return response.data.conversations || [];
+  } catch (error) {
+    console.error('Failed to get history:', error);
+    return [];
+  }
+}
+
+/**
+ * Load a specific conversation
+ */
+export async function loadConversation(conversationId: string): Promise<ConversationSummary | null> {
+  try {
+    const response = await api.get<{ success: boolean; conversation: ConversationSummary }>(
+      `/api/chatbot/conversation/${conversationId}`
+    );
+    if (response.data.success) {
+      currentConversationId = conversationId;
+      return response.data.conversation;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to load conversation:', error);
+    return null;
+  }
+}
+
+/**
+ * Delete a conversation
+ */
+export async function deleteConversation(conversationId: string): Promise<boolean> {
+  try {
+    await api.delete(`/api/chatbot/conversation/${conversationId}`);
+    if (currentConversationId === conversationId) {
+      currentConversationId = null;
+    }
+    return true;
+  } catch (error) {
+    console.error('Failed to delete conversation:', error);
+    return false;
+  }
+}
+
+/**
+ * Start a new conversation
+ */
+export function startNewConversation(): void {
+  currentConversationId = null;
+}
+
+/**
+ * Get current conversation ID
+ */
+export function getCurrentConversationId(): string | null {
+  return currentConversationId;
 }
 
 /**

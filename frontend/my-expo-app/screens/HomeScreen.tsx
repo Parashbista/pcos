@@ -305,10 +305,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 style={{ flex: 1, backgroundColor: colors.card, borderRadius: 14, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: colors.border }}
                 onPress={onNavigateToSleepTracking}
               >
-                <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.borderLight, justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
-                  <Moon size={28} color={colors.textPrimary} />
+                <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.sleepLight, justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
+                  <Moon size={28} color={colors.sleep} />
                 </View>
-                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginTop: 2 }}>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.sleep, marginTop: 2 }}>
                   {healthSummary.lastSleep ? `${healthSummary.lastSleep.hours}h` : 'No sleep'}
                 </Text>
                 <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
@@ -461,32 +461,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             style={{ backgroundColor: colors.card, borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: colors.border }}
             onPress={onNavigateToInsights}
           >
-            <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: colors.insightsLight, justifyContent: 'center', alignItems: 'center' }}>
-              <Sparkles size={24} color="#F59E0B" />
+            <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: colors.borderLight, justifyContent: 'center', alignItems: 'center' }}>
+              <Sparkles size={24} color={colors.textPrimary} />
             </View>
             <View style={{ flex: 1, marginLeft: 14 }}>
               <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>Smart Cycle Alert</Text>
               <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>Personalized health insights</Text>
             </View>
-            <View style={{ backgroundColor: '#F59E0B', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
-              <Text style={{ fontSize: 10, fontWeight: '600', color: 'white' }}>AI</Text>
+            <View style={{ backgroundColor: colors.borderLight, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+              <Text style={{ fontSize: 10, fontWeight: '600', color: colors.textPrimary }}>AI</Text>
             </View>
           </TouchableOpacity>
 
           {/* AI Chatbot Card */}
           <TouchableOpacity
-            style={{ backgroundColor: colors.card, borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: '#F3E8FF' }}
+            style={{ backgroundColor: colors.card, borderRadius: 16, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: colors.border }}
             onPress={onNavigateToChatbot}
           >
-            <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#F3E8FF', justifyContent: 'center', alignItems: 'center' }}>
-              <MessageCircle size={24} color="#8B5CF6" />
+            <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: colors.borderLight, justifyContent: 'center', alignItems: 'center' }}>
+              <MessageCircle size={24} color={colors.textPrimary} />
             </View>
             <View style={{ flex: 1, marginLeft: 14 }}>
               <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>PCOS Assistant</Text>
               <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>Chat with AI health assistant</Text>
             </View>
-            <View style={{ backgroundColor: '#8B5CF6', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
-              <Text style={{ fontSize: 10, fontWeight: '600', color: 'white' }}>AI</Text>
+            <View style={{ backgroundColor: colors.borderLight, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+              <Text style={{ fontSize: 10, fontWeight: '600', color: colors.textPrimary }}>AI</Text>
             </View>
           </TouchableOpacity>
         </View>

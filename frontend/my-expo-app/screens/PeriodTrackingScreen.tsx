@@ -21,6 +21,7 @@ import {
 } from '../services/periodService';
 import * as notificationService from '../services/notificationService';
 import { ReminderSettings } from '../services/notificationService';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 
 interface PeriodTrackingScreenProps {
   onNavigateBack?: () => void;
@@ -60,7 +61,8 @@ const FlowModal: React.FC<{
   onSelect: (flow: FlowIntensity) => void;
   onRemove: () => void;
   onClose: () => void;
-}> = ({ visible, date, currentFlow, onSelect, onRemove, onClose }) => {
+  colors: any;
+}> = ({ visible, date, currentFlow, onSelect, onRemove, onClose, colors }) => {
   const formatDisplayDate = (dateStr: string) => {
     const d = new Date(dateStr);
     return d.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
@@ -74,15 +76,15 @@ const FlowModal: React.FC<{
         onPress={onClose}
       >
         <TouchableOpacity activeOpacity={1} style={{ width: '85%' }}>
-          <View style={{ backgroundColor: 'white', borderRadius: 24, padding: 24 }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1F2937', textAlign: 'center' }}>
+          <View style={{ backgroundColor: colors.card, borderRadius: 24, padding: 24 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, textAlign: 'center' }}>
               Log Period
             </Text>
-            <Text style={{ fontSize: 14, color: '#6B7280', textAlign: 'center', marginTop: 4 }}>
+            <Text style={{ fontSize: 14, color: colors.textSecondary, textAlign: 'center', marginTop: 4 }}>
               {formatDisplayDate(date)}
             </Text>
 
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151', marginTop: 20, marginBottom: 12 }}>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginTop: 20, marginBottom: 12 }}>
               Select Flow Intensity:
             </Text>
 
@@ -95,21 +97,21 @@ const FlowModal: React.FC<{
                     alignItems: 'center',
                     padding: 16,
                     borderRadius: 14,
-                    backgroundColor: currentFlow === option.value ? '#FCE7F3' : '#F9FAFB',
+                    backgroundColor: currentFlow === option.value ? colors.periodLight : colors.borderLight,
                     borderWidth: 2,
-                    borderColor: currentFlow === option.value ? '#EC4899' : 'transparent',
+                    borderColor: currentFlow === option.value ? colors.period : 'transparent',
                   }}
                   onPress={() => onSelect(option.value)}
                 >
                   <HeartIcon flow={option.value} size={28} />
                   <View style={{ marginLeft: 14, flex: 1 }}>
-                    <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>{option.label}</Text>
-                    <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>
+                    <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>{option.label}</Text>
+                    <Text style={{ fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
                       {option.value === 'light' ? 'Spotting or light bleeding' : option.value === 'medium' ? 'Normal flow' : 'Heavy bleeding'}
                     </Text>
                   </View>
                   {currentFlow === option.value && (
-                    <Text style={{ fontSize: 18, color: '#EC4899' }}>✓</Text>
+                    <Text style={{ fontSize: 18, color: colors.period }}>✓</Text>
                   )}
                 </TouchableOpacity>
               ))}
@@ -121,12 +123,12 @@ const FlowModal: React.FC<{
                   marginTop: 16,
                   padding: 14,
                   borderRadius: 12,
-                  backgroundColor: '#FEE2E2',
+                  backgroundColor: colors.errorLight,
                   alignItems: 'center',
                 }}
                 onPress={onRemove}
               >
-                <Text style={{ color: '#DC2626', fontWeight: '600' }}>Remove Period Log</Text>
+                <Text style={{ color: colors.error, fontWeight: '600' }}>Remove Period Log</Text>
               </TouchableOpacity>
             )}
 
@@ -134,7 +136,7 @@ const FlowModal: React.FC<{
               style={{ marginTop: 12, padding: 14, alignItems: 'center' }}
               onPress={onClose}
             >
-              <Text style={{ color: '#6B7280', fontWeight: '500' }}>Cancel</Text>
+              <Text style={{ color: colors.textSecondary, fontWeight: '500' }}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -149,7 +151,8 @@ const CustomCalendar: React.FC<{
   periodDays: { [key: string]: FlowIntensity };
   predictedDate?: string;
   onDayPress: (date: string) => void;
-}> = ({ periodDays, predictedDate, onDayPress }) => {
+  colors: any;
+}> = ({ periodDays, predictedDate, onDayPress, colors }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -165,6 +168,7 @@ const CustomCalendar: React.FC<{
 
     const days: { date: number; month: 'prev' | 'current' | 'next'; fullDate: string }[] = [];
 
+    // Previous month days
     const prevMonth = new Date(year, month, 0);
     const prevMonthDays = prevMonth.getDate();
     for (let i = startingDay - 1; i >= 0; i--) {
@@ -173,12 +177,18 @@ const CustomCalendar: React.FC<{
       days.push({ date: day, month: 'prev', fullDate: prevDate.toISOString().split('T')[0] });
     }
 
+    // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       const currentDate = new Date(year, month, i);
       days.push({ date: i, month: 'current', fullDate: currentDate.toISOString().split('T')[0] });
     }
 
-    const remainingDays = 42 - days.length;
+    // Next month days - only add if we need to fill the grid
+    const totalDaysShown = days.length;
+    const weeksNeeded = Math.ceil(totalDaysShown / 7);
+    const totalCells = weeksNeeded * 7;
+    const remainingDays = totalCells - totalDaysShown;
+    
     for (let i = 1; i <= remainingDays; i++) {
       const nextDate = new Date(year, month + 1, i);
       days.push({ date: i, month: 'next', fullDate: nextDate.toISOString().split('T')[0] });
@@ -199,17 +209,17 @@ const CustomCalendar: React.FC<{
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 16 }}>
+    <View style={{ backgroundColor: colors.card, borderRadius: 20, padding: 16 }}>
       {/* Month Header */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <TouchableOpacity onPress={goToPrevMonth} style={{ padding: 10 }}>
-          <Text style={{ fontSize: 28, color: '#EC4899', fontWeight: '300' }}>‹</Text>
+          <Text style={{ fontSize: 28, color: colors.primary, fontWeight: '300' }}>‹</Text>
         </TouchableOpacity>
-        <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1F2937' }}>
+        <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.textPrimary }}>
           {MONTHS[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </Text>
         <TouchableOpacity onPress={goToNextMonth} style={{ padding: 10 }}>
-          <Text style={{ fontSize: 28, color: '#EC4899', fontWeight: '300' }}>›</Text>
+          <Text style={{ fontSize: 28, color: colors.primary, fontWeight: '300' }}>›</Text>
         </TouchableOpacity>
       </View>
 
@@ -222,11 +232,11 @@ const CustomCalendar: React.FC<{
               flex: 1,
               alignItems: 'center',
               paddingVertical: 8,
-              backgroundColor: index === 0 || index === 6 ? '#FDF2F8' : 'transparent',
+              backgroundColor: index === 0 || index === 6 ? colors.periodLight : 'transparent',
               borderRadius: 8,
             }}
           >
-            <Text style={{ fontSize: 14, fontWeight: '600', color: index === 0 || index === 6 ? '#EC4899' : '#6B7280' }}>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: index === 0 || index === 6 ? colors.period : colors.textSecondary }}>
               {day}
             </Text>
           </View>
@@ -251,7 +261,7 @@ const CustomCalendar: React.FC<{
                 aspectRatio: 1,
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: isWeekend ? '#FDF2F8' : 'transparent',
+                backgroundColor: isWeekend ? colors.periodLight : 'transparent',
               }}
               onPress={() => {
                 if (isCurrentMonth) onDayPress(day.fullDate);
@@ -265,15 +275,15 @@ const CustomCalendar: React.FC<{
                   borderRadius: 22,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  backgroundColor: isPredicted ? '#FEF3C7' : 'transparent',
+                  backgroundColor: isPredicted ? colors.warningLight : 'transparent',
                   borderWidth: isToday ? 2 : 0,
-                  borderColor: '#EC4899',
+                  borderColor: colors.period,
                 }}
               >
                 {periodFlow ? (
                   <View style={{ alignItems: 'center' }}>
                     <HeartIcon flow={periodFlow} size={22} />
-                    <Text style={{ fontSize: 9, color: '#BE185D', fontWeight: '700', marginTop: 1 }}>
+                    <Text style={{ fontSize: 9, color: colors.periodDark, fontWeight: '700', marginTop: 1 }}>
                       {day.date}
                     </Text>
                   </View>
@@ -282,7 +292,7 @@ const CustomCalendar: React.FC<{
                     style={{
                       fontSize: 16,
                       fontWeight: isCurrentMonth ? '600' : '400',
-                      color: !isCurrentMonth ? '#D1D5DB' : isWeekend ? '#EC4899' : '#1F2937',
+                      color: !isCurrentMonth ? colors.textMuted : isWeekend ? colors.period : colors.textPrimary,
                     }}
                   >
                     {day.date}
@@ -295,23 +305,23 @@ const CustomCalendar: React.FC<{
       </View>
 
       {/* Legend */}
-      <View style={{ marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: '#F3F4F6' }}>
+      <View style={{ marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.border }}>
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <HeartIcon flow="light" size={14} />
-            <Text style={{ fontSize: 11, color: '#6B7280', marginLeft: 4 }}>Light</Text>
+            <Text style={{ fontSize: 11, color: colors.textSecondary, marginLeft: 4 }}>Light</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <HeartIcon flow="medium" size={14} />
-            <Text style={{ fontSize: 11, color: '#6B7280', marginLeft: 4 }}>Medium</Text>
+            <Text style={{ fontSize: 11, color: colors.textSecondary, marginLeft: 4 }}>Medium</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <HeartIcon flow="heavy" size={14} />
-            <Text style={{ fontSize: 11, color: '#6B7280', marginLeft: 4 }}>Heavy</Text>
+            <Text style={{ fontSize: 11, color: colors.textSecondary, marginLeft: 4 }}>Heavy</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: '#FEF3C7' }} />
-            <Text style={{ fontSize: 11, color: '#6B7280', marginLeft: 4 }}>Predicted</Text>
+            <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: colors.warningLight }} />
+            <Text style={{ fontSize: 11, color: colors.textSecondary, marginLeft: 4 }}>Predicted</Text>
           </View>
         </View>
       </View>
@@ -324,6 +334,7 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
   onNavigateBack,
   onNavigateToHistory,
 }) => {
+  const { colors } = useThemedStyles();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -507,11 +518,11 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
   }).length;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F8FAFC' }} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View
         style={{
-          backgroundColor: '#EC4899',
+          backgroundColor: colors.primary,
           paddingHorizontal: 20,
           paddingTop: 16,
           paddingBottom: 32,
@@ -603,8 +614,8 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
 
       <View style={{ padding: 20, marginTop: -16 }}>
         {isLoading ? (
-          <View style={{ backgroundColor: 'white', borderRadius: 20, padding: 40, alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#EC4899" />
+          <View style={{ backgroundColor: colors.card, borderRadius: 20, padding: 40, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         ) : (
           <>
@@ -623,6 +634,7 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
                 periodDays={periodDays}
                 predictedDate={prediction?.predictedStartDate}
                 onDayPress={handleDayPress}
+                colors={colors}
               />
             </View>
 
@@ -631,7 +643,7 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
               <View
                 style={{
                   flex: 1,
-                  backgroundColor: 'white',
+                  backgroundColor: colors.card,
                   padding: 16,
                   borderRadius: 16,
                   alignItems: 'center',
@@ -642,15 +654,15 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
                   elevation: 2,
                 }}
               >
-                <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#EC4899' }}>{currentMonthDays}</Text>
-                <Text style={{ fontSize: 12, color: '#6B7280' }}>Days this month</Text>
+                <Text style={{ fontSize: 28, fontWeight: 'bold', color: colors.primary }}>{currentMonthDays}</Text>
+                <Text style={{ fontSize: 12, color: colors.textSecondary }}>Days this month</Text>
               </View>
               {stats && stats.totalPeriods > 0 && (
                 <>
                   <View
                     style={{
                       flex: 1,
-                      backgroundColor: 'white',
+                      backgroundColor: colors.card,
                       padding: 16,
                       borderRadius: 16,
                       alignItems: 'center',
@@ -661,13 +673,13 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
                       elevation: 2,
                     }}
                   >
-                    <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#EC4899' }}>{stats.averageCycleLength}</Text>
-                    <Text style={{ fontSize: 12, color: '#6B7280' }}>Avg cycle days</Text>
+                    <Text style={{ fontSize: 28, fontWeight: 'bold', color: colors.primary }}>{stats.averageCycleLength}</Text>
+                    <Text style={{ fontSize: 12, color: colors.textSecondary }}>Avg cycle days</Text>
                   </View>
                   <View
                     style={{
                       flex: 1,
-                      backgroundColor: 'white',
+                      backgroundColor: colors.card,
                       padding: 16,
                       borderRadius: 16,
                       alignItems: 'center',
@@ -681,7 +693,7 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
                     <Text style={{ fontSize: 28, fontWeight: 'bold', color: getRegularityInfo(stats.cycleRegularity).color }}>
                       {stats.cycleRegularity < 5 ? '✓' : '~'}
                     </Text>
-                    <Text style={{ fontSize: 12, color: '#6B7280' }}>
+                    <Text style={{ fontSize: 12, color: colors.textSecondary }}>
                       {getRegularityInfo(stats.cycleRegularity).label}
                     </Text>
                   </View>
@@ -692,7 +704,7 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
             {/* Period Reminders */}
             <View
               style={{
-                backgroundColor: 'white',
+                backgroundColor: colors.card,
                 borderRadius: 16,
                 padding: 18,
                 marginBottom: 16,
@@ -707,21 +719,21 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Text style={{ fontSize: 20, marginRight: 10 }}>🔔</Text>
                   <View>
-                    <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937' }}>Period Reminders</Text>
-                    <Text style={{ fontSize: 12, color: '#6B7280' }}>Get notified before your period</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>Period Reminders</Text>
+                    <Text style={{ fontSize: 12, color: colors.textSecondary }}>Get notified before your period</Text>
                   </View>
                 </View>
                 <Switch
                   value={reminderSettings.enabled}
                   onValueChange={toggleReminders}
-                  trackColor={{ false: '#E5E7EB', true: '#FBCFE8' }}
-                  thumbColor={reminderSettings.enabled ? '#EC4899' : '#9CA3AF'}
+                  trackColor={{ false: colors.border, true: colors.periodLight }}
+                  thumbColor={reminderSettings.enabled ? colors.primary : colors.textMuted}
                 />
               </View>
 
               {reminderSettings.enabled && (
                 <>
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: '#6B7280', marginBottom: 10 }}>
+                  <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textSecondary, marginBottom: 10 }}>
                     Remind me before:
                   </Text>
                   <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
@@ -732,7 +744,7 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
                           flex: 1,
                           paddingVertical: 12,
                           borderRadius: 12,
-                          backgroundColor: reminderSettings.daysBeforePeriod.includes(day) ? '#EC4899' : '#F3F4F6',
+                          backgroundColor: reminderSettings.daysBeforePeriod.includes(day) ? colors.primary : colors.borderLight,
                           alignItems: 'center',
                         }}
                         onPress={() => toggleReminderDay(day)}
@@ -741,7 +753,7 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
                           style={{
                             fontSize: 14,
                             fontWeight: '600',
-                            color: reminderSettings.daysBeforePeriod.includes(day) ? 'white' : '#6B7280',
+                            color: reminderSettings.daysBeforePeriod.includes(day) ? 'white' : colors.textSecondary,
                           }}
                         >
                           {day} {day === 1 ? 'day' : 'days'}
@@ -752,7 +764,7 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
 
                   <TouchableOpacity
                     style={{
-                      backgroundColor: '#FDF2F8',
+                      backgroundColor: colors.periodLight,
                       padding: 12,
                       borderRadius: 12,
                       alignItems: 'center',
@@ -762,7 +774,7 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
                     onPress={sendTestReminder}
                   >
                     <Text style={{ fontSize: 14, marginRight: 6 }}>🧪</Text>
-                    <Text style={{ fontSize: 14, color: '#BE185D', fontWeight: '500' }}>Send Test Notification</Text>
+                    <Text style={{ fontSize: 14, color: colors.periodDark, fontWeight: '500' }}>Send Test Notification</Text>
                   </TouchableOpacity>
                 </>
               )}
@@ -781,19 +793,19 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
             {/* PCOS Tip */}
             <View
               style={{
-                backgroundColor: '#FDF2F8',
+                backgroundColor: colors.periodLight,
                 borderRadius: 16,
                 padding: 18,
                 borderLeftWidth: 4,
-                borderLeftColor: '#EC4899',
+                borderLeftColor: colors.period,
                 marginBottom: 20,
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                 <Text style={{ fontSize: 16, marginRight: 8 }}>💡</Text>
-                <Text style={{ fontSize: 15, fontWeight: '600', color: '#9D174D' }}>PCOS Tip</Text>
+                <Text style={{ fontSize: 15, fontWeight: '600', color: colors.periodDark }}>PCOS Tip</Text>
               </View>
-              <Text style={{ fontSize: 13, color: '#BE185D', lineHeight: 20 }}>
+              <Text style={{ fontSize: 13, color: colors.periodDark, lineHeight: 20 }}>
                 Tracking flow intensity helps identify patterns. Heavy or irregular bleeding is common with PCOS - share this data with your healthcare provider.
               </Text>
             </View>
@@ -809,6 +821,7 @@ export const PeriodTrackingScreen: React.FC<PeriodTrackingScreenProps> = ({
         onSelect={handleSelectFlow}
         onRemove={handleRemoveDay}
         onClose={() => setShowFlowModal(false)}
+        colors={colors}
       />
 
       {/* Saving Indicator */}

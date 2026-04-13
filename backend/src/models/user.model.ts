@@ -156,6 +156,95 @@ export class UserModel {
   }
 
   /**
+   * Set email verification code for signup
+   */
+  static async setVerificationCode(email: string, code: string, expires: Date): Promise<void> {
+    const collection = this.getCollection();
+    
+    // Check if user already exists
+    const existingUser = await collection.findOne({ email: email.toLowerCase() });
+    
+    if (existingUser) {
+      // User exists, just update the verification code
+      await collection.updateOne(
+        { email: email.toLowerCase() },
+        { 
+          $set: { 
+            emailVerificationCode: code,
+            emailVerificationExpires: expires,
+            updatedAt: new Date()
+          }
+        }
+      );
+    } else {
+      // Create a temporary user document with just email and verification code
+      // This will be completed when they verify
+      await collection.insertOne({
+        email: email.toLowerCase(),
+        password: '', // Empty password - will be set during verification
+        emailVerificationCode: code,
+        emailVerificationExpires: expires,
+        isEmailVerified: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as IUser);
+    }
+  }
+
+  /**
+   * Verify email with code and mark as verified
+   */
+  static async verifyEmailWithCode(email: string, code: string): Promise<IUser | null> {
+    const collection = this.getCollection();
+    
+    console.log('[UserModel] Verifying email:', email);
+    console.log('[UserModel] Looking for code:', code);
+    
+    const user = await collection.findOne({
+      email: email.toLowerCase(),
+      emailVerificationCode: code,
+      emailVerificationExpires: { $gt: new Date() }
+    });
+
+    console.log('[UserModel] User found:', user ? 'YES' : 'NO');
+    if (user) {
+      console.log('[UserModel] User email:', user.email);
+      console.log('[UserModel] Stored code:', user.emailVerificationCode);
+      console.log('[UserModel] Code expires:', user.emailVerificationExpires);
+      console.log('[UserModel] Current time:', new Date());
+    }
+
+    if (!user) {
+      // Check if user exists without code match
+      const userWithoutCode = await collection.findOne({ email: email.toLowerCase() });
+      if (userWithoutCode) {
+        console.log('[UserModel] User exists but code mismatch');
+        console.log('[UserModel] Stored code:', userWithoutCode.emailVerificationCode);
+        console.log('[UserModel] Provided code:', code);
+        console.log('[UserModel] Expires:', userWithoutCode.emailVerificationExpires);
+      } else {
+        console.log('[UserModel] No user found with this email');
+      }
+      return null;
+    }
+
+    // Mark email as verified and clear verification code
+    const result = await collection.findOneAndUpdate(
+      { _id: user._id },
+      { 
+        $set: { 
+          isEmailVerified: true,
+          updatedAt: new Date()
+        },
+        $unset: { emailVerificationCode: '', emailVerificationExpires: '' }
+      },
+      { returnDocument: 'after' }
+    );
+
+    return result || null;
+  }
+
+  /**
    * Find a user by email
    */
   static async findByEmail(email: string): Promise<IUser | null> {
